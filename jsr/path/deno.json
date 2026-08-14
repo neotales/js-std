@@ -73,6 +73,6 @@
   },
   "publish": {
     "include": ["LICENSE.md", "README.md", "deno.json", "**/*.ts"],
-    "exclude": ["**/*.test.ts", "**/*_test.ts"]
+    "exclude": ["**/*.test.ts"]
   }
 }

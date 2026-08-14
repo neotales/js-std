@@ -25,10 +25,10 @@
 /types/is_absolute.test.d.ts
 /esm/is_glob.test.js
 /types/is_glob.test.d.ts
+/esm/join.test.js
+/types/join.test.d.ts
 /esm/join_globs.test.js
 /types/join_globs.test.d.ts
-/esm/join_test.js
-/types/join_test.d.ts
 /esm/match.test.js
 /types/match.test.d.ts
 /esm/mod.test.js

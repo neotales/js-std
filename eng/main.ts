@@ -486,6 +486,21 @@ async function buildModule(name: string): Promise<void> {
             if (!(error instanceof Deno.errors.NotFound)) throw error;
           }
         }
+
+        function clean(directory: string): void {
+          for (const entry of Deno.readDirSync(directory)) {
+            const entryPath = join(directory, entry.name);
+            if (entry.isDirectory) {
+              clean(entryPath);
+            } else if (entry.isFile && entry.name.endsWith(".js")) {
+              const content = Deno.readTextFileSync(entryPath);
+              const cleaned = content.replace(/[\t ]+$/gm, "");
+              if (cleaned !== content) Deno.writeTextFileSync(entryPath, cleaned);
+            }
+          }
+        }
+
+        clean(outDir);
       },
     });
   } catch (error) {
