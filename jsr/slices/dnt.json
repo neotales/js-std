@@ -1,5 +1,5 @@
 {
-  "description": "Cross runtime module for slices and char slices which creates views over arrays without allocating  a new array.  Char slices is useful for transforming text without allocating a new string for every change.",
+  "description": "Slices creates views over arrays without allocating a new copy of an array.  Char slices is useful for transforming text without allocating a new string for every change.",
   "keywords": ["slices", "arrays", "char-arrays", "characters", "case-insensitive", "string"],
   "dependencies": {
     "@neotales/chars": "*"
