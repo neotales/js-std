@@ -1,0 +1,28 @@
+{
+  "name": "@neotales/strings",
+  "version": "0.0.0-alpha.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./mod.ts",
+    "./camelize": "./camelize.ts",
+    "./capitalize": "./capitalize.ts",
+    "./dasherize": "./dasherize.ts",
+    "./ends-with": "./ends_with.ts",
+    "./equal": "./equal.ts",
+    "./index-of": "./index_of.ts",
+    "./inflect": "./inflect.ts",
+    "./is-null": "./is_null.ts",
+    "./is-empty": "./is_empty.ts",
+    "./is-space": "./is_space.ts",
+    "./is-undefined": "./is_undefined.ts",
+    "./last-index-of": "./last_index_of.ts",
+    "./pascalize": "./pascalize.ts",
+    "./split": "./split.ts",
+    "./starts-with": "./starts_with.ts",
+    "./string-builder": "./string_builder.ts",
+    "./titleize": "./titleize.ts",
+    "./to-char-array": "./to_char_array.ts",
+    "./trim": "./trim.ts",
+    "./underscore": "./underscore.ts"
+  }
+}

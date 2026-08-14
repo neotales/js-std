@@ -34,6 +34,19 @@ importers:
         specifier: ^22.17.0
         version: 22.20.1
 
+  npm/strings:
+    dependencies:
+      '@neotales/chars':
+        specifier: workspace:*
+        version: link:../chars
+      '@neotales/slices':
+        specifier: workspace:*
+        version: link:../slices
+    devDependencies:
+      '@types/node':
+        specifier: ^22.17.0
+        version: 22.20.1
+
 packages:
 
   '@oxfmt/binding-android-arm-eabi@0.35.0':

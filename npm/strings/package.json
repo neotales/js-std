@@ -1,0 +1,172 @@
+{
+  "name": "@neotales/strings",
+  "version": "0.0.0-alpha.0",
+  "description": "A collection of string utilities to avoid extra allocations and enable case insensitivity comparisons.",
+  "keywords": [
+    "strings",
+    "string",
+    "utils",
+    "utility",
+    "case-insensitive",
+    "utf8",
+    "comparison",
+    "string-comparison",
+    "string-builder"
+  ],
+  "homepage": "https://github.com/neotales/js-std",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neotales/js-std.git",
+    "directory": "npm/strings"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neotales/js-std/issues"
+  },
+  "module": "./esm/strings/mod.js",
+  "types": "./types/strings/mod.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/strings/mod.d.ts",
+        "default": "./esm/strings/mod.js"
+      }
+    },
+    "./camelize": {
+      "import": {
+        "types": "./types/strings/camelize.d.ts",
+        "default": "./esm/strings/camelize.js"
+      }
+    },
+    "./capitalize": {
+      "import": {
+        "types": "./types/strings/capitalize.d.ts",
+        "default": "./esm/strings/capitalize.js"
+      }
+    },
+    "./dasherize": {
+      "import": {
+        "types": "./types/strings/dasherize.d.ts",
+        "default": "./esm/strings/dasherize.js"
+      }
+    },
+    "./ends-with": {
+      "import": {
+        "types": "./types/strings/ends_with.d.ts",
+        "default": "./esm/strings/ends_with.js"
+      }
+    },
+    "./equal": {
+      "import": {
+        "types": "./types/strings/equal.d.ts",
+        "default": "./esm/strings/equal.js"
+      }
+    },
+    "./index-of": {
+      "import": {
+        "types": "./types/strings/index_of.d.ts",
+        "default": "./esm/strings/index_of.js"
+      }
+    },
+    "./inflect": {
+      "import": {
+        "types": "./types/strings/inflect.d.ts",
+        "default": "./esm/strings/inflect.js"
+      }
+    },
+    "./is-null": {
+      "import": {
+        "types": "./types/strings/is_null.d.ts",
+        "default": "./esm/strings/is_null.js"
+      }
+    },
+    "./is-empty": {
+      "import": {
+        "types": "./types/strings/is_empty.d.ts",
+        "default": "./esm/strings/is_empty.js"
+      }
+    },
+    "./is-space": {
+      "import": {
+        "types": "./types/strings/is_space.d.ts",
+        "default": "./esm/strings/is_space.js"
+      }
+    },
+    "./is-undefined": {
+      "import": {
+        "types": "./types/strings/is_undefined.d.ts",
+        "default": "./esm/strings/is_undefined.js"
+      }
+    },
+    "./last-index-of": {
+      "import": {
+        "types": "./types/strings/last_index_of.d.ts",
+        "default": "./esm/strings/last_index_of.js"
+      }
+    },
+    "./pascalize": {
+      "import": {
+        "types": "./types/strings/pascalize.d.ts",
+        "default": "./esm/strings/pascalize.js"
+      }
+    },
+    "./split": {
+      "import": {
+        "types": "./types/strings/split.d.ts",
+        "default": "./esm/strings/split.js"
+      }
+    },
+    "./starts-with": {
+      "import": {
+        "types": "./types/strings/starts_with.d.ts",
+        "default": "./esm/strings/starts_with.js"
+      }
+    },
+    "./string-builder": {
+      "import": {
+        "types": "./types/strings/string_builder.d.ts",
+        "default": "./esm/strings/string_builder.js"
+      }
+    },
+    "./titleize": {
+      "import": {
+        "types": "./types/strings/titleize.d.ts",
+        "default": "./esm/strings/titleize.js"
+      }
+    },
+    "./to-char-array": {
+      "import": {
+        "types": "./types/strings/to_char_array.d.ts",
+        "default": "./esm/strings/to_char_array.js"
+      }
+    },
+    "./trim": {
+      "import": {
+        "types": "./types/strings/trim.d.ts",
+        "default": "./esm/strings/trim.js"
+      }
+    },
+    "./underscore": {
+      "import": {
+        "types": "./types/strings/underscore.d.ts",
+        "default": "./esm/strings/underscore.js"
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:bun": "bun test"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neotales/slices": "workspace:*",
+    "@neotales/chars": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0"
+  },
+  "_generatedBy": "dnt@0.43.2"
+}
