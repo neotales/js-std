@@ -8,7 +8,7 @@ import { join as posixUnstableJoin } from "./posix/join.js";
 import { join as windowsUnstableJoin } from "./windows/join.js";
 import { cwd } from "./_globals.js";
 const backslashRE = /\\/g;
-const joinTests = 
+const joinTests =
 // arguments                     result
 [
     [[".", "x/b", "..", "/b/c.js"], "x/b/c.js"],

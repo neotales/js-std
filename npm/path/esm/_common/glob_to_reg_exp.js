@@ -17,7 +17,7 @@ const REG_EXP_ESCAPE_CHARS = [
     "|",
 ];
 const RANGE_ESCAPE_CHARS = ["-", "\\", "]"];
-export function globToRegExpInternal(c, glob, { extended = true, globstar: globstarOption = true, 
+export function globToRegExpInternal(c, glob, { extended = true, globstar: globstarOption = true,
 // os = osType,
 caseInsensitive = false, } = {}) {
     if (glob === "") {

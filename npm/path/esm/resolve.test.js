@@ -7,7 +7,7 @@ import * as posix from "./posix/mod.js";
 import * as windows from "./windows/mod.js";
 import { resolve } from "./resolve.js";
 import { cwd } from "./_globals.js";
-const windowsTests = 
+const windowsTests =
 // arguments                               result
 [
     [["c:/blah\\blah", "d:/games", "c:../a"], "c:\\blah\\a"],
@@ -22,7 +22,7 @@ const windowsTests =
     [["c:/", "///some//dir"], "c:\\some\\dir"],
     [["C:\\foo\\tmp.3\\", "..\\tmp.3\\cycles\\root.js"], "C:\\foo\\tmp.3\\cycles\\root.js"],
 ];
-const posixTests = 
+const posixTests =
 // arguments                    result
 [
     [["/var/lib", "../", "file/"], "/var/file"],
