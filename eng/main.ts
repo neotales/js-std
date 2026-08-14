@@ -32,6 +32,12 @@ type DntConfig = {
   optionalDependencies?: Record<string, string>;
 };
 
+type NpmMapping = {
+  name: string;
+  version: string;
+  subPath?: string;
+};
+
 type WorkspaceConfig = {
   workspace?: string[];
 };
@@ -432,6 +438,7 @@ async function buildModule(name: string): Promise<void> {
     path,
   }));
   const packageName = config.name;
+  const mappings = await workspaceMappings(source, dnt);
 
   await emptyDir(outDir);
   const originalCwd = Deno.cwd();
@@ -445,6 +452,7 @@ async function buildModule(name: string): Promise<void> {
       scriptModule: false,
       skipSourceOutput: true,
       packageManager: "pnpm",
+      mappings,
 
       test: true,
       shims: { deno: false },
@@ -515,6 +523,45 @@ function workspaceDependencies(
       name.startsWith("@neotales/") ? "workspace:*" : version,
     ]),
   );
+}
+
+async function workspaceMappings(
+  source: string,
+  dnt: DntConfig,
+): Promise<Record<string, NpmMapping>> {
+  const dependencies = Object.keys(dnt.dependencies ?? {}).filter((name) =>
+    name.startsWith("@neotales/"),
+  );
+  const mappings: Record<string, NpmMapping> = {};
+
+  async function collect(path: string): Promise<void> {
+    for await (const entry of Deno.readDir(path)) {
+      const entryPath = join(path, entry.name);
+      if (entry.isDirectory) {
+        await collect(entryPath);
+      } else if (entry.isFile && entry.name.endsWith(".ts")) {
+        const content = await Deno.readTextFile(entryPath);
+        for (const match of content.matchAll(
+          /(?:from\s*|import\s*(?:\(\s*)?)["'](@neotales\/[^"']+)["']/g,
+        )) {
+          const specifier = match[1];
+          const dependency = dependencies.find(
+            (name) => specifier === name || specifier.startsWith(`${name}/`),
+          );
+          if (!dependency) continue;
+          const subPath = specifier.slice(dependency.length + 1);
+          mappings[specifier] = {
+            name: dependency,
+            version: "workspace:*",
+            ...(subPath ? { subPath } : {}),
+          };
+        }
+      }
+    }
+  }
+
+  await collect(source);
+  return mappings;
 }
 
 async function importedModules(): Promise<string[]> {

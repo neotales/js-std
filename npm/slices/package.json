@@ -20,121 +20,121 @@
   "bugs": {
     "url": "https://github.com/neotales/js-std/issues"
   },
-  "module": "./esm/slices/mod.js",
-  "types": "./types/slices/mod.d.ts",
+  "module": "./esm/mod.js",
+  "types": "./types/mod.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./types/slices/mod.d.ts",
-        "default": "./esm/slices/mod.js"
+        "types": "./types/mod.d.ts",
+        "default": "./esm/mod.js"
       }
     },
     "./camelize": {
       "import": {
-        "types": "./types/slices/camelize.d.ts",
-        "default": "./esm/slices/camelize.js"
+        "types": "./types/camelize.d.ts",
+        "default": "./esm/camelize.js"
       }
     },
     "./capitalize": {
       "import": {
-        "types": "./types/slices/capitalize.d.ts",
-        "default": "./esm/slices/capitalize.js"
+        "types": "./types/capitalize.d.ts",
+        "default": "./esm/capitalize.js"
       }
     },
     "./char-array-builder": {
       "import": {
-        "types": "./types/slices/char_array_builder.d.ts",
-        "default": "./esm/slices/char_array_builder.js"
+        "types": "./types/char_array_builder.d.ts",
+        "default": "./esm/char_array_builder.js"
       }
     },
     "./char-slice": {
       "import": {
-        "types": "./types/slices/char_slice.d.ts",
-        "default": "./esm/slices/char_slice.js"
+        "types": "./types/char_slice.d.ts",
+        "default": "./esm/char_slice.js"
       }
     },
     "./dasherize": {
       "import": {
-        "types": "./types/slices/dasherize.d.ts",
-        "default": "./esm/slices/dasherize.js"
+        "types": "./types/dasherize.d.ts",
+        "default": "./esm/dasherize.js"
       }
     },
     "./ends-with": {
       "import": {
-        "types": "./types/slices/ends_with.d.ts",
-        "default": "./esm/slices/ends_with.js"
+        "types": "./types/ends_with.d.ts",
+        "default": "./esm/ends_with.js"
       }
     },
     "./equal": {
       "import": {
-        "types": "./types/slices/equal.d.ts",
-        "default": "./esm/slices/equal.js"
+        "types": "./types/equal.d.ts",
+        "default": "./esm/equal.js"
       }
     },
     "./index-of": {
       "import": {
-        "types": "./types/slices/index_of.d.ts",
-        "default": "./esm/slices/index_of.js"
+        "types": "./types/index_of.d.ts",
+        "default": "./esm/index_of.js"
       }
     },
     "./last-index-of": {
       "import": {
-        "types": "./types/slices/last_index_of.d.ts",
-        "default": "./esm/slices/last_index_of.js"
+        "types": "./types/last_index_of.d.ts",
+        "default": "./esm/last_index_of.js"
       }
     },
     "./ordinalize": {
       "import": {
-        "types": "./types/slices/ordinalize.d.ts",
-        "default": "./esm/slices/ordinalize.js"
+        "types": "./types/ordinalize.d.ts",
+        "default": "./esm/ordinalize.js"
       }
     },
     "./pascalize": {
       "import": {
-        "types": "./types/slices/pascalize.d.ts",
-        "default": "./esm/slices/pascalize.js"
+        "types": "./types/pascalize.d.ts",
+        "default": "./esm/pascalize.js"
       }
     },
     "./slice": {
       "import": {
-        "types": "./types/slices/slice.d.ts",
-        "default": "./esm/slices/slice.js"
+        "types": "./types/slice.d.ts",
+        "default": "./esm/slice.js"
       }
     },
     "./starts-with": {
       "import": {
-        "types": "./types/slices/starts_with.d.ts",
-        "default": "./esm/slices/starts_with.js"
+        "types": "./types/starts_with.d.ts",
+        "default": "./esm/starts_with.js"
       }
     },
     "./titleize": {
       "import": {
-        "types": "./types/slices/titleize.d.ts",
-        "default": "./esm/slices/titleize.js"
+        "types": "./types/titleize.d.ts",
+        "default": "./esm/titleize.js"
       }
     },
     "./tokens": {
       "import": {
-        "types": "./types/slices/tokens.d.ts",
-        "default": "./esm/slices/tokens.js"
+        "types": "./types/tokens.d.ts",
+        "default": "./esm/tokens.js"
       }
     },
     "./trim": {
       "import": {
-        "types": "./types/slices/trim.d.ts",
-        "default": "./esm/slices/trim.js"
+        "types": "./types/trim.d.ts",
+        "default": "./esm/trim.js"
       }
     },
     "./underscore": {
       "import": {
-        "types": "./types/slices/underscore.d.ts",
-        "default": "./esm/slices/underscore.js"
+        "types": "./types/underscore.d.ts",
+        "default": "./esm/underscore.js"
       }
     },
     "./utils": {
       "import": {
-        "types": "./types/slices/utils.d.ts",
-        "default": "./esm/slices/utils.js"
+        "types": "./types/utils.d.ts",
+        "default": "./esm/utils.js"
       }
     }
   },
