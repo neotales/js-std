@@ -46,7 +46,7 @@ jobs:
       - env:
           JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
         run: |
-          deno eval --allow-read --allow-run --allow-net '
+          deno eval '
             const release = JSON.parse(await Deno.readTextFile("artifacts/${{ github.ref_name }}/release.json"));
             for (const pkg of release.packages) {
               if ((await fetch(`https://jsr.io/${pkg.jsrName}/meta.json`)).ok) {
