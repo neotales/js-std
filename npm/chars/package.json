@@ -1,7 +1,7 @@
 {
   "name": "@neotales/chars",
   "version": "0.0.0-alpha.0",
-  "description": "A simple library for working with characters and Unicode in JavaScript.",
+  "description": "A library for working with characters and Unicode in JavaScript.",
   "keywords": [
     "chars",
     "characters",

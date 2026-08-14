@@ -12,7 +12,11 @@
     "lint": "deno run -A ./eng/main.ts lint",
     "fmt": "deno run -A ./eng/main.ts fmt",
     "fmt:check": "deno run -A ./eng/main.ts fmt --check",
+    "audit": "deno run -A ./eng/main.ts audit",
+    "check": "deno run -A ./eng/main.ts check",
     "pack": "deno run -A ./eng/main.ts pack",
+    "release:prepare": "deno run -A ./eng/main.ts release-prepare",
+    "publish:bootstrap": "deno run -A ./eng/main.ts publish-bootstrap",
     "publish:dry-run": "deno run -A ./eng/main.ts publish --dry-run",
     "publish": "deno run -A ./eng/main.ts publish"
   },

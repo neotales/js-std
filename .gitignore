@@ -4,3 +4,4 @@ npm/*/node_modules/
 npm/*/dist/
 .DS_Store
 test_runner.cjs
+artifacts/

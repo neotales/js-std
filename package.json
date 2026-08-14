@@ -13,7 +13,11 @@
     "lint": "deno task lint",
     "fmt": "deno task fmt",
     "fmt:check": "deno task fmt:check",
+    "audit": "deno task audit",
+    "check": "deno task check",
     "pack": "deno task pack",
+    "release:prepare": "deno task release:prepare",
+    "publish:bootstrap": "deno task publish:bootstrap",
     "publish:dry-run": "deno task publish:dry-run",
     "publish": "deno task publish"
   },

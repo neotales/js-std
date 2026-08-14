@@ -35,12 +35,40 @@ is imported or published.
 deno task lint
 deno task fmt:check
 deno task pack <module>
+deno task publish:bootstrap <module> --dry-run
 deno task publish:dry-run <module>
 deno task publish <module>
 ```
 
-Linting uses oxlint and formatting uses oxfmt. Publishing runs `deno publish`
-for JSR followed by `pnpm publish` for npm; use the dry run first.
+Linting uses oxlint and formatting uses oxfmt. `publish:bootstrap` is the
+one-time first npmjs.org publish: it verifies the package is not already on npm,
+builds only when `npm/<module>` is missing, checks lint and formatting, runs all
+module tests, creates a pnpm tarball, reports its sizes, then publishes that
+tarball. Later releases should publish through GitHub Actions with
+`publish`, which runs `deno publish` for JSR followed by `pnpm publish` for npm.
+The one-time npm publish reads the npm token from `NODE_AUTH_TOKEN`; when it is
+absent, the command prompts for it and fails on an empty response. Do not add
+the token to repository files.
+
+## Releases
+
+Release tags use `vYYYY.MM.DD-rN`, for example `v2026.08.12-r1`. `-nightly.rN`
+and `-beta.rN` are also accepted for future prereleases. A release tag runs the
+complete quality gate, finds modules whose `jsr/<module>/deno.json` version
+changed since the prior release tag, packages them as workflow artifacts, and
+creates GitHub release notes listing shipped packages plus Conventional Commit
+changes (`feat`, `fix`, `bug`, and related types). Existing npm and JSR packages
+are published with GitHub OIDC; packages not yet registered with a registry are
+reported and skipped.
+
+The release workflow requires a `JSR_TOKEN` repository secret to publish existing
+JSR packages. Configure npm trusted publishing for `release.yml` and the
+`release` environment so npm publishing uses GitHub OIDC without a token.
+
+The release workflow uses the GitHub `release` environment. In GitHub repository
+settings, create that environment and configure required reviewers to pause a
+tagged release before the job receives publishing permissions. Configure tag
+protection rules as a separate safeguard against unauthorized release tags.
 
 ## License
 

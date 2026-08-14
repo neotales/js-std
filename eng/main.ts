@@ -35,9 +35,27 @@ type WorkspaceConfig = {
   workspace?: string[];
 };
 
+type PackageJson = {
+  name: string;
+  version: string;
+};
+
+type PackResult = {
+  filename: string;
+  files?: Array<{ path: string }>;
+};
+
+type ReleasePackage = {
+  module: string;
+  npmName: string;
+  version: string;
+  jsrName: string;
+  tarball: string;
+};
+
 function usage(): never {
   console.error(
-    `Usage: deno task <task> <module>\n\nTasks:\n  import <module>  Import one upstream JSR module\n  modules          List importable upstream modules\n  normalize [module]  Reapply import transformations\n  build <module>   Build one module for npm with dnt\n  test [module] [--deno] [--node] [--bun]  Run selected tests\n  lint             Check source with oxlint\n  fmt [--check]    Format or check formatting with oxfmt\n  pack <module>    Create an npm tarball\n  publish <module> [--dry-run]  Publish one module to JSR and npm`,
+    `Usage: deno task <task> <module>\n\nTasks:\n  import <module>  Import one upstream JSR module\n  modules          List importable upstream modules\n  normalize [module]  Reapply import transformations\n  build <module>   Build one module for npm with dnt\n  test [module] [--deno] [--node] [--bun]  Run selected tests\n  lint             Check source with oxlint\n  fmt [--check]    Format or check formatting with oxfmt\n  audit            Fail on moderate-or-higher npm vulnerabilities\n  check            Run lint, formatting, audit, and all tests\n  pack <module>    Create an npm tarball\n  release-prepare <tag>  Build release artifacts for version-changed modules\n  publish-bootstrap <module> [--dry-run]  First npmjs.org publish\n  publish <module> [--dry-run]  Publish one module to JSR and npm`,
   );
   Deno.exit(1);
 }
@@ -46,6 +64,13 @@ function moduleName(args: string[]): string {
   const name = args.find((arg) => !arg.startsWith("-"));
   if (!name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) usage();
   return name;
+}
+
+function releaseTag(args: string[]): string {
+  const tag = args.find((arg) => !arg.startsWith("-"));
+  if (!tag) usage();
+  validateReleaseTag(tag);
+  return tag;
 }
 
 async function run(command: string, args: string[], cwd = root): Promise<void> {
@@ -57,6 +82,44 @@ async function run(command: string, args: string[], cwd = root): Promise<void> {
     stderr: "inherit",
   }).output();
   if (!output.success) Deno.exit(output.code);
+}
+
+async function capture(command: string, args: string[], cwd = root): Promise<Deno.CommandOutput> {
+  const output = await new Deno.Command(command, {
+    args,
+    cwd,
+    stderr: "piped",
+    stdout: "piped",
+  }).output();
+  return output;
+}
+
+function outputText(output: Deno.CommandOutput): string {
+  return `${new TextDecoder().decode(output.stdout)}${new TextDecoder().decode(output.stderr)}`;
+}
+
+async function git(args: string[]): Promise<string> {
+  const output = await capture("git", args);
+  if (!output.success) throw new Error(outputText(output).trim());
+  return new TextDecoder().decode(output.stdout).trim();
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  return `${(bytes / 1024).toFixed(1)} KiB`;
+}
+
+function validateReleaseTag(tag: string): void {
+  if (!/^v\d{4}\.\d{2}\.\d{2}-(?:r[1-9]\d*|nightly\.r[1-9]\d*|beta\.r[1-9]\d*)$/.test(tag)) {
+    throw new Error(`Invalid release tag: ${tag}`);
+  }
+}
+
+function requireNpmToken(): void {
+  if (Deno.env.get("NODE_AUTH_TOKEN")) return;
+  const token = prompt("NODE_AUTH_TOKEN (npm access token):")?.trim();
+  if (!token) throw new Error("NODE_AUTH_TOKEN is required to publish to npmjs.org.");
+  Deno.env.set("NODE_AUTH_TOKEN", token);
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -143,12 +206,10 @@ function nodeAssertions(content: string): string {
   let result = content;
   const names = new Set<string>();
   if (imported) {
-    for (
-      const name of imported[1]
-        .split(",")
-        .map((assertionName) => assertionName.trim())
-        .filter(Boolean)
-    ) {
+    for (const name of imported[1]
+      .split(",")
+      .map((assertionName) => assertionName.trim())
+      .filter(Boolean)) {
       names.add(name);
     }
     result = result.replace(imported[0], "");
@@ -186,11 +247,9 @@ function nodeAssertions(content: string): string {
       `import { ${[...new Set(assertionImports)].join(", ")} } from "node:assert/strict";\n`,
     );
     if (!result.includes('from "node:assert/strict"')) {
-      result = `import { ${
-        [...new Set(assertionImports)].join(
-          ", ",
-        )
-      } } from "node:assert/strict";\n${result}`;
+      result = `import { ${[...new Set(assertionImports)].join(
+        ", ",
+      )} } from "node:assert/strict";\n${result}`;
     }
   }
   const declarations = [...names].filter((name) => wrappers[name]).map((name) => wrappers[name]);
@@ -218,8 +277,7 @@ function nativeGlobals(content: string): string {
           'const NODELIKE = (typeof process !== "undefined" && !!process.versions?.node) || typeof Bun !== "undefined";',
         RUNTIME:
           'const RUNTIME = typeof Deno !== "undefined" ? "deno" : typeof Bun !== "undefined" ? "bun" : typeof process !== "undefined" && process.versions?.node ? "node" : typeof window !== "undefined" ? "browser" : "unknown";',
-        EOL:
-          'const EOL = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (typeof Deno !== "undefined" && Deno.build.os === "windows") ? "\\r\\n" : "\\n";',
+        EOL: 'const EOL = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (typeof Deno !== "undefined" && Deno.build.os === "windows") ? "\\r\\n" : "\\n";',
         getGlobal:
           'const getGlobal = (path: string): unknown => path.split(".").reduce<unknown>((value, key) => value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined, globalThis);',
       };
@@ -453,9 +511,218 @@ async function testModules(names: string[], runtimes: Set<string>): Promise<void
   }
 }
 
+async function audit(): Promise<void> {
+  const output = await capture("pnpm", ["audit", "--audit-level", "moderate", "--json"]);
+  if (!output.success) {
+    throw new Error(`Dependency audit failed:\n${outputText(output).trim()}`);
+  }
+}
+
+async function check(): Promise<void> {
+  await run(oxlint, ["jsr", "eng"]);
+  await run(oxfmt, [
+    "--check",
+    "--ignore-path",
+    ".prettierignore",
+    "eng",
+    "jsr",
+    "README.md",
+    "LICENSE.md",
+    "deno.json",
+    "package.json",
+    "pnpm-workspace.yaml",
+    ".oxlintrc.json",
+    ".oxfmtrc.json",
+  ]);
+  await audit();
+  await testModules([], new Set());
+}
+
+async function releasePackages(baseTag: string): Promise<ReleasePackage[]> {
+  const modules = await importedModules();
+  const changed: ReleasePackage[] = [];
+  for (const module of modules) {
+    const configPath = join(jsrDir, module, "deno.json");
+    const current = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
+    const previous = await capture("git", ["show", `${baseTag}:${relative(root, configPath)}`]);
+    if (!previous.success) {
+      changed.push({
+        module,
+        npmName: current.name,
+        version: current.version,
+        jsrName: current.name,
+        tarball: "",
+      });
+      continue;
+    }
+    const old = JSON.parse(new TextDecoder().decode(previous.stdout)) as DenoConfig;
+    if (old.version !== current.version) {
+      changed.push({
+        module,
+        npmName: current.name,
+        version: current.version,
+        jsrName: current.name,
+        tarball: "",
+      });
+    }
+  }
+  return changed;
+}
+
+async function previousReleaseTag(currentTag: string): Promise<string> {
+  const tags = (await git(["tag", "--merged", "HEAD", "--sort=-creatordate"]))
+    .split("\n")
+    .filter((tag) => tag && tag !== currentTag);
+  if (!tags.length) {
+    throw new Error("No prior tag found; create a release tag after a package version change.");
+  }
+  return tags[0];
+}
+
+async function releaseCommitNotes(baseTag: string): Promise<string[]> {
+  const commits = await git(["log", "--format=%s", `${baseTag}..HEAD`]);
+  return commits
+    .split("\n")
+    .filter((subject) =>
+      /^(?:feat|fix|bug|perf|refactor|docs|chore)(?:\([^)]+\))?!?:/.test(subject),
+    )
+    .map((subject) => `- ${subject}`);
+}
+
+async function releasePrepare(tag: string): Promise<void> {
+  validateReleaseTag(tag);
+  const baseTag = await previousReleaseTag(tag);
+  await check();
+  const packages = await releasePackages(baseTag);
+  if (!packages.length) throw new Error(`No package versions changed since ${baseTag}.`);
+
+  const artifacts = join(root, "artifacts", tag);
+  await emptyDir(artifacts);
+  for (const pkg of packages) {
+    await buildModule(pkg.module);
+    const packageDir = join(npmDir, pkg.module);
+    const pack = await capture(
+      "pnpm",
+      ["pack", "--pack-destination", artifacts, "--json"],
+      packageDir,
+    );
+    if (!pack.success) throw new Error(outputText(pack).trim());
+    const packed = JSON.parse(new TextDecoder().decode(pack.stdout)) as PackResult | PackResult[];
+    const result = Array.isArray(packed) ? packed[0] : packed;
+    pkg.tarball = result.filename;
+  }
+
+  const commits = await releaseCommitNotes(baseTag);
+  const notes = [
+    `# ${tag}`,
+    "",
+    "## Packages",
+    ...packages.map((pkg) => `- ${pkg.npmName}@${pkg.version}`),
+    "",
+    "## Changes",
+    ...(commits.length ? commits : ["- No Conventional Commit messages found."]),
+    "",
+  ].join("\n");
+  await Deno.writeTextFile(join(artifacts, "CHANGELOG.md"), notes);
+  await Deno.writeTextFile(
+    join(artifacts, "release.json"),
+    JSON.stringify({ tag, baseTag, packages }, null, 2) + "\n",
+  );
+  console.log(
+    `Prepared ${packages.length} package release artifact(s) in ${relative(root, artifacts)}.`,
+  );
+}
+
 async function publishModule(name: string, dryRun: boolean): Promise<void> {
   await run("deno", ["publish", ...(dryRun ? ["--dry-run"] : [])], join(jsrDir, name));
   await run("pnpm", ["publish", ...(dryRun ? ["--dry-run"] : [])], join(npmDir, name));
+}
+
+async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<void> {
+  requireNpmToken();
+  await run(oxlint, ["jsr", "eng"]);
+  await run(oxfmt, [
+    "--check",
+    "--ignore-path",
+    ".prettierignore",
+    "eng",
+    "jsr",
+    "README.md",
+    "LICENSE.md",
+    "deno.json",
+    "package.json",
+    "pnpm-workspace.yaml",
+    ".oxlintrc.json",
+    ".oxfmtrc.json",
+  ]);
+  const packageDir = join(npmDir, name);
+  const packagePath = join(packageDir, "package.json");
+  if (!(await exists(packagePath))) await buildModule(name);
+
+  const pkg = JSON.parse(await Deno.readTextFile(packagePath)) as PackageJson;
+  const packageLookup = await capture("pnpm", [
+    "view",
+    pkg.name,
+    "version",
+    "--json",
+    "--registry",
+    "https://registry.npmjs.org",
+  ]);
+  if (packageLookup.success) {
+    throw new Error(
+      `${pkg.name} already exists on npmjs.org; publish later versions through GitHub Actions.`,
+    );
+  }
+  const lookupOutput = `${new TextDecoder().decode(packageLookup.stdout)}${new TextDecoder().decode(
+    packageLookup.stderr,
+  )}`;
+  if (!lookupOutput.includes("E404") && !lookupOutput.includes("404")) {
+    throw new Error(
+      `Unable to verify whether ${pkg.name} exists on npmjs.org: ${lookupOutput.trim()}`,
+    );
+  }
+
+  await testModules([name], new Set());
+
+  for await (const entry of Deno.readDir(packageDir)) {
+    if (entry.isFile && entry.name.endsWith(".tgz")) {
+      await Deno.remove(join(packageDir, entry.name));
+    }
+  }
+
+  const pack = await capture("pnpm", ["pack", "--json"], packageDir);
+  if (!pack.success) throw new Error(new TextDecoder().decode(pack.stderr));
+  const packed = JSON.parse(new TextDecoder().decode(pack.stdout)) as PackResult | PackResult[];
+  const result = Array.isArray(packed) ? packed[0] : packed;
+  const tarball = join(packageDir, result.filename);
+  const size = (await Deno.stat(tarball)).size;
+  let unpackedSize = 0;
+  for (const file of result.files ?? []) {
+    if (file.path !== result.filename) {
+      unpackedSize += (await Deno.stat(join(packageDir, file.path))).size;
+    }
+  }
+  console.log(`Prepared ${pkg.name}@${pkg.version}`);
+  console.log(
+    `Tarball: ${relative(root, tarball)} (${formatBytes(size)} compressed, ${formatBytes(
+      unpackedSize,
+    )} unpacked)`,
+  );
+
+  await run(
+    "pnpm",
+    [
+      "publish",
+      result.filename,
+      "--access",
+      "public",
+      "--registry",
+      "https://registry.npmjs.org",
+      ...(dryRun ? ["--dry-run"] : []),
+      ...(dryRun ? ["--no-git-checks"] : []),
+    ],
+    packageDir,
+  );
 }
 
 const [command, ...args] = Deno.args;
@@ -506,8 +773,20 @@ switch (command) {
       ".oxfmtrc.json",
     ]);
     break;
+  case "audit":
+    await audit();
+    break;
+  case "check":
+    await check();
+    break;
   case "pack":
     await run("pnpm", ["pack"], join(npmDir, moduleName(args)));
+    break;
+  case "release-prepare":
+    await releasePrepare(releaseTag(args));
+    break;
+  case "publish-bootstrap":
+    await bootstrapPublishModule(moduleName(args), args.includes("--dry-run"));
     break;
   case "publish":
     await publishModule(moduleName(args), args.includes("--dry-run"));

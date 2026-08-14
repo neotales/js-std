@@ -1,5 +1,5 @@
 {
-  "description": "A simple library for working with characters and Unicode in JavaScript.",
+  "description": "A library for working with characters and Unicode in JavaScript.",
   "keywords": ["chars", "characters", "simplefold", "unicode", "runes"],
   "devDependencies": {
     "@types/node": "^22.17.0"
