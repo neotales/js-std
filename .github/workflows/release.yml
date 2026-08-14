@@ -54,7 +54,7 @@ jobs:
                 if (!output.success) Deno.exit(output.code);
               } else console.log(`Skipping JSR publish for ${pkg.jsrName}; package does not exist.`);
               if ((await fetch(`https://registry.npmjs.org/${pkg.npmName}`)).ok) {
-                const output = await new Deno.Command("pnpm", { args: ["publish", `../../artifacts/${{ github.ref_name }}/${pkg.tarball}`, "--access", "public", "--registry", "https://registry.npmjs.org"], cwd: `npm/${pkg.module}`, stdin: "inherit", stdout: "inherit", stderr: "inherit" }).output();
+                const output = await new Deno.Command("pnpm", { args: ["publish", `../../artifacts/${{ github.ref_name }}/${pkg.tarball}`, "--access", "public", "--registry", "https://registry.npmjs.org", "--no-git-checks"], cwd: `npm/${pkg.module}`, stdin: "inherit", stdout: "inherit", stderr: "inherit" }).output();
                 if (!output.success) Deno.exit(output.code);
               } else console.log(`Skipping npm publish for ${pkg.npmName}; package does not exist.`);
             }
