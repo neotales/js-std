@@ -73,37 +73,37 @@ export function endsWithFold(value: CharBuffer, test: CharBuffer): boolean {
         let j = i;
 
         for (; j > 0; j--) {
-          let sr = s.at(s.length - j) ?? -1;
-          let tr = t.at(t.length - j) ?? -1;
-          if (sr === -1 || tr === -1) {
+          let sourceRune = s.at(s.length - j) ?? -1;
+          let testRune = t.at(t.length - j) ?? -1;
+          if (sourceRune === -1 || testRune === -1) {
             return false;
           }
 
-          if (tr === sr) {
+          if (testRune === sourceRune) {
             continue;
           }
 
-          if (tr < sr) {
-            const tmp = tr;
-            tr = sr;
-            sr = tmp;
+          if (testRune < sourceRune) {
+            const tmp = testRune;
+            testRune = sourceRune;
+            sourceRune = tmp;
           }
 
-          // short circuit if tr is ASCII
-          if (tr < 0x80) {
-            if (65 <= sr && sr <= 90 && tr === sr + 32) {
+          // short circuit if testRune is ASCII
+          if (testRune < 0x80) {
+            if (65 <= sourceRune && sourceRune <= 90 && testRune === sourceRune + 32) {
               continue;
             }
 
             return false;
           }
 
-          let r = simpleFold(sr);
-          while (r !== sr && r < tr) {
+          let r = simpleFold(sourceRune);
+          while (r !== sourceRune && r < testRune) {
             r = simpleFold(r);
           }
 
-          if (r === tr) {
+          if (r === testRune) {
             continue;
           }
 

@@ -76,27 +76,27 @@ export function indexOfFold(value, test, index = 0) {
             {
                 let j = i;
                 for (; j < s.length; j++) {
-                    let sr = s.at(j) ?? -1;
-                    let tr = t.at(f) ?? -1;
-                    if (sr === -1 || tr === -1) {
+                    let sourceRune = s.at(j) ?? -1;
+                    let testRune = t.at(f) ?? -1;
+                    if (sourceRune === -1 || testRune === -1) {
                         f = 0;
                         continue;
                     }
-                    if (tr === sr) {
+                    if (testRune === sourceRune) {
                         f++;
                         if (f === t.length) {
                             return j - t.length + 1;
                         }
                         continue;
                     }
-                    if (tr < sr) {
-                        const tmp = tr;
-                        tr = sr;
-                        sr = tmp;
+                    if (testRune < sourceRune) {
+                        const tmp = testRune;
+                        testRune = sourceRune;
+                        sourceRune = tmp;
                     }
-                    // short circuit if tr is ASCII
-                    if (tr < 0x80) {
-                        if (65 <= sr && sr <= 90 && tr === sr + 32) {
+                    // short circuit if testRune is ASCII
+                    if (testRune < 0x80) {
+                        if (65 <= sourceRune && sourceRune <= 90 && testRune === sourceRune + 32) {
                             f++;
                             if (f === t.length) {
                                 return j - t.length + 1;
@@ -106,11 +106,11 @@ export function indexOfFold(value, test, index = 0) {
                         f = 0;
                         continue;
                     }
-                    let r = simpleFold(sr);
-                    while (r != sr && r < tr) {
+                    let r = simpleFold(sourceRune);
+                    while (r != sourceRune && r < testRune) {
                         r = simpleFold(r);
                     }
-                    if (r == tr) {
+                    if (r == testRune) {
                         f++;
                         if (f === t.length) {
                             return j - t.length + 1;
