@@ -1,6 +1,6 @@
 import { build, emptyDir, type EntryPoint } from "@deno/dnt";
 import { copy } from "@std/fs";
-import { join, relative, resolve } from "@std/path";
+import { basename, join, relative, resolve } from "@std/path";
 
 const root = resolve(import.meta.dirname!, "..");
 const upstreamJsr = resolve(
@@ -560,12 +560,22 @@ async function check(): Promise<void> {
   await testModules([], new Set());
 }
 
-async function releasePackages(baseTag: string): Promise<ReleasePackage[]> {
+async function releasePackages(baseTag?: string): Promise<ReleasePackage[]> {
   const modules = await importedModules();
   const changed: ReleasePackage[] = [];
   for (const module of modules) {
     const configPath = join(jsrDir, module, "deno.json");
     const current = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
+    if (!baseTag) {
+      changed.push({
+        module,
+        npmName: current.name,
+        version: current.version,
+        jsrName: current.name,
+        tarball: "",
+      });
+      continue;
+    }
     const previous = await capture("git", ["show", `${baseTag}:${relative(root, configPath)}`]);
     if (!previous.success) {
       changed.push({
@@ -591,18 +601,15 @@ async function releasePackages(baseTag: string): Promise<ReleasePackage[]> {
   return changed;
 }
 
-async function previousReleaseTag(currentTag: string): Promise<string> {
+async function previousReleaseTag(currentTag: string): Promise<string | undefined> {
   const tags = (await git(["tag", "--merged", "HEAD", "--sort=-creatordate"]))
     .split("\n")
     .filter((tag) => tag && tag !== currentTag);
-  if (!tags.length) {
-    throw new Error("No prior tag found; create a release tag after a package version change.");
-  }
   return tags[0];
 }
 
-async function releaseCommitNotes(baseTag: string): Promise<string[]> {
-  const commits = await git(["log", "--format=%s", `${baseTag}..HEAD`]);
+async function releaseCommitNotes(baseTag?: string): Promise<string[]> {
+  const commits = await git(["log", "--format=%s", ...(baseTag ? [`${baseTag}..HEAD`] : [])]);
   return commits
     .split("\n")
     .filter((subject) =>
@@ -631,7 +638,7 @@ async function releasePrepare(tag: string): Promise<void> {
     if (!pack.success) throw new Error(outputText(pack).trim());
     const packed = JSON.parse(new TextDecoder().decode(pack.stdout)) as PackResult | PackResult[];
     const result = Array.isArray(packed) ? packed[0] : packed;
-    pkg.tarball = result.filename;
+    pkg.tarball = basename(result.filename);
   }
 
   const commits = await releaseCommitNotes(baseTag);
@@ -648,7 +655,7 @@ async function releasePrepare(tag: string): Promise<void> {
   await Deno.writeTextFile(join(artifacts, "CHANGELOG.md"), notes);
   await Deno.writeTextFile(
     join(artifacts, "release.json"),
-    JSON.stringify({ tag, baseTag, packages }, null, 2) + "\n",
+    JSON.stringify({ tag, baseTag: baseTag ?? null, packages }, null, 2) + "\n",
   );
   console.log(
     `Prepared ${packages.length} package release artifact(s) in ${relative(root, artifacts)}.`,
