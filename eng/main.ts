@@ -94,6 +94,28 @@ async function capture(command: string, args: string[], cwd = root): Promise<Den
   return output;
 }
 
+async function publishToNpm(args: string[], cwd: string): Promise<void> {
+  const authDir = await Deno.makeTempDir({ prefix: "neotales-npm-auth-" });
+  const userConfig = join(authDir, ".npmrc");
+  let output: Deno.CommandOutput | undefined;
+
+  try {
+    await Deno.writeTextFile(userConfig, "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}\n");
+    output = await new Deno.Command("pnpm", {
+      args,
+      cwd,
+      env: { ...Deno.env.toObject(), NPM_CONFIG_USERCONFIG: userConfig },
+      stdin: "inherit",
+      stdout: "inherit",
+      stderr: "inherit",
+    }).output();
+  } finally {
+    await Deno.remove(authDir, { recursive: true });
+  }
+
+  if (!output?.success) Deno.exit(output?.code ?? 1);
+}
+
 function outputText(output: Deno.CommandOutput): string {
   return `${new TextDecoder().decode(output.stdout)}${new TextDecoder().decode(output.stderr)}`;
 }
@@ -709,8 +731,7 @@ async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<vo
     )} unpacked)`,
   );
 
-  await run(
-    "pnpm",
+  await publishToNpm(
     [
       "publish",
       result.filename,
