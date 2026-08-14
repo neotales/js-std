@@ -24,15 +24,13 @@ jobs:
         with:
           deno-version: v2.x
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
       - uses: actions/setup-node@v6
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: pnpm
+
+      - uses: pnpm/action-setup@v4
 
       - uses: oven-sh/setup-bun@v2
 
