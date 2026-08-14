@@ -12,6 +12,7 @@ const upstreamJsr = resolve(
 const jsrDir = join(root, "jsr");
 const npmDir = join(root, "npm");
 const repository = "https://github.com/neotales/js-std";
+const initialVersion = "0.0.0-alpha.0";
 const oxfmt = join(root, "node_modules", ".bin", "oxfmt");
 const oxlint = join(root, "node_modules", ".bin", "oxlint");
 
@@ -377,6 +378,8 @@ async function importModule(name: string): Promise<void> {
   const configPath = join(destination, "deno.json");
   const config = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
   config.name = config.name.replace("@frostyeti/", "@neotales/");
+  // New imports start from this workspace's release baseline, not the upstream version.
+  config.version = initialVersion;
   await Deno.writeTextFile(configPath, JSON.stringify(config, null, 2) + "\n");
 
   const dntConfig = JSON.parse(await Deno.readTextFile(dntPath)) as DntConfig;
