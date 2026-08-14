@@ -283,23 +283,23 @@ function nodeAssertions(content: string): string {
 
 function nativeGlobals(content: string): string {
   return content.replace(
-    /^import \{([^}]+)\} from "@(?:frostyeti|neotales)\/globals(?:\/globals|\/os)?";\r?\n/m,
-    (_, imports: string) => {
+    /^(import|export) \{([^}]+)\} from "@(?:frostyeti|neotales)\/globals(?:\/globals|\/os)?";\r?\n/m,
+    (_, kind: string, imports: string) => {
       const declarations: Record<string, string> = {
         globals: "const globals = globalThis;",
         WINDOWS:
-          'const WINDOWS = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (typeof Deno !== "undefined" && Deno.build.os === "windows");',
+          'const WINDOWS = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "windows";',
         DARWIN:
-          'const DARWIN = (globalThis as { process?: { platform?: string } }).process?.platform === "darwin" || (typeof Deno !== "undefined" && Deno.build.os === "darwin");',
-        DENO: 'const DENO = typeof Deno !== "undefined";',
+          'const DARWIN = (globalThis as { process?: { platform?: string } }).process?.platform === "darwin" || (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "darwin";',
+        DENO: "const DENO = !!(globalThis as { Deno?: unknown }).Deno;",
         NODE: 'const NODE = typeof process !== "undefined" && !!process.versions?.node;',
         BUN: 'const BUN = typeof Bun !== "undefined";',
         BROWSER: 'const BROWSER = typeof window !== "undefined";',
         NODELIKE:
           'const NODELIKE = (typeof process !== "undefined" && !!process.versions?.node) || typeof Bun !== "undefined";',
         RUNTIME:
-          'const RUNTIME = typeof Deno !== "undefined" ? "deno" : typeof Bun !== "undefined" ? "bun" : typeof process !== "undefined" && process.versions?.node ? "node" : typeof window !== "undefined" ? "browser" : "unknown";',
-        EOL: 'const EOL = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (typeof Deno !== "undefined" && Deno.build.os === "windows") ? "\\r\\n" : "\\n";',
+          'const RUNTIME = (globalThis as { Deno?: unknown }).Deno ? "deno" : typeof Bun !== "undefined" ? "bun" : typeof process !== "undefined" && process.versions?.node ? "node" : typeof window !== "undefined" ? "browser" : "unknown";',
+        EOL: 'const EOL = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "windows" ? "\\r\\n" : "\\n";',
         getGlobal:
           'const getGlobal = (path: string): unknown => path.split(".").reduce<unknown>((value, key) => value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined, globalThis);',
       };
@@ -308,7 +308,13 @@ function nativeGlobals(content: string): string {
       if (unsupported.length) {
         throw new Error(`Unsupported globals imports: ${unsupported.join(", ")}`);
       }
-      return `${names.map((name) => declarations[name]).join("\n")}\n`;
+      return `${names
+        .map((name) =>
+          kind === "export"
+            ? declarations[name].replace("const ", "export const ")
+            : declarations[name],
+        )
+        .join("\n")}\n`;
     },
   );
 }

@@ -1,0 +1,26 @@
+{
+  "name": "@neotales/slices",
+  "version": "0.0.0-alpha.0.1.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./mod.ts",
+    "./camelize": "./camelize.ts",
+    "./capitalize": "./capitalize.ts",
+    "./char-array-builder": "./char_array_builder.ts",
+    "./char-slice": "./char_slice.ts",
+    "./dasherize": "./dasherize.ts",
+    "./ends-with": "./ends_with.ts",
+    "./equal": "./equal.ts",
+    "./index-of": "./index_of.ts",
+    "./last-index-of": "./last_index_of.ts",
+    "./ordinalize": "./ordinalize.ts",
+    "./pascalize": "./pascalize.ts",
+    "./slice": "./slice.ts",
+    "./starts-with": "./starts_with.ts",
+    "./titleize": "./titleize.ts",
+    "./tokens": "./tokens.ts",
+    "./trim": "./trim.ts",
+    "./underscore": "./underscore.ts",
+    "./utils": "./utils.ts"
+  }
+}
