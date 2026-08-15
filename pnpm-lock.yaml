@@ -34,6 +34,15 @@ importers:
         specifier: ^22.17.0
         version: 22.20.1
 
+  npm/process:
+    devDependencies:
+      '@neotales/path':
+        specifier: workspace:*
+        version: link:../path
+      '@types/node':
+        specifier: ^22.17.0
+        version: 22.20.1
+
   npm/slices:
     dependencies:
       '@neotales/chars':

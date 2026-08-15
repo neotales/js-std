@@ -1,0 +1,18 @@
+{
+  "name": "@neotales/process",
+  "version": "0.0.0-alpha.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./mod.ts",
+    "./args": "./args.ts",
+    "./chdir": "./chdir.ts",
+    "./cwd": "./cwd.ts",
+    "./exec-path": "./exec_path.ts",
+    "./exit": "./exit.ts",
+    "./pid": "./pid.ts",
+    "./ppid": "./ppid.ts",
+    "./popd": "./popd.ts",
+    "./pushd": "./pushd.ts",
+    "./streams": "./streams.ts"
+  }
+}
