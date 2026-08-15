@@ -18,6 +18,22 @@ importers:
         specifier: ^1.46.0
         version: 1.78.0
 
+  npm/args:
+    dependencies:
+      '@neotales/chars':
+        specifier: workspace:*
+        version: link:../chars
+      '@neotales/slices':
+        specifier: workspace:*
+        version: link:../slices
+      '@neotales/strings':
+        specifier: workspace:*
+        version: link:../strings
+    devDependencies:
+      '@types/node':
+        specifier: ^22.17.0
+        version: 22.20.1
+
   npm/chars:
     devDependencies:
       '@types/node':
