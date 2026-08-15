@@ -1,0 +1,89 @@
+{
+  "name": "@neotales/dotenv",
+  "version": "0.0.0-alpha.0",
+  "description": "Parse or emit .env content. Parse .env content into a document or normal object, expand variables, and stringify documents or objects into a .env content.",
+  "keywords": [
+    "dotenv",
+    "env",
+    "variables"
+  ],
+  "homepage": "https://github.com/neotales/js-std",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neotales/js-std.git",
+    "directory": "npm/dotenv"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neotales/js-std/issues"
+  },
+  "module": "./esm/mod.js",
+  "types": "./types/mod.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/mod.d.ts",
+        "default": "./esm/mod.js"
+      }
+    },
+    "./document": {
+      "import": {
+        "types": "./types/document.d.ts",
+        "default": "./esm/document.js"
+      }
+    },
+    "./expand": {
+      "import": {
+        "types": "./types/expand.d.ts",
+        "default": "./esm/expand.js"
+      }
+    },
+    "./load": {
+      "import": {
+        "types": "./types/load.d.ts",
+        "default": "./esm/load.js"
+      }
+    },
+    "./parse-document": {
+      "import": {
+        "types": "./types/parse_document.d.ts",
+        "default": "./esm/parse_document.js"
+      }
+    },
+    "./parse": {
+      "import": {
+        "types": "./types/parse.d.ts",
+        "default": "./esm/parse.js"
+      }
+    },
+    "./stringify": {
+      "import": {
+        "types": "./types/stringify.d.ts",
+        "default": "./esm/stringify.js"
+      }
+    },
+    "./stringify-document": {
+      "import": {
+        "types": "./types/stringify_document.d.ts",
+        "default": "./esm/stringify_document.js"
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:bun": "bun test"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neotales/chars": "workspace:*",
+    "@neotales/env": "workspace:*",
+    "@neotales/strings": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1"
+  },
+  "_generatedBy": "dnt@0.43.2"
+}

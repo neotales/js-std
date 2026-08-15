@@ -363,6 +363,15 @@ test("expand::command substitution disabled by default", () => {
   equal(result, '$(echo "hello")');
 });
 
+test("expand::command substitution requires an enabled commands option", () => {
+  const { get, set } = createEnv();
+  equal(expand('$(echo "hello")', get, set, { commands: false }), '$(echo "hello")');
+  equal(
+    expand('$(echo "hello")', get, set, { commands: { allowed: ["echo"] } }),
+    '$(echo "hello")',
+  );
+});
+
 test("expand::command substitution with surrounding text", () => {
   const { get, set } = createEnv();
   const result = expand('The value is: $(echo "test")', get, set, { commands: true });

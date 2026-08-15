@@ -1,0 +1,12 @@
+{
+  "description": "Parse or emit .env content. Parse .env content into a document or normal object, expand variables, and stringify documents or objects into a .env content.",
+  "keywords": ["dotenv", "env", "variables"],
+  "devDependencies": {
+    "@types/node": "^22.14.1"
+  },
+  "dependencies": {
+    "@neotales/chars": "*",
+    "@neotales/strings": "*",
+    "@neotales/env": "*"
+  }
+}

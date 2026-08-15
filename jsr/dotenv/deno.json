@@ -1,0 +1,15 @@
+{
+  "name": "@neotales/dotenv",
+  "version": "0.0.0-alpha.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./mod.ts",
+    "./document": "./document.ts",
+    "./expand": "./expand.ts",
+    "./load": "./load.ts",
+    "./parse-document": "./parse_document.ts",
+    "./parse": "./parse.ts",
+    "./stringify": "./stringify.ts",
+    "./stringify-document": "./stringify_document.ts"
+  }
+}

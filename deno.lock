@@ -93,6 +93,13 @@
           ]
         }
       },
+      "npm/dotenv": {
+        "packageJson": {
+          "dependencies": [
+            "npm:@types/node@^22.14.1"
+          ]
+        }
+      },
       "npm/env": {
         "packageJson": {
           "dependencies": [
