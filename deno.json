@@ -9,6 +9,7 @@
     "normalize": "deno run -A ./eng/main.ts normalize",
     "build": "deno run -A ./eng/main.ts build",
     "test": "deno run -A ./eng/main.ts test",
+    "test:e2e": "deno test -A ./e2e",
     "lint": "deno run -A ./eng/main.ts lint",
     "fmt": "deno run -A ./eng/main.ts fmt",
     "fmt:check": "deno run -A ./eng/main.ts fmt --check",

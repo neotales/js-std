@@ -1,0 +1,15 @@
+{
+  "name": "@neotales/fmt",
+  "version": "0.0.0-alpha.0",
+  "license": "MIT",
+  "keywords": ["fmt", "format", "printf", "inspect", "bytes", "duration"],
+  "description": "Sprintf, printf ported from @std/fmt",
+  "exports": {
+    ".": "./mod.ts",
+    "./inspect": "./inspect.ts",
+    "./printf": "./printf.ts",
+    "./strip-ansi-code": "./strip_ansi_code.ts",
+    "./bytes": "./bytes.ts",
+    "./duration": "./duration.ts"
+  }
+}

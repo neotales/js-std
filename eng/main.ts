@@ -612,13 +612,14 @@ async function audit(): Promise<void> {
 }
 
 async function check(): Promise<void> {
-  await run(oxlint, ["jsr", "eng"]);
+  await run(oxlint, ["jsr", "eng", "e2e"]);
   await run(oxfmt, [
     "--check",
     "--ignore-path",
     ".prettierignore",
     "eng",
     "jsr",
+    "e2e",
     "README.md",
     "LICENSE.md",
     "deno.json",
@@ -854,7 +855,7 @@ switch (command) {
     }
     break;
   case "lint":
-    await run(oxlint, ["jsr", "eng"]);
+    await run(oxlint, ["jsr", "eng", "e2e"]);
     break;
   case "fmt":
     await run(oxfmt, [
@@ -863,6 +864,7 @@ switch (command) {
       ".prettierignore",
       "eng",
       "jsr",
+      "e2e",
       "README.md",
       "LICENSE.md",
       "deno.json",

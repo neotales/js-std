@@ -21,10 +21,12 @@
     "publish:dry-run": "deno task publish:dry-run",
     "publish": "deno task publish"
   },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.0.0",
     "oxfmt": "^0.35.0",
-    "oxlint": "^1.46.0"
+    "oxlint": "^1.46.0",
+    "playwright": "^1.62.1"
   },
   "engines": {
     "node": ">=22",
