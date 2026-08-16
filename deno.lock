@@ -411,6 +411,13 @@
           ]
         }
       },
+      "npm/secrets": {
+        "packageJson": {
+          "dependencies": [
+            "npm:@types/node@^22.17.0"
+          ]
+        }
+      },
       "npm/slices": {
         "packageJson": {
           "dependencies": [
