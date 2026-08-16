@@ -144,4 +144,4 @@ export function generateSecret(length: number, characters?: string): string {
 }
 
 /** A preconfigured generator using the default character pool. */
-export const secretGenerator = new DefaultSecretGenerator().addDefaults();
+export const secretGenerator: DefaultSecretGenerator = new DefaultSecretGenerator().addDefaults();

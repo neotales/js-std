@@ -75,4 +75,4 @@ export class DefaultSecretMasker implements SecretMasker {
 }
 
 /** A process-wide masker for application log/output integration. */
-export const secretMasker = new DefaultSecretMasker();
+export const secretMasker: DefaultSecretMasker = new DefaultSecretMasker();
