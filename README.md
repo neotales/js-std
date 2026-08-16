@@ -29,6 +29,11 @@ ESM-only, managed by pnpm, and test in Node and Bun; JSR modules test in Deno. T
 `node:test` and `node:assert/strict`; neither an assertion nor a globals module
 is imported or published.
 
+`test:e2e` runs browser integration tests and local Cloudflare Workers tests.
+The latter use Wrangler's workerd harness without Cloudflare credentials; add a
+`*.workerd.mjs` test and fixture under `e2e/` when checking Worker support for a
+module or runtime feature. Run just those checks with `deno task test:workers`.
+
 ## Quality And Publishing
 
 ```sh

@@ -84,9 +84,10 @@ const token = await createSecret("api-token");
 const binary = await createSecret(new Uint8Array([1, 2, 3]));
 ```
 
-The root package is portable and asynchronous because browser Web Crypto is
-asynchronous and requires a secure browser context. Node.js, Deno, and Bun can
-use the synchronous `./node` subpath, which uses `node:crypto` and AES-256-GCM.
+The root package is portable and asynchronous because it uses the Web Crypto
+API, which is asynchronous and requires a secure browser context. Node.js,
+Deno, and Bun can use the synchronous `./node` subpath, which uses
+`node:crypto` and AES-256-GCM.
 
 ```ts
 import { Secret } from "@neotales/secrets/node";
@@ -130,6 +131,24 @@ await encryptedSource.pipeThrough(decryptStream({ key })).pipeTo(plainDestinatio
 
 For synchronous chunk processing in Node.js, Deno, and Bun, use
 `encryptChunks` and `decryptChunks` from `@neotales/secrets/node`.
+
+## Cloudflare Workers
+
+The root `@neotales/secrets` package works in Cloudflare Workers through the
+standard asynchronous Web Crypto and Web Streams APIs. Do not import
+`@neotales/secrets/node` in a Worker: that subpath is for the synchronous
+`node:crypto` APIs available in Node.js, Deno, and Bun.
+
+The default key is retained only in the current Worker isolate. Cloudflare can
+evict an isolate at any time and can handle later requests in a different
+isolate, so data protected with the default key must not be expected to decrypt
+across requests, deployments, isolates, or restarts. A newly generated
+`SecretKey` has the same limitation.
+
+For data that must be decrypted after an isolate changes, import an explicit
+32-byte key from a Workers secret, a KMS, or another durable key-management
+system with `SecretKey.importRaw`. Store the key material separately from the
+ciphertext and never include it in a response, log, or client bundle.
 
 ## Security Limitations
 

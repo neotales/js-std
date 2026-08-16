@@ -1,3 +1,6 @@
 packages:
   - "npm/*"
+allowBuilds:
+  esbuild: true
+  workerd: true
 publishBranch: dev

@@ -10,6 +10,8 @@
     "normalize": "deno task normalize",
     "build": "deno task build",
     "test": "deno task test",
+    "test:e2e": "deno task test:e2e",
+    "test:workers": "node --test ./e2e/*.workerd.mjs",
     "lint": "deno task lint",
     "fmt": "deno task fmt",
     "fmt:check": "deno task fmt:check",
@@ -21,12 +23,12 @@
     "publish:dry-run": "deno task publish:dry-run",
     "publish": "deno task publish"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.0.0",
     "oxfmt": "^0.35.0",
     "oxlint": "^1.46.0",
-    "playwright": "^1.62.1"
+    "playwright": "^1.62.1",
+    "wrangler": "^4.123.0"
   },
   "engines": {
     "node": ">=22",
