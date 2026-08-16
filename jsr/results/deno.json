@@ -1,0 +1,11 @@
+{
+  "name": "@neotales/results",
+  "version": "0.0.0-alpha.0",
+  "license": "MIT",
+  "description": "Result helpers for returning success or failure values without throwing.",
+  "keywords": ["error", "fail", "ok", "result"],
+  "exports": {
+    ".": "./mod.ts",
+    "./result": "./result.ts"
+  }
+}

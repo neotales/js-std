@@ -1,0 +1,8 @@
+/src/
+/esm/mod.test.js
+/types/mod.test.d.ts
+/esm/result.test.js
+/types/result.test.d.ts
+/test_runner.cjs
+yarn.lock
+pnpm-lock.yaml
