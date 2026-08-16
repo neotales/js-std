@@ -24,6 +24,19 @@ importers:
         specifier: ^4.123.0
         version: 4.123.0
 
+  npm/ansi:
+    dependencies:
+      '@neotales/env':
+        specifier: workspace:*
+        version: link:../env
+      '@neotales/process':
+        specifier: workspace:*
+        version: link:../process
+    devDependencies:
+      '@types/node':
+        specifier: ^22.17.0
+        version: 22.20.1
+
   npm/args:
     dependencies:
       '@neotales/chars':

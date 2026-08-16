@@ -1,0 +1,72 @@
+{
+  "name": "@neotales/ansi",
+  "version": "0.0.0-alpha.0",
+  "description": "Cross-runtime ANSI color styles, terminal capability detection, and settings.",
+  "keywords": [
+    "ansi",
+    "terminal",
+    "color",
+    "format",
+    "color-detection"
+  ],
+  "homepage": "https://github.com/neotales/js-std",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neotales/js-std.git",
+    "directory": "npm/ansi"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neotales/js-std/issues"
+  },
+  "module": "./esm/mod.js",
+  "types": "./types/mod.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/mod.d.ts",
+        "default": "./esm/mod.js"
+      }
+    },
+    "./detector": {
+      "import": {
+        "types": "./types/detector.d.ts",
+        "default": "./esm/detector.js"
+      }
+    },
+    "./enums": {
+      "import": {
+        "types": "./types/enums.d.ts",
+        "default": "./esm/enums.js"
+      }
+    },
+    "./settings": {
+      "import": {
+        "types": "./types/settings.d.ts",
+        "default": "./esm/settings.js"
+      }
+    },
+    "./styles": {
+      "import": {
+        "types": "./types/styles.d.ts",
+        "default": "./esm/styles.js"
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:bun": "bun test"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neotales/env": "workspace:*",
+    "@neotales/process": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0"
+  },
+  "_generatedBy": "dnt@0.43.2"
+}

@@ -1,0 +1,10 @@
+/src/
+/esm/detector.test.js
+/types/detector.test.d.ts
+/esm/enums.test.js
+/types/enums.test.d.ts
+/esm/styles.test.js
+/types/styles.test.d.ts
+/test_runner.cjs
+yarn.lock
+pnpm-lock.yaml

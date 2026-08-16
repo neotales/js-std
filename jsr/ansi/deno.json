@@ -1,0 +1,14 @@
+{
+  "name": "@neotales/ansi",
+  "version": "0.0.0-alpha.0",
+  "license": "MIT",
+  "description": "Cross-runtime ANSI color styles, terminal capability detection, and settings.",
+  "keywords": ["ansi", "terminal", "color", "format", "color-detection"],
+  "exports": {
+    ".": "./mod.ts",
+    "./detector": "./detector.ts",
+    "./enums": "./enums.ts",
+    "./settings": "./settings.ts",
+    "./styles": "./styles.ts"
+  }
+}
