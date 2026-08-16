@@ -159,7 +159,7 @@
  */
 
 import { stdout } from "@neotales/process/streams";
-import { args } from "@neotales/process/args";
+import { args as processArgs } from "@neotales/process/args";
 import { inspect } from "./inspect.ts";
 import { stripAnsiCode } from "./strip_ansi_code.ts";
 import { globals } from "./globals.ts";
@@ -184,9 +184,9 @@ if (typeof globals.Deno !== "undefined") {
     globals.process.env.NO_COLOR === "true" ||
     globals.process.env.COLOR === "0" ||
     globals.process.env.COLOR === "false" ||
-    args.includes("--no-color") ||
-    args.includes("--color=0") ||
-    args.includes("--color=false");
+    processArgs.includes("--no-color") ||
+    processArgs.includes("--color=0") ||
+    processArgs.includes("--color=false");
 }
 
 const WINDOWS = platform === "windows";
@@ -496,7 +496,7 @@ class Printf {
     let str = "[ ";
     for (let i = 0; i !== arg.length; ++i) {
       if (i !== 0) str += ", ";
-      str += this._handleVerb(arg[i]);
+      str += this.formatVerb(arg[i]);
     }
     return str + " ]";
   }
@@ -519,7 +519,7 @@ class Printf {
       if (this.flags.lessthan) {
         this.buf += this.handleLessThan();
       } else {
-        this.buf += this._handleVerb(arg);
+        this.buf += this.formatVerb(arg);
       }
     }
     this.argNum++; // if there is a further positional, it will reset.
@@ -527,7 +527,7 @@ class Printf {
   }
 
   // deno-lint-ignore no-explicit-any
-  _handleVerb(arg: any): string {
+  formatVerb(arg: any): string {
     switch (this.verb) {
       case "t":
         return this.pad(String(Boolean(arg)));
@@ -774,12 +774,12 @@ class Printf {
 
     // stupid helper that turns a number into a (potentially)
     // VERY long string.
-    function expandNumber(n: number): string {
-      if (Number.isSafeInteger(n)) {
-        return n.toString() + ".";
+    function expandNumber(value: number): string {
+      if (Number.isSafeInteger(value)) {
+        return value.toString() + ".";
       }
 
-      const t = n.toExponential().split("e");
+      const t = value.toExponential().split("e");
       let m = t[0]!.replace(".", "");
       const e = parseInt(t[1]!);
       if (e < 0) {
@@ -988,8 +988,8 @@ class Printf {
  * @returns The formatted string
  */
 export function sprintf(format: string, ...args: unknown[]): string {
-  const printf = new Printf(format, ...args);
-  return printf.doPrintf();
+  const formatter = new Printf(format, ...args);
+  return formatter.doPrintf();
 }
 
 /**

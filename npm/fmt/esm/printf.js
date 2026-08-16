@@ -157,7 +157,7 @@
  * @module
  */
 import { stdout } from "@neotales/process/streams";
-import { args } from "@neotales/process/args";
+import { args as processArgs } from "@neotales/process/args";
 import { inspect } from "./inspect.js";
 import { stripAnsiCode } from "./strip_ansi_code.js";
 import { globals } from "./globals.js";
@@ -180,9 +180,9 @@ else if (globals.process) {
             globals.process.env.NO_COLOR === "true" ||
             globals.process.env.COLOR === "0" ||
             globals.process.env.COLOR === "false" ||
-            args.includes("--no-color") ||
-            args.includes("--color=0") ||
-            args.includes("--color=false");
+            processArgs.includes("--no-color") ||
+            processArgs.includes("--color=0") ||
+            processArgs.includes("--color=false");
 }
 const WINDOWS = platform === "windows";
 const EOL = WINDOWS ? "\r\n" : "\n";
@@ -561,7 +561,7 @@ class Printf {
         for (let i = 0; i !== arg.length; ++i) {
             if (i !== 0)
                 str += ", ";
-            str += this._handleVerb(arg[i]);
+            str += this.formatVerb(arg[i]);
         }
         return str + " ]";
     }
@@ -586,14 +586,14 @@ class Printf {
                 this.buf += this.handleLessThan();
             }
             else {
-                this.buf += this._handleVerb(arg);
+                this.buf += this.formatVerb(arg);
             }
         }
         this.argNum++; // if there is a further positional, it will reset.
         this.state = State.PASSTHROUGH;
     }
     // deno-lint-ignore no-explicit-any
-    _handleVerb(arg) {
+    formatVerb(arg) {
         switch (this.verb) {
             case "t":
                 return this.pad(String(Boolean(arg)));
@@ -826,11 +826,11 @@ class Printf {
         }
         // stupid helper that turns a number into a (potentially)
         // VERY long string.
-        function expandNumber(n) {
-            if (Number.isSafeInteger(n)) {
-                return n.toString() + ".";
+        function expandNumber(value) {
+            if (Number.isSafeInteger(value)) {
+                return value.toString() + ".";
             }
-            const t = n.toExponential().split("e");
+            const t = value.toExponential().split("e");
             let m = t[0].replace(".", "");
             const e = parseInt(t[1]);
             if (e < 0) {
@@ -1022,8 +1022,8 @@ class Printf {
  * @returns The formatted string
  */
 export function sprintf(format, ...args) {
-    const printf = new Printf(format, ...args);
-    return printf.doPrintf();
+    const formatter = new Printf(format, ...args);
+    return formatter.doPrintf();
 }
 /**
  * Converts and format a variable number of `args` as is specified by `format`.
