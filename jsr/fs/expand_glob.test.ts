@@ -4,6 +4,7 @@ import { join, relative } from "node:path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { expandGlob, expandGlobSync } from "./expand_glob.ts";
 import { isWindows, withTestRoot, withTestRootSync } from "./_test_helpers.ts";
+import { realpath, realpathSync } from "./realpath.ts";
 import { symlink, symlinkSync } from "./symlink.ts";
 import { writeTextFile, writeTextFileSync } from "./write_text_file.ts";
 
@@ -272,9 +273,9 @@ test(
       const canonical = (
         await Array.fromAsync(expandGlob("**/abc", { followSymlinks: true, root }))
       )
-        .map(({ path }) => relative(root, path))
+        .map(({ path }) => path)
         .sort();
-      deepStrictEqual(canonical, [join("target", "abc")]);
+      deepStrictEqual(canonical, [await realpath(join(target, "abc"))]);
       const linkPaths = (
         await Array.fromAsync(
           expandGlob("**/abc", { canonicalize: false, followSymlinks: true, root }),
@@ -298,9 +299,9 @@ test(
       writeTextFileSync(join(target, "abc"), "");
       symlinkSync(target, link, { type: "dir" });
       const canonical = [...expandGlobSync("**/abc", { followSymlinks: true, root })]
-        .map(({ path }) => relative(root, path))
+        .map(({ path }) => path)
         .sort();
-      deepStrictEqual(canonical, [join("target", "abc")]);
+      deepStrictEqual(canonical, [realpathSync(join(target, "abc"))]);
       const linkPaths = [
         ...expandGlobSync("**/abc", { canonicalize: false, followSymlinks: true, root }),
       ]

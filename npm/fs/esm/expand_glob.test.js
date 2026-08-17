@@ -5,6 +5,7 @@ import { join, relative } from "node:path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.js";
 import { expandGlob, expandGlobSync } from "./expand_glob.js";
 import { isWindows, withTestRoot, withTestRootSync } from "./_test_helpers.js";
+import { realpath, realpathSync } from "./realpath.js";
 import { symlink, symlinkSync } from "./symlink.js";
 import { writeTextFile, writeTextFileSync } from "./write_text_file.js";
 test("expandGlob matches generated nested names and exclusions", async () => {
@@ -198,9 +199,9 @@ test("expandGlob follows generated links with and without canonical paths", { sk
         await writeTextFile(join(target, "abc"), "");
         await symlink(target, link, { type: "dir" });
         const canonical = (await Array.fromAsync(expandGlob("**/abc", { followSymlinks: true, root })))
-            .map(({ path }) => relative(root, path))
+            .map(({ path }) => path)
             .sort();
-        deepStrictEqual(canonical, [join("target", "abc")]);
+        deepStrictEqual(canonical, [await realpath(join(target, "abc"))]);
         const linkPaths = (await Array.fromAsync(expandGlob("**/abc", { canonicalize: false, followSymlinks: true, root })))
             .map(({ path }) => relative(root, path))
             .sort();
@@ -215,9 +216,9 @@ test("expandGlobSync follows generated links with and without canonical paths", 
         writeTextFileSync(join(target, "abc"), "");
         symlinkSync(target, link, { type: "dir" });
         const canonical = [...expandGlobSync("**/abc", { followSymlinks: true, root })]
-            .map(({ path }) => relative(root, path))
+            .map(({ path }) => path)
             .sort();
-        deepStrictEqual(canonical, [join("target", "abc")]);
+        deepStrictEqual(canonical, [realpathSync(join(target, "abc"))]);
         const linkPaths = [
             ...expandGlobSync("**/abc", { canonicalize: false, followSymlinks: true, root }),
         ]

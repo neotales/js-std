@@ -2,11 +2,12 @@ import "./_dnt.test_polyfills.js";
 import { strictEqual } from "node:assert/strict";
 import { test } from "node:test";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { withTestRoot } from "./_test_helpers.js";
 const deno = globalThis.Deno;
-const workspaceRoot = new URL("../../", globalThis[Symbol.for("import-meta-ponyfill-esmodule")](import.meta).url).pathname;
+const workspaceRoot = fileURLToPath(new URL("../../", globalThis[Symbol.for("import-meta-ponyfill-esmodule")](import.meta).url));
 async function deniesRead(root, module, functionName, invocation) {
-    const script = join(new URL("./", globalThis[Symbol.for("import-meta-ponyfill-esmodule")](import.meta).url).pathname, `.permission-${crypto.randomUUID()}.ts`);
+    const script = join(fileURLToPath(new URL("./", globalThis[Symbol.for("import-meta-ponyfill-esmodule")](import.meta).url)), `.permission-${crypto.randomUUID()}.ts`);
     const target = join(root, "denied");
     try {
         await deno.writeTextFile(script, `import { ${functionName} } from ${JSON.stringify(new URL(module, globalThis[Symbol.for("import-meta-ponyfill-esmodule")](import.meta).url).href)};

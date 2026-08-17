@@ -1,6 +1,7 @@
 import { strictEqual } from "node:assert/strict";
 import { test } from "node:test";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { withTestRoot } from "./_test_helpers.ts";
 
 type DenoRuntime = {
@@ -14,7 +15,7 @@ type DenoRuntime = {
 };
 
 const deno = (globalThis as { Deno?: DenoRuntime }).Deno;
-const workspaceRoot = new URL("../../", import.meta.url).pathname;
+const workspaceRoot = fileURLToPath(new URL("../../", import.meta.url));
 async function deniesRead(
   root: string,
   module: string,
@@ -22,7 +23,7 @@ async function deniesRead(
   invocation: string,
 ): Promise<void> {
   const script = join(
-    new URL("./", import.meta.url).pathname,
+    fileURLToPath(new URL("./", import.meta.url)),
     `.permission-${crypto.randomUUID()}.ts`,
   );
   const target = join(root, "denied");

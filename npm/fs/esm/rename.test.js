@@ -65,7 +65,7 @@ test("rename replaces an empty destination directory and retains its directory t
         strictEqual(await exists(destination, { isDirectory: true }), true);
     });
 });
-test("rename rejects non-empty directory and file destination type conflicts", async () => {
+test("rename handles platform-specific directory-to-file replacement", async () => {
     await withTestRoot(async (root) => {
         const sourceDirectory = join(root, "source-directory");
         const fullDirectory = join(root, "full-directory");
@@ -77,11 +77,18 @@ test("rename rejects non-empty directory and file destination type conflicts", a
         await writeTextFile(sourceFile, "source");
         await writeTextFile(destinationFile, "destination");
         await rejects(rename(sourceDirectory, fullDirectory));
-        await rejects(rename(sourceDirectory, destinationFile));
         await ensureDir(join(root, "directory"));
         await rejects(rename(sourceFile, join(root, "directory")));
-        strictEqual(await exists(sourceDirectory), true);
-        strictEqual(await readTextFile(destinationFile), "destination");
+        if (isWindows) {
+            await rename(sourceDirectory, destinationFile);
+            strictEqual(await exists(sourceDirectory), false);
+            strictEqual(await exists(destinationFile, { isDirectory: true }), true);
+        }
+        else {
+            await rejects(rename(sourceDirectory, destinationFile));
+            strictEqual(await exists(sourceDirectory), true);
+            strictEqual(await readTextFile(destinationFile), "destination");
+        }
     });
 });
 test("rename rejects directory destinations that are generated links", { skip: isWindows }, async () => {
@@ -115,7 +122,7 @@ test("renameSync replaces an empty destination directory and retains its directo
         strictEqual(existsSync(destination, { isDirectory: true }), true);
     });
 });
-test("renameSync rejects non-empty directory and file destination type conflicts", () => {
+test("renameSync handles platform-specific directory-to-file replacement", () => {
     withTestRootSync((root) => {
         const sourceDirectory = join(root, "source-directory");
         const fullDirectory = join(root, "full-directory");
@@ -127,11 +134,18 @@ test("renameSync rejects non-empty directory and file destination type conflicts
         writeTextFileSync(sourceFile, "source");
         writeTextFileSync(destinationFile, "destination");
         throws(() => renameSync(sourceDirectory, fullDirectory));
-        throws(() => renameSync(sourceDirectory, destinationFile));
         ensureDirSync(join(root, "directory"));
         throws(() => renameSync(sourceFile, join(root, "directory")));
-        strictEqual(existsSync(sourceDirectory), true);
-        strictEqual(readTextFileSync(destinationFile), "destination");
+        if (isWindows) {
+            renameSync(sourceDirectory, destinationFile);
+            strictEqual(existsSync(sourceDirectory), false);
+            strictEqual(existsSync(destinationFile, { isDirectory: true }), true);
+        }
+        else {
+            throws(() => renameSync(sourceDirectory, destinationFile));
+            strictEqual(existsSync(sourceDirectory), true);
+            strictEqual(readTextFileSync(destinationFile), "destination");
+        }
     });
 });
 test("renameSync rejects directory destinations that are generated links", { skip: isWindows }, () => {
