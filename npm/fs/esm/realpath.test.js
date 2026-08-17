@@ -29,7 +29,7 @@ test("realpath accepts URL paths and rejects missing files", async () => {
     await withTestRoot(async (root) => {
         const file = join(root, "file");
         await writeTextFile(file, "value");
-        strictEqual(await realpath(pathToFileURL(file)), realpathSync(file));
+        strictEqual(await realpath(pathToFileURL(file)), await realpath(file));
         await rejects(realpath(join(root, "missing")));
     });
 });

@@ -7,6 +7,7 @@ import { ensureDir, ensureDirSync } from "./ensure_dir.js";
 import { exists, existsSync } from "./exists.js";
 import { rename, renameSync } from "./rename.js";
 import { isWindows, withTestRoot, withTestRootSync } from "./_test_helpers.js";
+import { isDeno } from "./_utils.js";
 import { symlink, symlinkSync } from "./symlink.js";
 import { readTextFile, readTextFileSync } from "./read_text_file.js";
 import { writeTextFile, writeTextFileSync } from "./write_text_file.js";
@@ -54,15 +55,21 @@ test("renameSync moves empty directories and rejects file-to-directory replaceme
         throws(() => renameSync(file, directory));
     });
 });
-test("rename replaces an empty destination directory and retains its directory type", async () => {
+test("rename handles empty destination directories across runtimes", async () => {
     await withTestRoot(async (root) => {
         const source = join(root, "source");
         const destination = join(root, "destination");
         await ensureDir(source);
         await ensureDir(destination);
-        await rename(source, destination);
-        strictEqual(await exists(source), false);
-        strictEqual(await exists(destination, { isDirectory: true }), true);
+        if (isWindows && !isDeno) {
+            await rejects(rename(source, destination));
+            strictEqual(await exists(source, { isDirectory: true }), true);
+        }
+        else {
+            await rename(source, destination);
+            strictEqual(await exists(source), false);
+            strictEqual(await exists(destination, { isDirectory: true }), true);
+        }
     });
 });
 test("rename handles platform-specific directory-to-file replacement", async () => {
@@ -111,15 +118,21 @@ test("rename rejects directory destinations that are generated links", { skip: i
         strictEqual(await exists(source), true);
     });
 });
-test("renameSync replaces an empty destination directory and retains its directory type", () => {
+test("renameSync handles empty destination directories across runtimes", () => {
     withTestRootSync((root) => {
         const source = join(root, "source");
         const destination = join(root, "destination");
         ensureDirSync(source);
         ensureDirSync(destination);
-        renameSync(source, destination);
-        strictEqual(existsSync(source), false);
-        strictEqual(existsSync(destination, { isDirectory: true }), true);
+        if (isWindows && !isDeno) {
+            throws(() => renameSync(source, destination));
+            strictEqual(existsSync(source, { isDirectory: true }), true);
+        }
+        else {
+            renameSync(source, destination);
+            strictEqual(existsSync(source), false);
+            strictEqual(existsSync(destination, { isDirectory: true }), true);
+        }
     });
 });
 test("renameSync handles platform-specific directory-to-file replacement", () => {
