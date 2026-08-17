@@ -435,6 +435,7 @@ export async function* walk(root, options) {
                 includeDirs,
                 includeSymlinks,
                 followSymlinks,
+                canonicalize,
             };
             if (exts !== undefined) {
                 opts.exts = exts;
@@ -848,6 +849,7 @@ export function* walkSync(root, options) {
                 includeDirs,
                 includeSymlinks,
                 followSymlinks,
+                canonicalize,
             };
             if (exts !== undefined) {
                 opts.exts = exts;

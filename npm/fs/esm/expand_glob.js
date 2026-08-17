@@ -9,6 +9,7 @@ import { WIN } from "./globals.js";
 import { globToRegExp, isAbsolute, isGlob, joinGlobs, resolve, SEPARATOR_PATTERN, } from "@neotales/path";
 import { walk, walkSync } from "./walk.js";
 import { cwd } from "./cwd.js";
+import { realpath, realpathSync } from "./realpath.js";
 import { toPathString } from "./utils.js";
 import { createWalkEntry, createWalkEntrySync } from "./utils.js";
 import { isNotFoundError } from "./errors.js";
@@ -158,6 +159,14 @@ export async function* expandGlob(glob, { root, exclude = [], includeDirs = true
     if (!includeDirs) {
         currentMatches = currentMatches.filter((entry) => !entry.isDirectory);
     }
+    if (followSymlinks && canonicalize !== false) {
+        const canonicalMatches = new Map();
+        for (const entry of currentMatches) {
+            const path = await realpath(entry.path);
+            canonicalMatches.set(path, await createWalkEntry(path));
+        }
+        currentMatches = [...canonicalMatches.values()].sort(comparePath);
+    }
     yield* currentMatches;
 }
 /**
@@ -281,6 +290,14 @@ export function* expandGlobSync(glob, { root, exclude = [], includeDirs = true, 
     currentMatches = currentMatches.filter((entry) => shouldInclude(entry.path));
     if (!includeDirs) {
         currentMatches = currentMatches.filter((entry) => !entry.isDirectory);
+    }
+    if (followSymlinks && canonicalize !== false) {
+        const canonicalMatches = new Map();
+        for (const entry of currentMatches) {
+            const path = realpathSync(entry.path);
+            canonicalMatches.set(path, createWalkEntrySync(path));
+        }
+        currentMatches = [...canonicalMatches.values()].sort(comparePath);
     }
     yield* currentMatches;
 }

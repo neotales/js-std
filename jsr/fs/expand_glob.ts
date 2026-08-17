@@ -17,6 +17,7 @@ import {
 } from "@neotales/path";
 import { walk, walkSync } from "./walk.ts";
 import { cwd } from "./cwd.ts";
+import { realpath, realpathSync } from "./realpath.ts";
 import { toPathString } from "./utils.ts";
 import { createWalkEntry, createWalkEntrySync } from "./utils.ts";
 import type { WalkEntry } from "./types.ts";
@@ -231,6 +232,14 @@ export async function* expandGlob(
   if (!includeDirs) {
     currentMatches = currentMatches.filter((entry: WalkEntry): boolean => !entry.isDirectory);
   }
+  if (followSymlinks && canonicalize !== false) {
+    const canonicalMatches = new Map<string, WalkEntry>();
+    for (const entry of currentMatches) {
+      const path = await realpath(entry.path);
+      canonicalMatches.set(path, await createWalkEntry(path));
+    }
+    currentMatches = [...canonicalMatches.values()].sort(comparePath);
+  }
   yield* currentMatches;
 }
 
@@ -375,6 +384,14 @@ export function* expandGlobSync(
   currentMatches = currentMatches.filter((entry: WalkEntry): boolean => shouldInclude(entry.path));
   if (!includeDirs) {
     currentMatches = currentMatches.filter((entry: WalkEntry): boolean => !entry.isDirectory);
+  }
+  if (followSymlinks && canonicalize !== false) {
+    const canonicalMatches = new Map<string, WalkEntry>();
+    for (const entry of currentMatches) {
+      const path = realpathSync(entry.path);
+      canonicalMatches.set(path, createWalkEntrySync(path));
+    }
+    currentMatches = [...canonicalMatches.values()].sort(comparePath);
   }
   yield* currentMatches;
 }

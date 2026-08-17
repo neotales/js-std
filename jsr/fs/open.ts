@@ -5,7 +5,7 @@ import { getOpenFsFlag } from "./_get_fs_flag.ts";
 import { mapError } from "./_map_error.ts";
 import type { FsFile } from "./types.ts";
 import { NodeFsFile } from "./_node_fs_file.ts";
-import { globals, IS_DENO } from "./globals.ts";
+import { globals, IS_DENO, WIN } from "./globals.ts";
 
 /**
  * Options which can be set when using {@linkcode open} and
@@ -116,19 +116,30 @@ export async function open(path: string | URL, options?: OpenOptions): Promise<F
     } = options ?? {};
 
     try {
-      const flag = getOpenFsFlag({
+      const flagOptions = {
         read,
         write,
         append,
         truncate,
         create,
         createNew,
-      });
-      const { open: nodeOpen } = getNodeFs();
+      };
+      let flag = getOpenFsFlag(flagOptions);
+      const truncateWithoutCreate = WIN && truncate && !create && !createNew;
+      if (truncateWithoutCreate) flag &= ~getNodeFs().constants.O_TRUNC;
+      const fs = getNodeFs();
       const { promisify } = getNodeUtil();
-      const nodeOpenFd = promisify(nodeOpen);
+      const nodeOpenFd = promisify(fs.open);
 
       const fd = await nodeOpenFd(path, flag, mode);
+      if (truncateWithoutCreate) {
+        try {
+          await promisify(fs.ftruncate)(fd, 0);
+        } catch (error) {
+          fs.closeSync(fd);
+          throw error;
+        }
+      }
       return new NodeFsFile(fd) as FsFile;
     } catch (error) {
       throw mapError(error);
@@ -182,16 +193,27 @@ export function openSync(path: string | URL, options?: OpenOptions): FsFile {
     } = options ?? {};
 
     try {
-      const flag = getOpenFsFlag({
+      const flagOptions = {
         read,
         write,
         append,
         truncate,
         create,
         createNew,
-      });
+      };
+      let flag = getOpenFsFlag(flagOptions);
+      const truncateWithoutCreate = WIN && truncate && !create && !createNew;
+      if (truncateWithoutCreate) flag &= ~getNodeFs().constants.O_TRUNC;
 
       const fd = getNodeFs().openSync(path, flag, mode);
+      if (truncateWithoutCreate) {
+        try {
+          getNodeFs().ftruncateSync(fd, 0);
+        } catch (error) {
+          getNodeFs().closeSync(fd);
+          throw error;
+        }
+      }
       return new NodeFsFile(fd) as FsFile;
     } catch (error) {
       throw mapError(error);

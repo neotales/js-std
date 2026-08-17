@@ -520,6 +520,7 @@ export async function* walk(
         includeDirs,
         includeSymlinks,
         followSymlinks,
+        canonicalize,
       };
       if (exts !== undefined) {
         opts.exts = exts;
@@ -947,6 +948,7 @@ export function* walkSync(root: string | URL, options?: WalkOptions): IterableIt
         includeDirs,
         includeSymlinks,
         followSymlinks,
+        canonicalize,
       };
       if (exts !== undefined) {
         opts.exts = exts;
