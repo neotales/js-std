@@ -1,0 +1,11 @@
+export declare const AlreadyExists: any;
+export declare const BadResource: any;
+export declare const BrokenPipe: any;
+export declare const Busy: any;
+export declare const Interrupted: any;
+export declare const InvalidData: any;
+export declare const NotFound: any;
+export declare const PermissionDenied: any;
+export declare const TimedOut: any;
+export declare const UnexpectedEof: any;
+export declare const WriteZero: any;

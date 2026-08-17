@@ -1,0 +1,77 @@
+/**
+ * The `read-file` module provides functions to read the contents of a file.
+ *
+ * @module
+ */
+
+import { globals } from "./globals.ts";
+import type { ReadFileOptions } from "./types.ts";
+import { getNodeFs } from "./globals.ts";
+import { mapError } from "./_map_error.ts";
+
+/**
+ * Reads and resolves to the entire contents of a file as an array of bytes.
+ * `TextDecoder` can be used to transform the bytes to string if required.
+ *
+ * Requires `allow-read` permission.
+ *
+ * @example Usage
+ * ```ts no-assert
+ * import { readFile } from "@neotales/fs/read-file";
+ * const decoder = new TextDecoder("utf-8");
+ * const data = await readFile("README.md");
+ * console.log(decoder.decode(data));
+ * ```
+ *
+ * @tags allow-read
+ *
+ * @param path The path to the file.
+ * @param options Options when reading a file. See {@linkcode ReadFileOptions}.
+ * @returns A promise that resolves to a `Uint8Array` of the file contents.
+ */
+export async function readFile(path: string | URL, options?: ReadFileOptions): Promise<Uint8Array> {
+  if (globals.Deno) {
+    return await globals.Deno.readFile(path, { ...options });
+  } else {
+    const { signal } = options ?? {};
+    try {
+      const buf = await getNodeFs().promises.readFile(path, { signal });
+      return new Uint8Array(buf.buffer, buf.byteOffset, buf.length);
+    } catch (error) {
+      throw mapError(error);
+    }
+  }
+}
+
+/**
+ * Synchronously reads and returns the entire contents of a file as an array
+ * of bytes. `TextDecoder` can be used to transform the bytes to string if
+ * required.
+ *
+ * Requires `allow-read` permission.
+ *
+ * @example Usage
+ * ```ts no-assert
+ * import { readFileSync } from "@neotales/fs/unstable-read-file";
+ * const decoder = new TextDecoder("utf-8");
+ * const data = readFileSync("README.md");
+ * console.log(decoder.decode(data));
+ * ```
+ *
+ * @tags allow-read
+ *
+ * @param path The path to the file.
+ * @returns A `Uint8Array` of bytes representing the file contents.
+ */
+export function readFileSync(path: string | URL): Uint8Array {
+  if (globals.Deno) {
+    return globals.Deno.readFileSync(path);
+  }
+
+  try {
+    const buf = getNodeFs().readFileSync(path);
+    return new Uint8Array(buf.buffer, buf.byteOffset, buf.length);
+  } catch (error) {
+    throw mapError(error);
+  }
+}

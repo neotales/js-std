@@ -1,0 +1,28 @@
+import * as errors from "./unstable_errors.ts";
+
+type Class<T> = new (...params: unknown[]) => T;
+
+type ClassOrT<T> = T extends Class<infer U> ? U : T;
+
+function mapper(Ctor: (typeof errors)[keyof typeof errors]) {
+  return (err: Error) =>
+    Object.assign(new Ctor(err.message), {
+      stack: err.stack,
+      cause: err,
+    }) as unknown as ClassOrT<typeof Ctor>;
+}
+
+const map: Record<string, ReturnType<typeof mapper>> = {
+  EEXIST: mapper(errors.AlreadyExists),
+  ENOENT: mapper(errors.NotFound),
+  EBADF: mapper(errors.BadResource),
+};
+
+function isNodeErr(e: unknown): e is Error & { code: string } {
+  return e instanceof Error && "code" in e;
+}
+
+export function mapError<E>(e: E) {
+  if (!isNodeErr(e)) return e;
+  return map[e.code]?.(e) || e;
+}

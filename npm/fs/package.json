@@ -1,0 +1,289 @@
+{
+  "name": "@neotales/fs",
+  "version": "0.0.0-alpha.0",
+  "description": "Cross-runtime filesystem utilities for Deno, Node.js, and Bun.",
+  "keywords": [
+    "fs",
+    "file",
+    "system",
+    "filesystem",
+    "deno",
+    "bun",
+    "node"
+  ],
+  "homepage": "https://github.com/neotales/js-std",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neotales/js-std.git",
+    "directory": "npm/fs"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neotales/js-std/issues"
+  },
+  "module": "./esm/mod.js",
+  "types": "./types/mod.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/mod.d.ts",
+        "default": "./esm/mod.js"
+      }
+    },
+    "./chmod": {
+      "import": {
+        "types": "./types/chmod.d.ts",
+        "default": "./esm/chmod.js"
+      }
+    },
+    "./chown": {
+      "import": {
+        "types": "./types/chown.d.ts",
+        "default": "./esm/chown.js"
+      }
+    },
+    "./copy-file": {
+      "import": {
+        "types": "./types/copy_file.d.ts",
+        "default": "./esm/copy_file.js"
+      }
+    },
+    "./copy": {
+      "import": {
+        "types": "./types/copy.d.ts",
+        "default": "./esm/copy.js"
+      }
+    },
+    "./create": {
+      "import": {
+        "types": "./types/create.d.ts",
+        "default": "./esm/create.js"
+      }
+    },
+    "./cwd": {
+      "import": {
+        "types": "./types/cwd.d.ts",
+        "default": "./esm/cwd.js"
+      }
+    },
+    "./empty-dir": {
+      "import": {
+        "types": "./types/empty_dir.d.ts",
+        "default": "./esm/empty_dir.js"
+      }
+    },
+    "./ensure-dir": {
+      "import": {
+        "types": "./types/ensure_dir.d.ts",
+        "default": "./esm/ensure_dir.js"
+      }
+    },
+    "./ensure-file": {
+      "import": {
+        "types": "./types/ensure_file.d.ts",
+        "default": "./esm/ensure_file.js"
+      }
+    },
+    "./ensure-link": {
+      "import": {
+        "types": "./types/ensure_link.d.ts",
+        "default": "./esm/ensure_link.js"
+      }
+    },
+    "./ensure-symlink": {
+      "import": {
+        "types": "./types/ensure_symlink.d.ts",
+        "default": "./esm/ensure_symlink.js"
+      }
+    },
+    "./errors": {
+      "import": {
+        "types": "./types/errors.d.ts",
+        "default": "./esm/errors.js"
+      }
+    },
+    "./exists": {
+      "import": {
+        "types": "./types/exists.d.ts",
+        "default": "./esm/exists.js"
+      }
+    },
+    "./expand-glob": {
+      "import": {
+        "types": "./types/expand_glob.d.ts",
+        "default": "./esm/expand_glob.js"
+      }
+    },
+    "./gid": {
+      "import": {
+        "types": "./types/gid.d.ts",
+        "default": "./esm/gid.js"
+      }
+    },
+    "./isdir": {
+      "import": {
+        "types": "./types/isdir.d.ts",
+        "default": "./esm/isdir.js"
+      }
+    },
+    "./isfile": {
+      "import": {
+        "types": "./types/isfile.d.ts",
+        "default": "./esm/isfile.js"
+      }
+    },
+    "./link": {
+      "import": {
+        "types": "./types/link.d.ts",
+        "default": "./esm/link.js"
+      }
+    },
+    "./lstat": {
+      "import": {
+        "types": "./types/lstat.d.ts",
+        "default": "./esm/lstat.js"
+      }
+    },
+    "./mkdir": {
+      "import": {
+        "types": "./types/mkdir.d.ts",
+        "default": "./esm/mkdir.js"
+      }
+    },
+    "./mkdtemp": {
+      "import": {
+        "types": "./types/mkdtemp.d.ts",
+        "default": "./esm/mkdtemp.js"
+      }
+    },
+    "./mktemp": {
+      "import": {
+        "types": "./types/mktemp.d.ts",
+        "default": "./esm/mktemp.js"
+      }
+    },
+    "./move": {
+      "import": {
+        "types": "./types/move.d.ts",
+        "default": "./esm/move.js"
+      }
+    },
+    "./open": {
+      "import": {
+        "types": "./types/open.d.ts",
+        "default": "./esm/open.js"
+      }
+    },
+    "./read-file": {
+      "import": {
+        "types": "./types/read_file.d.ts",
+        "default": "./esm/read_file.js"
+      }
+    },
+    "./read-text-file": {
+      "import": {
+        "types": "./types/read_text_file.d.ts",
+        "default": "./esm/read_text_file.js"
+      }
+    },
+    "./readdir": {
+      "import": {
+        "types": "./types/readdir.d.ts",
+        "default": "./esm/readdir.js"
+      }
+    },
+    "./readlink": {
+      "import": {
+        "types": "./types/readlink.d.ts",
+        "default": "./esm/readlink.js"
+      }
+    },
+    "./realpath": {
+      "import": {
+        "types": "./types/realpath.d.ts",
+        "default": "./esm/realpath.js"
+      }
+    },
+    "./rm": {
+      "import": {
+        "types": "./types/rm.d.ts",
+        "default": "./esm/rm.js"
+      }
+    },
+    "./rename": {
+      "import": {
+        "types": "./types/rename.d.ts",
+        "default": "./esm/rename.js"
+      }
+    },
+    "./stat": {
+      "import": {
+        "types": "./types/stat.d.ts",
+        "default": "./esm/stat.js"
+      }
+    },
+    "./symlink": {
+      "import": {
+        "types": "./types/symlink.d.ts",
+        "default": "./esm/symlink.js"
+      }
+    },
+    "./truncate": {
+      "import": {
+        "types": "./types/truncate.d.ts",
+        "default": "./esm/truncate.js"
+      }
+    },
+    "./uid": {
+      "import": {
+        "types": "./types/uid.d.ts",
+        "default": "./esm/uid.js"
+      }
+    },
+    "./utime": {
+      "import": {
+        "types": "./types/utime.d.ts",
+        "default": "./esm/utime.js"
+      }
+    },
+    "./umask": {
+      "import": {
+        "types": "./types/umask.d.ts",
+        "default": "./esm/umask.js"
+      }
+    },
+    "./walk": {
+      "import": {
+        "types": "./types/walk.d.ts",
+        "default": "./esm/walk.js"
+      }
+    },
+    "./write-file": {
+      "import": {
+        "types": "./types/write_file.d.ts",
+        "default": "./esm/write_file.js"
+      }
+    },
+    "./write-text-file": {
+      "import": {
+        "types": "./types/write_text_file.d.ts",
+        "default": "./esm/write_text_file.js"
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:bun": "bun test"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neotales/path": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0"
+  },
+  "_generatedBy": "dnt@0.43.2"
+}
