@@ -54,22 +54,15 @@ test("renameSync moves empty directories and rejects file-to-directory replaceme
         throws(() => renameSync(file, directory));
     });
 });
-test("rename handles platform-specific empty directory replacement", async () => {
+test("rename replaces an empty destination directory and retains its directory type", async () => {
     await withTestRoot(async (root) => {
         const source = join(root, "source");
         const destination = join(root, "destination");
         await ensureDir(source);
         await ensureDir(destination);
-        if (isWindows) {
-            await rejects(rename(source, destination));
-            strictEqual(await exists(source, { isDirectory: true }), true);
-            strictEqual(await exists(destination, { isDirectory: true }), true);
-        }
-        else {
-            await rename(source, destination);
-            strictEqual(await exists(source), false);
-            strictEqual(await exists(destination, { isDirectory: true }), true);
-        }
+        await rename(source, destination);
+        strictEqual(await exists(source), false);
+        strictEqual(await exists(destination, { isDirectory: true }), true);
     });
 });
 test("rename handles platform-specific directory-to-file replacement", async () => {
@@ -118,22 +111,15 @@ test("rename rejects directory destinations that are generated links", { skip: i
         strictEqual(await exists(source), true);
     });
 });
-test("renameSync handles platform-specific empty directory replacement", () => {
+test("renameSync replaces an empty destination directory and retains its directory type", () => {
     withTestRootSync((root) => {
         const source = join(root, "source");
         const destination = join(root, "destination");
         ensureDirSync(source);
         ensureDirSync(destination);
-        if (isWindows) {
-            throws(() => renameSync(source, destination));
-            strictEqual(existsSync(source, { isDirectory: true }), true);
-            strictEqual(existsSync(destination, { isDirectory: true }), true);
-        }
-        else {
-            renameSync(source, destination);
-            strictEqual(existsSync(source), false);
-            strictEqual(existsSync(destination, { isDirectory: true }), true);
-        }
+        renameSync(source, destination);
+        strictEqual(existsSync(source), false);
+        strictEqual(existsSync(destination, { isDirectory: true }), true);
     });
 });
 test("renameSync handles platform-specific directory-to-file replacement", () => {
