@@ -1,0 +1,92 @@
+{
+  "name": "@neotales/exec",
+  "version": "0.0.0-alpha.0",
+  "description": "The exec module makes it easy to spawn child_processes across different runtimes and different operating systems.",
+  "keywords": [
+    "exec",
+    "command",
+    "shell",
+    "process",
+    "child-process",
+    "spawn",
+    "which",
+    "split-arguments",
+    "splat"
+  ],
+  "homepage": "https://github.com/neotales/js-std",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neotales/js-std.git",
+    "directory": "npm/exec"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neotales/js-std/issues"
+  },
+  "module": "./esm/mod.js",
+  "types": "./types/mod.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/mod.d.ts",
+        "default": "./esm/mod.js"
+      }
+    },
+    "./args-builder": {
+      "import": {
+        "types": "./types/args_builder.d.ts",
+        "default": "./esm/args_builder.js"
+      }
+    },
+    "./command": {
+      "import": {
+        "types": "./types/command.d.ts",
+        "default": "./esm/command.js"
+      }
+    },
+    "./errors": {
+      "import": {
+        "types": "./types/errors.d.ts",
+        "default": "./esm/errors.js"
+      }
+    },
+    "./path-finder": {
+      "import": {
+        "types": "./types/path_finder.d.ts",
+        "default": "./esm/path_finder.js"
+      }
+    },
+    "./set-logger": {
+      "import": {
+        "types": "./types/set_logger.d.ts",
+        "default": "./esm/set_logger.js"
+      }
+    },
+    "./which": {
+      "import": {
+        "types": "./types/which.d.ts",
+        "default": "./esm/which.js"
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:bun": "bun test"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neotales/args": "workspace:*",
+    "@neotales/chars": "workspace:*",
+    "@neotales/env": "workspace:*",
+    "@neotales/fs": "workspace:*",
+    "@neotales/path": "workspace:*",
+    "@neotales/strings": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0"
+  },
+  "_generatedBy": "dnt@0.43.2"
+}

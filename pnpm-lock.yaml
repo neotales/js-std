@@ -91,6 +91,31 @@ importers:
         specifier: ^22.17.0
         version: 22.20.1
 
+  npm/exec:
+    dependencies:
+      '@neotales/args':
+        specifier: workspace:*
+        version: link:../args
+      '@neotales/chars':
+        specifier: workspace:*
+        version: link:../chars
+      '@neotales/env':
+        specifier: workspace:*
+        version: link:../env
+      '@neotales/fs':
+        specifier: workspace:*
+        version: link:../fs
+      '@neotales/path':
+        specifier: workspace:*
+        version: link:../path
+      '@neotales/strings':
+        specifier: workspace:*
+        version: link:../strings
+    devDependencies:
+      '@types/node':
+        specifier: ^22.17.0
+        version: 22.20.1
+
   npm/fmt:
     dependencies:
       '@neotales/process':
