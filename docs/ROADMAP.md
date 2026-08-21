@@ -106,3 +106,59 @@ Core features:
   without touching core.
 - Cross-runtime (Deno, Node, Bun) like every other module; no dependencies on
   runtime-specific logging APIs.
+
+### `di`
+
+A reflection-free dependency injection module. TypeScript runtimes lack
+reliable runtime type metadata (no equivalent of C# attribute reflection that
+works uniformly across Deno, Node, and Bun), so wiring is done with explicit
+typed factories instead of reflective containers - the same direction as
+compile-time DI in .NET such as
+[Pure.DI](https://github.com/amis92/csharp-source-generators) and Jab from the
+[source generator DI list](https://github.com/amis92/csharp-source-generators),
+but simpler: no compiler plugin required.
+
+Core ideas:
+
+- A `Container`/`Scope` built from plain factory functions:
+  `register(name, factory)` where factories receive already-resolved
+  dependencies as a typed object.
+- Lifetimes: singleton, scoped, transient.
+- Composition roots are ordinary functions, hand-written or generated.
+- Optional codegen (an `eng/` build step, not a runtime mechanism): scan a
+  manifest or JSDoc annotations and emit a typed composition root module -
+  analogous to C# source generators but far less complex, since it runs at
+  build time over plain TS sources.
+- No decorators, no `Reflect.metadata`, no Proxy-based property injection;
+  errors surface at compile time in generated code wherever possible.
+
+### `plugin`
+
+A plugin architecture for composing applications from swappable components,
+where services, adapters, and features are all plugins. Informed by
+[Cordis](https://github.com/cordiverse/cordis), the meta-framework behind
+Koishi (4 years, 4,000+ community plugins) and DeepSeek Harness, whose design
+is formalized in _A Programming Paradigm for Spatiotemporal Composability_
+([paper](https://github.com/cordiverse/paper)).
+
+What we adopt from Cordis:
+
+- **Revertible effects** (temporal composability): every registration returns
+  a disposer; unloading a plugin composes disposers in reverse order so
+  teardown is complete by construction. This matches the disposal patterns
+  already used in `exec` (`await using` child processes).
+- **Declared dependencies** (spatial composability): plugins declare what
+  they `provide` and `require` by key; a plugin only starts when its
+  requirements are satisfied and is stopped when a requirement disappears,
+  with dependents torn down first.
+- Lifecycle events (`setup`, `ready`, `dispose`) and hierarchical scopes.
+
+What we deliberately do not adopt:
+
+- Cordis's Proxy-based context access and reactive service interception -
+  too much hidden runtime behavior for a std library, and its v4 API is
+  explicitly unstable.
+- Runtime service-location as the primary resolution path; instead, plugin
+  services resolve through the `di` module's typed factories, keeping the
+  graph visible and debuggable. Cordis demonstrates the concepts compose;
+  this pairing shows they mesh without reflection.
