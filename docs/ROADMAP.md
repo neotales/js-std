@@ -315,6 +315,9 @@ Modules continue in parallel.
   available.
 - `encoding` - base64/base32/hex/varint plus csv, toml, yaml, jsonc
   parsers/writers (Go `encoding/*`, deno/std).
+
+### Milestone 5: Template
+
 - `template` - text and HTML templating modeled on Go's `text/template` and
   `html/template`. Hand-written lexer/parser with no regex: actions
   (`{{ .Field }}`), pipelines (`|`), functions, `if`/`range`/`with`,
@@ -322,7 +325,7 @@ Modules continue in parallel.
   plain text rendering and HTML rendering with context-aware auto-escaping
   (HTML, attribute, JS, CSS, URL contexts) as `html/template` does. A
   Twig-inspired variant (inheritance, `{% %}` blocks, filters) is a much
-  later follow-up tracked separately.
+  later follow-up tracked separately in the backlog as `template-twig`.
 
 ## Backlog
 
