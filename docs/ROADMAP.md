@@ -232,3 +232,45 @@ slidingWindows, zip, and friends):
 - Binary heap/priority queue.
 - Pure functions for arrays, records, and iterables following the
   `@std/collections` API shape where it fits.
+
+### `resilience`
+
+Transient fault handling modeled on [.NET's
+Polly](https://github.com/App-vNext/Polly) resilience pipelines and its closest
+JavaScript counterpart [Cockatiel](https://github.com/connor4312/cockatiel),
+which proves the policy-composition model works well in TypeScript. Policies
+share one interface and compose by wrapping:
+
+- Retry with configurable backoff: constant, linear, exponential, exponential
+  with jitter; max attempts or total-time budget; retry filters for which
+  errors/results qualify.
+- Circuit breaker: consecutive-failure and failure-ratio breakers with
+  closed/open/half-open states and state-change events.
+- Timeout via `AbortSignal` propagation to the wrapped operation.
+- Bulkhead isolation (concurrency limits) and rate limiting.
+- Fallback values/handlers when all else fails.
+- Hedged parallel attempts (Polly v8 style).
+- Pipelines compose like Polly v8 (`retry` + `circuitBreaker` + `timeout`
+  as one pipeline), emit events that integrate with `log` categories and
+  `metrics` instruments, and work across Deno, Node, Bun, and Cloudflare
+  Workers (no Node-only APIs).
+
+### `config`
+
+Layered configuration with typed providers. Values resolve through a provider
+chain where later providers override earlier ones, and every read is strongly
+typed. Providers:
+
+- `memory` - in-code defaults and test fixtures.
+- `env` - environment variables via `@neotales/env`, including prefix
+  scoping and key transformation.
+- `dotenv files` - `.env`, `.env.local`, and environment-specific variants
+  loaded through `@neotales/dotenv`, ordered so more specific files override
+  general ones.
+- `json files` - `appsettings.json` style layered JSON with optional
+  file-watching for reloads.
+- `args` - command-line overrides via `@neotales/args`.
+
+The provider interface is small and public so community providers (remote
+stores, secrets managers) plug in without touching core. Integrates with
+`di` for injecting typed config sections into services.
