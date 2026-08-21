@@ -274,3 +274,92 @@ typed. Providers:
 The provider interface is small and public so community providers (remote
 stores, secrets managers) plug in without touching core. Integrates with
 `di` for injecting typed config sections into services.
+
+## Milestones
+
+New modules are built in milestone order. Modules listed above under Planned
+Modules continue in parallel.
+
+### Milestone 1: I/O & Runtime
+
+- `streams` - merge, chunk, line-splitting, batching, and backpressure
+  helpers over Web Streams; the foundation for the other I/O modules.
+- `io` - buffered readers/writers, readers over strings/bytes, copy and
+  counting utilities (Zig std.io style, Go bufio semantics).
+- `http` - cross-runtime server/client abstraction (Deno.serve, Bun.serve,
+  Node http, Cloudflare Workers fetch), router, middleware chain.
+- `websocket` - client wrapper with reconnect/backoff via `resilience`.
+- `watcher` - file watching with debounce and glob filters.
+- `net` - TCP/UDP where the runtime allows; feature-detected like `exec`.
+
+### Milestone 2: Time
+
+- `clock` - injectable clock abstraction plus stopwatch/timer so time-dependent
+  code is testable; fake clock for tests.
+- `datetime` - cross-runtime date/time utilities, ISO 8601 parsing/formatting,
+  timezone-safe conversions (Go `time`, .NET DateTimeOffset semantics).
+- `scheduler` - cron expressions, intervals, one-shot jobs driven by `clock`.
+
+### Milestone 3: Validation
+
+- `validation` - schema definition with parse-don't-validate semantics
+  (zod/valibot niche, .NET DataAnnotations): typed inference from schemas,
+  precise error paths, no regex-based validators where character scanning
+  suffices. Companion `guard` helpers for argument preconditions.
+
+### Milestone 4: Data Formats
+
+- `archive` - zip and tar read/write over Web Streams (.NET
+  System.IO.Compression, Go `archive/*`).
+- `compression` - gzip/deflate/brotli via `CompressionStream`, zstd where
+  available.
+- `encoding` - base64/base32/hex/varint plus csv, toml, yaml, jsonc
+  parsers/writers (Go `encoding/*`, deno/std).
+- `template` - text and HTML templating modeled on Go's `text/template` and
+  `html/template`. Hand-written lexer/parser with no regex: actions
+  (`{{ .Field }}`), pipelines (`|`), functions, `if`/`range`/`with`,
+  variables, and trim markers, matching Go's grammar. Two entry points:
+  plain text rendering and HTML rendering with context-aware auto-escaping
+  (HTML, attribute, JS, CSS, URL contexts) as `html/template` does. A
+  Twig-inspired variant (inheritance, `{% %}` blocks, filters) is a much
+  later follow-up tracked separately.
+
+## Backlog
+
+No committed milestone; grouped by theme and pulled forward on demand.
+
+### Cryptography & Security
+
+- `crypto` - hashing via WebCrypto (SHA-2/SHA-3), HMAC, HKDF,
+  constant-time comparison, password hashing hooks.
+- `jwt` - sign/verify tokens building on `crypto`.
+- `otp` - TOTP/HOTP generation and verification.
+
+### Concurrency & Async
+
+- `sync` - channels, wait groups, mutexes, semaphores, once, cancellation
+  tokens (Go/Rust/.NET inspired).
+- `workerpool` - bounded parallel execution over web workers/worker_threads.
+- `events` - typed event emitter/bus.
+
+### Testing & Correctness
+
+- `testing` - mocks/fakes, snapshot testing, property-based generators,
+  fake clock/filesystem built on `clock` and `fs`.
+
+### Math & Data
+
+- `math` - statistics, distributions, lerp/clamp, big-decimal on BigInt.
+- `random` - seeded PRNGs (xorshift/PCG), sampling, shuffling; distinct
+  from WebCrypto randomness used by `uuid`.
+
+### Developer Experience
+
+- `cli` - prompts, spinners, progress bars, tables, word wrap
+  (deno/std/cli inspired).
+- `humanize` - bytes, durations, numbers, percentages.
+- `cache` - LRU/LFU/TTL caches and memoization with invalidation.
+- `functional` - compose, pipe, curry.
+- `template-twig` - Twig-style templating (template inheritance, block
+  overrides, filter chains) layered on the `template` engine; explicitly
+  deferred until `template` has shipped and stabilized.
