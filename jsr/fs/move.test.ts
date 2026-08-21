@@ -92,12 +92,14 @@ test("move accepts every string and URL self-file pair when overwrite is enabled
     const file = join(root, "file");
     const url = pathToFileURL(file);
     await writeTextFile(file, "value");
-    for (const [source, destination] of [
-      [file, file],
-      [file, url],
-      [url, file],
-      [url, url],
-    ] as const) {
+    for (
+      const [source, destination] of [
+        [file, file],
+        [file, url],
+        [url, file],
+        [url, url],
+      ] as const
+    ) {
       await move(source, destination, { overwrite: true });
       strictEqual(await readTextFile(file), "value");
     }
@@ -109,12 +111,14 @@ test("move rejects every string and URL self-directory pair", async () => {
     const directory = join(root, "directory");
     const url = pathToFileURL(directory);
     await ensureDir(directory);
-    for (const [source, destination] of [
-      [directory, directory],
-      [directory, url],
-      [url, directory],
-      [url, url],
-    ] as const) {
+    for (
+      const [source, destination] of [
+        [directory, directory],
+        [directory, url],
+        [url, directory],
+        [url, url],
+      ] as const
+    ) {
       await rejects(move(source, destination));
       strictEqual(await exists(directory), true);
     }
@@ -126,12 +130,14 @@ test("moveSync accepts every string and URL self-file pair when overwrite is ena
     const file = join(root, "file");
     const url = pathToFileURL(file);
     writeTextFileSync(file, "value");
-    for (const [source, destination] of [
-      [file, file],
-      [file, url],
-      [url, file],
-      [url, url],
-    ] as const) {
+    for (
+      const [source, destination] of [
+        [file, file],
+        [file, url],
+        [url, file],
+        [url, url],
+      ] as const
+    ) {
       moveSync(source, destination, { overwrite: true });
       strictEqual(readTextFileSync(file), "value");
     }
@@ -143,12 +149,14 @@ test("moveSync rejects every string and URL self-directory pair", () => {
     const directory = join(root, "directory");
     const url = pathToFileURL(directory);
     ensureDirSync(directory);
-    for (const [source, destination] of [
-      [directory, directory],
-      [directory, url],
-      [url, directory],
-      [url, url],
-    ] as const) {
+    for (
+      const [source, destination] of [
+        [directory, directory],
+        [directory, url],
+        [url, directory],
+        [url, url],
+      ] as const
+    ) {
       throws(() => moveSync(source, destination));
       strictEqual(existsSync(directory), true);
     }

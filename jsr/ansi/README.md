@@ -60,7 +60,7 @@ console.log(link("Neotales", "https://github.com/neotales/js-std"));
 ## Extended Colors
 
 ```ts
-import { bgRgb24, rgb8, rgb24 } from "@neotales/ansi";
+import { bgRgb24, rgb24, rgb8 } from "@neotales/ansi";
 
 rgb8("palette", 208);
 rgb24("true color", { r: 255, g: 140, b: 0 });

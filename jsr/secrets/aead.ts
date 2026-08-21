@@ -50,8 +50,9 @@ export async function decrypt(
   iv: Uint8Array,
   additionalData?: Uint8Array,
 ): Promise<Uint8Array> {
-  if (value.length < TAG_LENGTH)
+  if (value.length < TAG_LENGTH) {
     throw new Error("Encrypted value is missing an authentication tag");
+  }
 
   const cryptoKey = await crypto.subtle.importKey(
     "raw",

@@ -78,7 +78,7 @@ export function format(milliseconds: number, options: FormatOptions = {}): strin
       const result = parts.map((part) =>
         ["milliseconds", "microseconds", "nanoseconds"].includes(part.unit)
           ? String(part.value).padStart(3, "0")
-          : String(part.value).padStart(2, "0"),
+          : String(part.value).padStart(2, "0")
       );
       if (ignoreZero) {
         while (!Number(result[result.length - 1])) result.pop();

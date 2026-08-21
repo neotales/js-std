@@ -112,8 +112,7 @@ export function bgRgb24(value: string, color: number | Rgb): string {
 export function rgb24To8(value: string, color: number | Rgb): string {
   if (typeof color === "number" && color < 256) return rgb8(value, color);
   const value24 = rgb(color);
-  const index =
-    16 +
+  const index = 16 +
     36 * Math.round(value24.r / 51) +
     6 * Math.round(value24.g / 51) +
     Math.round(value24.b / 51);

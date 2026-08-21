@@ -124,7 +124,7 @@ test("walkSync skips generated paths matching a regular expression", () => {
     writeTextFileSync(join(root, "skip", "ignored.ts"), "");
     deepStrictEqual(
       [...walkSync(root, { includeDirs: false, skip: [/skip/] })].map(({ path }) =>
-        relative(root, path),
+        relative(root, path)
       ),
       ["keep.ts"],
     );

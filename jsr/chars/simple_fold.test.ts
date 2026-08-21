@@ -1,5 +1,5 @@
 import { test } from "node:test";
-import { ok, deepStrictEqual as equal } from "node:assert/strict";
+import { deepStrictEqual as equal, ok } from "node:assert/strict";
 import { equalFold, simpleFold } from "./simple_fold.ts";
 
 test("chars::simpleFold", () => {

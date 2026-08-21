@@ -60,7 +60,7 @@ test("expandGlobSync includes literal paths and can exclude directories", () => 
     );
     deepStrictEqual(
       [...expandGlobSync("**/*.ts", { exclude: ["nested/**"], root })].map(({ path }) =>
-        relative(root, path),
+        relative(root, path)
       ),
       ["root.ts"],
     );
@@ -178,7 +178,7 @@ test("expandGlob handles trailing directories, parent globstars, excludes, and n
     await writeTextFile(join(narrow, "inside.ts"), "");
     deepStrictEqual(
       (await Array.fromAsync(expandGlob("directories/*/", { root }))).map(({ path }) =>
-        relative(root, path),
+        relative(root, path)
       ),
       [join("directories", "child")],
     );
@@ -194,7 +194,7 @@ test("expandGlob handles trailing directories, parent globstars, excludes, and n
     );
     deepStrictEqual(
       (await Array.fromAsync(expandGlob("**/*.ts", { root: narrow }))).map(({ path }) =>
-        relative(narrow, path),
+        relative(narrow, path)
       ),
       ["inside.ts"],
     );
@@ -239,7 +239,7 @@ test("expandGlob accepts a generated symlink as its root", { skip: isWindows }, 
     await symlink(target, link, { type: "dir" });
     deepStrictEqual(
       (await Array.fromAsync(expandGlob("**/*.ts", { root: link }))).map(({ path }) =>
-        relative(link, path),
+        relative(link, path)
       ),
       ["child.ts"],
     );

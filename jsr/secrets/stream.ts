@@ -94,8 +94,9 @@ export function decryptStream(
   async function process(controller: TransformStreamDefaultController<Uint8Array>): Promise<void> {
     if (!prefix && buffered.length >= HEADER_LENGTH) {
       const header = buffered.subarray(0, HEADER_LENGTH);
-      if (!equalBytes(header.subarray(0, MAGIC.length), MAGIC))
+      if (!equalBytes(header.subarray(0, MAGIC.length), MAGIC)) {
         throw new Error("Invalid encrypted stream header");
+      }
       prefix = header.subarray(MAGIC.length).slice();
       buffered = buffered.subarray(HEADER_LENGTH);
     }

@@ -2,7 +2,7 @@
 
 import { args } from "@neotales/process/args";
 import { get, has } from "@neotales/env";
-import { AnsiModes, type AnsiMode } from "./enums.ts";
+import { type AnsiMode, AnsiModes } from "./enums.ts";
 
 export type DetectOptions = {
   args?: readonly string[];
@@ -62,8 +62,9 @@ export function detectMode(options: DetectOptions = {}): AnsiMode {
   const colorArgument = runtimeArgs.find((value) => value.startsWith("--color="));
   const colorIndex = runtimeArgs.indexOf("--color");
 
-  if (runtimeArgs.includes("--no-color") || runtimeArgs.includes("--nocolor"))
+  if (runtimeArgs.includes("--no-color") || runtimeArgs.includes("--nocolor")) {
     return AnsiModes.None;
+  }
   if (colorArgument) return forcedMode(colorArgument.slice("--color=".length));
   if (colorIndex >= 0) {
     const next = runtimeArgs[colorIndex + 1];
@@ -86,8 +87,9 @@ export function detectMode(options: DetectOptions = {}): AnsiMode {
     const alias = AnsiModes.toValue(term) as AnsiMode;
     if (alias !== AnsiModes.Auto) return alias;
     if (/-256(color)?$/i.test(term)) return AnsiModes.EightBit;
-    if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(term))
+    if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(term)) {
       return AnsiModes.FourBit;
+    }
   }
   if (hasValue("COLORTERM")) return AnsiModes.FourBit;
   return (options.windows ?? isWindows()) ? AnsiModes.FourBit : AnsiModes.None;

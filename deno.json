@@ -4,9 +4,6 @@
     "@types/node": "npm:@types/node@^22.0.0"
   },
   "tasks": {
-    "import": "deno run -A ./eng/main.ts import",
-    "modules": "deno run -A ./eng/main.ts modules",
-    "normalize": "deno run -A ./eng/main.ts normalize",
     "build": "deno run -A ./eng/main.ts build",
     "test": "deno run -A ./eng/main.ts test",
     "test:e2e": "deno test -A ./e2e && deno task test:workers",
@@ -27,6 +24,6 @@
     "lineWidth": 100,
     "singleQuote": false,
     "proseWrap": "preserve",
-    "exclude": ["npm/*/node_modules", "npm/*/dist"]
+    "exclude": ["npm", "artifacts", "node_modules"]
   }
 }

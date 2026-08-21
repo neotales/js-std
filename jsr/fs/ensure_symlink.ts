@@ -55,8 +55,8 @@ export async function ensureSymlink(target: string | URL, linkName: string | URL
 
   const options: SymlinkOptions | undefined = WIN
     ? {
-        type: srcFilePathType === "dir" ? "dir" : "file",
-      }
+      type: srcFilePathType === "dir" ? "dir" : "file",
+    }
     : undefined;
 
   try {
@@ -108,8 +108,8 @@ export function ensureSymlinkSync(target: string | URL, linkName: string | URL) 
 
   const options: SymlinkOptions | undefined = WIN
     ? {
-        type: srcFilePathType === "dir" ? "dir" : "file",
-      }
+      type: srcFilePathType === "dir" ? "dir" : "file",
+    }
     : undefined;
 
   try {

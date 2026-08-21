@@ -43,8 +43,9 @@ function decrypt(
   iv: Uint8Array,
   additionalData?: Uint8Array,
 ): Uint8Array {
-  if (value.length < TAG_LENGTH)
+  if (value.length < TAG_LENGTH) {
     throw new Error("Encrypted value is missing an authentication tag");
+  }
   const decipher = createDecipheriv("aes-256-gcm", getKeyBytes(key), iv);
   if (additionalData) decipher.setAAD(additionalData);
   decipher.setAuthTag(value.subarray(-TAG_LENGTH));
@@ -200,8 +201,9 @@ export function* decryptChunks(
     buffered = concatBytes(buffered, chunk);
     if (!prefix && buffered.length >= HEADER_LENGTH) {
       const header = buffered.subarray(0, HEADER_LENGTH);
-      if (!equalBytes(header.subarray(0, MAGIC.length), MAGIC))
+      if (!equalBytes(header.subarray(0, MAGIC.length), MAGIC)) {
         throw new Error("Invalid encrypted stream header");
+      }
       prefix = header.subarray(MAGIC.length).slice();
       buffered = buffered.subarray(HEADER_LENGTH);
     }

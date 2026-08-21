@@ -199,11 +199,13 @@ export async function* expandGlob(
       });
     }
     const globPattern = globToRegExp(globSegment, globOptions);
-    for await (const walkEntry of walk(walkInfo.path, {
-      maxDepth: 1,
-      skip: excludePatterns,
-      followSymlinks,
-    })) {
+    for await (
+      const walkEntry of walk(walkInfo.path, {
+        maxDepth: 1,
+        skip: excludePatterns,
+        followSymlinks,
+      })
+    ) {
       if (walkEntry.path !== walkInfo.path && walkEntry.name.match(globPattern)) {
         yield walkEntry;
       }
@@ -354,11 +356,13 @@ export function* expandGlobSync(
       });
     }
     const globPattern = globToRegExp(globSegment, globOptions);
-    for (const walkEntry of walkSync(walkInfo.path, {
-      maxDepth: 1,
-      skip: excludePatterns,
-      followSymlinks,
-    })) {
+    for (
+      const walkEntry of walkSync(walkInfo.path, {
+        maxDepth: 1,
+        skip: excludePatterns,
+        followSymlinks,
+      })
+    ) {
       if (walkEntry.path !== walkInfo.path && walkEntry.name.match(globPattern)) {
         yield walkEntry;
       }

@@ -97,8 +97,9 @@ export function inspectBrowser(value: unknown, options: InspectOptions = {}): st
 
     active.add(current);
     try {
-      if (current instanceof Date)
+      if (current instanceof Date) {
         return Number.isNaN(current.valueOf()) ? "Invalid Date" : current.toISOString();
+      }
       if (current instanceof RegExp) return String(current);
       if (current instanceof Error) return `${current.name}: ${current.message}`;
 
@@ -126,7 +127,9 @@ export function inspectBrowser(value: unknown, options: InspectOptions = {}): st
           .slice(0, limit)
           .map(
             ([mapKey, mapValue]) =>
-              `${render(mapKey, remaining - 1, level + 1)} => ${render(mapValue, remaining - 1, level + 1)}`,
+              `${render(mapKey, remaining - 1, level + 1)} => ${
+                render(mapValue, remaining - 1, level + 1)
+              }`,
           );
         if (current.size > limit) entries.push(`... ${current.size - limit} more item(s)`);
         return `Map(${current.size}) ${collection("{", "}", entries, level)}`;
@@ -141,8 +144,9 @@ export function inspectBrowser(value: unknown, options: InspectOptions = {}): st
       }
 
       let properties = options.showHidden ? Reflect.ownKeys(current) : Object.keys(current);
-      if (options.sorted)
+      if (options.sorted) {
         properties = properties.sort((left, right) => String(left).localeCompare(String(right)));
+      }
       const entries = properties.slice(0, limit).map((property) => {
         const descriptor = Object.getOwnPropertyDescriptor(current, property);
         let propertyValue: string;
@@ -155,12 +159,11 @@ export function inspectBrowser(value: unknown, options: InspectOptions = {}): st
               propertyValue = "[Getter: threw]";
             }
           } else {
-            propertyValue =
-              descriptor.get && descriptor.set
-                ? "[Getter/Setter]"
-                : descriptor.get
-                  ? "[Getter]"
-                  : "[Setter]";
+            propertyValue = descriptor.get && descriptor.set
+              ? "[Getter/Setter]"
+              : descriptor.get
+              ? "[Getter]"
+              : "[Setter]";
           }
         } else {
           propertyValue = render(descriptor.value, remaining - 1, level + 1);
@@ -179,13 +182,14 @@ export function inspectBrowser(value: unknown, options: InspectOptions = {}): st
   const collection = (open: string, close: string, entries: string[], level: number): string => {
     if (!entries.length) return open + close;
     const inline = `${open} ${entries.join(", ")} ${close}`;
-    const multiline =
-      options.compact === false ||
+    const multiline = options.compact === false ||
       (options.compact !== true && inline.length > (options.breakLength ?? 80));
     if (!multiline) return inline;
     const padding = indent.repeat(level + 1);
     const suffix = options.trailingComma ? "," : "";
-    return `${open}\n${padding}${entries.join(`,\n${padding}`)}${suffix}\n${indent.repeat(level)}${close}`;
+    return `${open}\n${padding}${entries.join(`,\n${padding}`)}${suffix}\n${
+      indent.repeat(level)
+    }${close}`;
   };
 
   return render(value, depth, 0);

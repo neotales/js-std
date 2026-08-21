@@ -179,8 +179,7 @@ if (typeof globals.Deno !== "undefined") {
   if (platform === "win32") {
     platform = "windows";
   }
-  noColorFlag =
-    globals.process.env.NO_COLOR === "1" ||
+  noColorFlag = globals.process.env.NO_COLOR === "1" ||
     globals.process.env.NO_COLOR === "true" ||
     globals.process.env.COLOR === "0" ||
     globals.process.env.COLOR === "false" ||

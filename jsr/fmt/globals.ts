@@ -1,5 +1,7 @@
-export const globals = globalThis as typeof globalThis &
-  Record<string, unknown> & {
+export const globals = globalThis as
+  & typeof globalThis
+  & Record<string, unknown>
+  & {
     Deno?: {
       noColor: boolean;
       build: {

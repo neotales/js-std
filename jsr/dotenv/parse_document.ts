@@ -425,9 +425,11 @@ export function parseDocument(content: string): DotEnvDocument {
       }
 
       throw new Error(
-        `Invalid character ${String.fromCharCode(
-          char,
-        )} for the value on line ${line}. If you need to include spaces, use quotes.`,
+        `Invalid character ${
+          String.fromCharCode(
+            char,
+          )
+        } for the value on line ${line}. If you need to include spaces, use quotes.`,
       );
     }
 

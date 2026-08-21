@@ -13,8 +13,8 @@ import {
   execSync,
   runSync,
   ShellCommand,
-  spawn,
   type ShellCommandOptions,
+  spawn,
 } from "./command.ts";
 import { globals, WIN } from "./globals.ts";
 import { env } from "@neotales/env/export";
@@ -167,8 +167,7 @@ test("exec::Command - set cwd", async (t) => {
   equal(output2.code, 0);
   ok(output2.text().includes("command.ts") || output2.text().includes("command.js"));
 
-  const home =
-    env.get("HOME") ??
+  const home = env.get("HOME") ??
     env.get("USERPROFILE") ??
     "/home/" + (env.get("USERNAME") ?? env.get("USER"));
   const cmd = new Command(["ls", "-l"], { cwd: home });

@@ -114,8 +114,9 @@ export function whichSync(
     }
 
     if (WIN) {
-      const hasPathExt =
-        pathExtSegments.find((segment) => endsWithFold(fileName, segment)) !== undefined;
+      const hasPathExt = pathExtSegments.find((segment) =>
+        endsWithFold(fileName, segment)
+      ) !== undefined;
 
       if (!hasPathExt) {
         try {
@@ -295,8 +296,9 @@ export async function which(
     }
 
     if (WIN) {
-      const hasPathExt =
-        pathExtSegments.find((segment) => endsWithFold(fileName, segment)) !== undefined;
+      const hasPathExt = pathExtSegments.find((segment) =>
+        endsWithFold(fileName, segment)
+      ) !== undefined;
 
       if (!hasPathExt) {
         try {
@@ -422,9 +424,9 @@ export async function whichAll(
     : undefined;
   const extensions = WIN
     ? (get("PATHEXT") || ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh")
-        .toLowerCase()
-        .split(";")
-        .filter((extension) => !isNullOrSpace(extension))
+      .toLowerCase()
+      .split(";")
+      .filter((extension) => !isNullOrSpace(extension))
     : [];
   const hasExtension = extensions.some((extension) => endsWithFold(fileName, extension));
   const expectedName = baseName.toLowerCase();
@@ -446,8 +448,8 @@ export async function whichAll(
         const matches = pattern
           ? pattern.test(entry.name)
           : WIN && !hasExtension
-            ? extensions.some((extension) => name === expectedName + extension)
-            : name === expectedName;
+          ? extensions.some((extension) => name === expectedName + extension)
+          : name === expectedName;
         if (!matches) continue;
         const path = join(pathSegment, entry.name);
         if (!seen.has(path)) {
@@ -502,9 +504,9 @@ export function whichAllSync(fileName: string, prependPath?: string[], debug = f
     : undefined;
   const extensions = WIN
     ? (get("PATHEXT") || ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh")
-        .toLowerCase()
-        .split(";")
-        .filter((extension) => !isNullOrSpace(extension))
+      .toLowerCase()
+      .split(";")
+      .filter((extension) => !isNullOrSpace(extension))
     : [];
   const hasExtension = extensions.some((extension) => endsWithFold(fileName, extension));
   const expectedName = baseName.toLowerCase();
@@ -526,8 +528,8 @@ export function whichAllSync(fileName: string, prependPath?: string[], debug = f
         const matches = pattern
           ? pattern.test(entry.name)
           : WIN && !hasExtension
-            ? extensions.some((extension) => name === expectedName + extension)
-            : name === expectedName;
+          ? extensions.some((extension) => name === expectedName + extension)
+          : name === expectedName;
         if (!matches) continue;
         const path = join(pathSegment, entry.name);
         if (!seen.has(path)) {

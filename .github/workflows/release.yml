@@ -43,9 +43,7 @@ jobs:
           path: artifacts/${{ github.ref_name }}/
           if-no-files-found: error
 
-      - env:
-          JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
-        run: |
+      - run: |
           deno eval '
             const release = JSON.parse(await Deno.readTextFile("artifacts/${{ github.ref_name }}/release.json"));
             const npmVersionExists = async (name, version) => {
@@ -56,6 +54,7 @@ jobs:
               const jsr = await fetch(`https://jsr.io/${pkg.jsrName}/meta.json`);
               const jsrMeta = jsr.ok ? await jsr.json() : { versions: {} };
               if (!jsrMeta.versions?.[pkg.version]) {
+                // Publishes with GitHub OIDC; requires id-token: write.
                 const output = await new Deno.Command("deno", { args: ["publish"], cwd: `jsr/${pkg.module}`, stdin: "inherit", stdout: "inherit", stderr: "inherit" }).output();
                 if (!output.success) Deno.exit(output.code);
               } else console.log(`Skipping JSR publish for ${pkg.jsrName}@${pkg.version}; version already exists.`);

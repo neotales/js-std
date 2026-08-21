@@ -80,7 +80,7 @@ export function globToRegExpInternal(
   let regExpString = "";
 
   // Terminates correctly. Trust that `j` is incremented every iteration.
-  for (let j = 0; j < glob.length; ) {
+  for (let j = 0; j < glob.length;) {
     let segment = "";
     const groupStack: string[] = [];
     let inRange = false;
@@ -92,9 +92,8 @@ export function globToRegExpInternal(
     for (; i < glob.length && !(c.seps.includes(glob[i]!) && groupStack.length === 0); i++) {
       if (inEscape) {
         inEscape = false;
-        const escapeChars = (inRange
-          ? RANGE_ESCAPE_CHARS
-          : REG_EXP_ESCAPE_CHARS) as unknown as EscapeChar[];
+        const escapeChars =
+          (inRange ? RANGE_ESCAPE_CHARS : REG_EXP_ESCAPE_CHARS) as unknown as EscapeChar[];
         segment += escapeChars.includes(glob[i]! as EscapeChar) ? `\\${glob[i]}` : glob[i];
         continue;
       }

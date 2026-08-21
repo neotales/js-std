@@ -39,13 +39,13 @@ npm install @neotales/chars
 
 ```typescript
 import {
-  isUpperAt,
-  isLowerAt,
-  isDigit,
-  isAscii,
-  isLatin1,
-  isSpaceAt,
   equalFold,
+  isAscii,
+  isDigit,
+  isLatin1,
+  isLowerAt,
+  isSpaceAt,
+  isUpperAt,
 } from "@neotales/chars";
 
 const str = "Hello, World 123";

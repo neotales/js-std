@@ -35,7 +35,7 @@ npm install @neotales/exec
 ## Quick Start
 
 ```typescript
-import { cmd, exec, which, run } from "@neotales/exec";
+import { cmd, exec, run, which } from "@neotales/exec";
 
 // Find an executable on the PATH
 const gitPath = await which("git");
@@ -137,7 +137,7 @@ const nodePaths = await whichAll("node*");
 | `getLogger()`    | Gets the current logger function           |
 
 ```typescript
-import { setLogger, cmd } from "@neotales/exec";
+import { cmd, setLogger } from "@neotales/exec";
 
 // Log all executed commands
 setLogger((file, args) => {
@@ -316,7 +316,7 @@ console.log(toolPath);
 ### Error Handling
 
 ```typescript
-import { exec, CommandError, NotFoundOnPathError } from "@neotales/exec";
+import { CommandError, exec, NotFoundOnPathError } from "@neotales/exec";
 
 try {
   const output = await exec(["my-command"]);

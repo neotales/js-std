@@ -22,8 +22,7 @@
  * @module
  */
 
-const WINDOWS =
-  (globalThis as { process?: { platform?: string } }).process?.platform === "win32" ||
+const WINDOWS = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" ||
   (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "windows";
 import { isSpace } from "@neotales/chars/is-space";
 import { toCharArray } from "@neotales/slices/utils";

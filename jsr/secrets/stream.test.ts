@@ -1,6 +1,6 @@
 import { deepStrictEqual, rejects } from "node:assert/strict";
 import { test } from "node:test";
-import { SecretKey, decryptStream, encryptStream } from "./mod.ts";
+import { decryptStream, encryptStream, SecretKey } from "./mod.ts";
 
 async function readAll(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader();

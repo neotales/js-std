@@ -1,4 +1,4 @@
-import { mkdir, readTextFile, readdir, rm, stat, writeTextFile } from "../jsr/fs/mod.ts";
+import { mkdir, readdir, readTextFile, rm, stat, writeTextFile } from "../jsr/fs/mod.ts";
 
 export default {
   async fetch(): Promise<Response> {

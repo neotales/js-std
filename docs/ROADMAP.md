@@ -8,26 +8,26 @@ Modules follow the upstream Frosty Yeti workspace order (`deno task modules`).
 These modules are imported from upstream, adapted for `@neotales`, tested
 across Deno, Node, and Bun, and published to JSR and npm.
 
-| Module | Status | Description |
-|--------|--------|-------------|
-| `chars` | Imported | Character classification and code point utilities |
-| `slices` | Imported | Array and typed array utilities |
-| `strings` | Imported | String utilities |
-| `path` | Imported | Cross-platform path manipulation |
-| `process` | Imported | Process and platform information |
-| `fs` | Imported | Cross-runtime filesystem utilities |
-| `args` | Imported | Command-line argument parsing |
-| `env` | Imported | Environment variable access and expansion |
-| `dotenv` | Imported | `.env` file loading |
-| `exec` | Imported | Cross-runtime child process execution and `which` |
-| `ansi` | Imported | ANSI escape sequences and styling |
-| `secrets` | Imported | Protected secret handling |
-| `fmt` | Imported | Formatting utilities |
+| Module    | Status   | Description                                       |
+| --------- | -------- | ------------------------------------------------- |
+| `chars`   | Imported | Character classification and code point utilities |
+| `slices`  | Imported | Array and typed array utilities                   |
+| `strings` | Imported | String utilities                                  |
+| `path`    | Imported | Cross-platform path manipulation                  |
+| `process` | Imported | Process and platform information                  |
+| `fs`      | Imported | Cross-runtime filesystem utilities                |
+| `args`    | Imported | Command-line argument parsing                     |
+| `env`     | Imported | Environment variable access and expansion         |
+| `dotenv`  | Imported | `.env` file loading                               |
+| `exec`    | Imported | Cross-runtime child process execution and `which` |
+| `ansi`    | Imported | ANSI escape sequences and styling                 |
+| `secrets` | Imported | Protected secret handling                         |
+| `fmt`     | Imported | Formatting utilities                              |
 
 ## Pending Upstream Imports
 
-| Module | Status | Description |
-|--------|--------|-------------|
+| Module   | Status  | Description                       |
+| -------- | ------- | --------------------------------- |
 | `ci-env` | Pending | CI provider environment detection |
 
 `is-process-elevated` was renamed upstream to `is-elevated` and moved to the
@@ -235,8 +235,7 @@ slidingWindows, zip, and friends):
 
 ### `resilience`
 
-Transient fault handling modeled on [.NET's
-Polly](https://github.com/App-vNext/Polly) resilience pipelines and its closest
+Transient fault handling modeled on [.NET's Polly](https://github.com/App-vNext/Polly) resilience pipelines and its closest
 JavaScript counterpart [Cockatiel](https://github.com/connor4312/cockatiel),
 which proves the policy-composition model works well in TypeScript. Policies
 share one interface and compose by wrapping:

@@ -242,10 +242,9 @@ export function expand(
     return "";
   }
 
-  const o =
-    typeof getOrOptions === "function"
-      ? { ...options, get: options?.get ?? getOrOptions, set: options?.set ?? set }
-      : (getOrOptions ?? {});
+  const o = typeof getOrOptions === "function"
+    ? { ...options, get: options?.get ?? getOrOptions, set: options?.set ?? set }
+    : (getOrOptions ?? {});
   o.variableExpansion ??= true;
   o.customErrorMessage ??= true;
   o.variableAssignment ??= true;

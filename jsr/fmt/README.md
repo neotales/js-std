@@ -34,7 +34,7 @@ npm install @neotales/fmt
 ## Quick Start
 
 ```typescript
-import { sprintf, printf, echo, inspect, stripAnsiCode } from "@neotales/fmt";
+import { echo, inspect, printf, sprintf, stripAnsiCode } from "@neotales/fmt";
 
 // Format strings with sprintf
 const msg = sprintf("Hello %s! You have %d messages.", "Alice", 5);
@@ -69,7 +69,7 @@ const plain = stripAnsiCode(colored); // "Error: Something failed"
 | `errorf(format, ...args)`  | Creates an Error with a formatted message                      |
 
 ```typescript
-import { sprintf, printf, echo, errorf } from "@neotales/fmt";
+import { echo, errorf, printf, sprintf } from "@neotales/fmt";
 
 // sprintf - format and return
 const formatted = sprintf("Value: %d, Hex: %x, Float: %.2f", 255, 255, 3.14159);
@@ -172,13 +172,13 @@ by a `format string`. In it's basic form, a format string may just be a
 literal. In case arguments are meant to be formatted, a `directive` is
 contained in the format string, preceded by a '%' character:
 
-     `%<verb>`
+    `%<verb>`
 
 The verb `s` indicates the directive should be replaced by the string
 representation of the argument in the corresponding position of the argument
 list:
 
-     `Hello %s!`
+    `Hello %s!`
 
 applied to the arguments "World" yields "Hello World!".
 

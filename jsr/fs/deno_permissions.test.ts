@@ -31,7 +31,9 @@ async function deniesRead(
     await deno!.writeTextFile(
       script,
       `import { ${functionName} } from ${JSON.stringify(new URL(module, import.meta.url).href)};
-try { ${invocation.replaceAll("$TARGET", JSON.stringify(target))}; } catch (error) { if (error?.name === "NotCapable" || error?.name === "PermissionDenied") Deno.exit(0); }
+try { ${
+        invocation.replaceAll("$TARGET", JSON.stringify(target))
+      }; } catch (error) { if (error?.name === "NotCapable" || error?.name === "PermissionDenied") Deno.exit(0); }
 Deno.exit(1);`,
     );
     const output = await new deno!.Command(deno!.execPath(), {

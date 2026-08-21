@@ -83,7 +83,6 @@ const slice2 = slices.slice([0, 1, 2])
 const slice3 = slice2.slice(1)
 console.log(slice2).at(0); // 0
 console.log(slice3.at(0)); // 1
-
 ```
 
 ## Classes

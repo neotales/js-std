@@ -48,8 +48,9 @@ export const proxy: EnvProxy = new Proxy<EnvProxy>(
       typeof property === "string" && !!property && getEnv(property) !== undefined,
     ownKeys: () => Object.keys(globals.Deno?.env.toObject() ?? globals.process?.env ?? browserEnv),
     getOwnPropertyDescriptor: (_target, property) => {
-      if (typeof property !== "string" || !property || getEnv(property) === undefined)
+      if (typeof property !== "string" || !property || getEnv(property) === undefined) {
         return undefined;
+      }
       return { configurable: true, enumerable: true, value: getEnv(property), writable: true };
     },
   },

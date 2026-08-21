@@ -7,8 +7,7 @@ type RuntimeGlobals = typeof globalThis & {
 export const globals: RuntimeGlobals = globalThis;
 
 // Prefer process when present so Node and Bun take precedence over Deno shims.
-export const isWindows: boolean =
-  globals.process?.platform?.startsWith("win") ||
+export const isWindows: boolean = globals.process?.platform?.startsWith("win") ||
   globals.Deno?.build?.os === "windows" ||
   globals.navigator?.platform?.startsWith("Win") ||
   false;

@@ -9,15 +9,17 @@ const BUN = "Bun" in globalThis;
 
 function captureOutput(statement: string): string {
   const modulePath = DENO ? "./printf.ts" : "./esm/printf.js";
-  const script = `import { echo, echof, print, printf } from ${JSON.stringify(modulePath)};\n${statement}`;
+  const script = `import { echo, echof, print, printf } from ${
+    JSON.stringify(modulePath)
+  };\n${statement}`;
   const process = (globalThis as { process?: { execPath: string } }).process;
   const deno = (globalThis as { Deno?: { execPath(): string } }).Deno;
   const command = DENO ? deno!.execPath() : process!.execPath;
   const args = DENO
     ? ["eval", script]
     : BUN
-      ? ["--eval", script]
-      : ["--input-type=module", "--eval", script];
+    ? ["--eval", script]
+    : ["--input-type=module", "--eval", script];
   const result = spawnSync(command, args, { encoding: "utf8", stdio: "pipe" });
 
   if (result.status !== 0) {

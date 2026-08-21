@@ -83,11 +83,13 @@ test("open supports create and repeated append modes", async () => {
   await withTestRoot(async (root) => {
     const file = join(root, "file");
     await rejects(open(file, { create: true, append: false }));
-    for (const [options, value] of [
-      [{ create: true, append: true }, "first"],
-      [{ write: true, append: true }, " second"],
-      [{ append: true }, " third"],
-    ] as const) {
+    for (
+      const [options, value] of [
+        [{ create: true, append: true }, "first"],
+        [{ write: true, append: true }, " second"],
+        [{ append: true }, " third"],
+      ] as const
+    ) {
       const handle = await open(file, options);
       await handle.write(new TextEncoder().encode(value));
       handle.close();
@@ -132,11 +134,13 @@ test("openSync supports create and repeated append modes", () => {
   withTestRootSync((root) => {
     const file = join(root, "file");
     throws(() => openSync(file, { create: true, append: false }));
-    for (const [options, value] of [
-      [{ create: true, append: true }, "first"],
-      [{ write: true, append: true }, " second"],
-      [{ append: true }, " third"],
-    ] as const) {
+    for (
+      const [options, value] of [
+        [{ create: true, append: true }, "first"],
+        [{ write: true, append: true }, " second"],
+        [{ append: true }, " third"],
+      ] as const
+    ) {
       const handle = openSync(file, options);
       handle.writeSync(new TextEncoder().encode(value));
       handle.close();

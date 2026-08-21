@@ -11,8 +11,7 @@ import { spawnSync } from "node:child_process";
 const sourceDir = dirname(fromFileUrl(import.meta.url));
 const dir = basename(dirname(sourceDir)) === "esm" ? dirname(sourceDir) : sourceDir;
 
-const WINDOWS =
-  (globals.Deno && globals.Deno.build.os === "windows") ||
+const WINDOWS = (globals.Deno && globals.Deno.build.os === "windows") ||
   (globals.process && globals.process.platform === "win32");
 const deno = WINDOWS ? "deno.exe" : "deno";
 const node = WINDOWS ? "node.exe" : "node";

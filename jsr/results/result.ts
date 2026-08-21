@@ -104,10 +104,12 @@ export class Result<T, E = Error> {
 
   /** Creates a result. Prefer {@link ok} and {@link fail} for normal use. */
   constructor(value?: T, error?: E, state: State = error === undefined ? "ok" : "error") {
-    if (state === "ok" && error !== undefined)
+    if (state === "ok" && error !== undefined) {
       throw new ResultError("Result cannot have both value and error");
-    if (state === "error" && value !== undefined)
+    }
+    if (state === "error" && value !== undefined) {
       throw new ResultError("Result cannot have both value and error");
+    }
     this.#state = state;
     this.#value = value;
     this.#error = error;
@@ -368,8 +370,8 @@ export class Result<T, E = Error> {
     return this.ok()
       ? this.value
       : typeof defaultValue === "function"
-        ? (defaultValue as () => T)()
-        : defaultValue;
+      ? (defaultValue as () => T)()
+      : defaultValue;
   }
 
   /**
@@ -400,8 +402,8 @@ export class Result<T, E = Error> {
     return this.failed()
       ? this.error
       : typeof defaultValue === "function"
-        ? (defaultValue as () => E)()
-        : defaultValue;
+      ? (defaultValue as () => E)()
+      : defaultValue;
   }
 
   /**
@@ -461,8 +463,8 @@ export class Result<T, E = Error> {
     return this.ok()
       ? fn(this.value)
       : typeof fallback === "function"
-        ? (fallback as () => U)()
-        : fallback;
+      ? (fallback as () => U)()
+      : fallback;
   }
 
   /**
@@ -492,8 +494,8 @@ export class Result<T, E = Error> {
     return this.failed()
       ? fn(this.error)
       : typeof fallback === "function"
-        ? (fallback as () => F)()
-        : fallback;
+      ? (fallback as () => F)()
+      : fallback;
   }
 }
 
@@ -767,8 +769,8 @@ export function tryCatch<T>(fn: () => T, onRejected?: (error: unknown) => Error)
       onRejected
         ? onRejected(error)
         : error instanceof Error
-          ? error
-          : new Error(errorMessage(error)),
+        ? error
+        : new Error(errorMessage(error)),
     );
   }
 }
@@ -796,8 +798,8 @@ export async function tryCatchAsync<T>(
       onRejected
         ? onRejected(error)
         : error instanceof Error
-          ? error
-          : new Error(errorMessage(error)),
+        ? error
+        : new Error(errorMessage(error)),
     );
   }
 }

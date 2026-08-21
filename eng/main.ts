@@ -1,19 +1,10 @@
 import { build, emptyDir, type EntryPoint } from "@deno/dnt";
-import { copy } from "@std/fs";
 import { basename, join, relative, resolve } from "@std/path";
 
 const root = resolve(import.meta.dirname!, "..");
-const upstreamJsr = resolve(
-  (Deno.env.get("FROSTYETI_JSR") ?? "~/foss/frostyeti/js/jsr").replace(
-    /^~(?=\/)/,
-    Deno.env.get("HOME") ?? "",
-  ),
-);
 const jsrDir = join(root, "jsr");
 const npmDir = join(root, "npm");
 const repository = "https://github.com/neotales/js-std";
-const initialVersion = "0.0.0-alpha.0";
-const oxfmt = join(root, "node_modules", ".bin", "oxfmt");
 const oxlint = join(root, "node_modules", ".bin", "oxlint");
 
 type DenoConfig = {
@@ -38,10 +29,6 @@ type NpmMapping = {
   subPath?: string;
 };
 
-type WorkspaceConfig = {
-  workspace?: string[];
-};
-
 type PackageJson = {
   name: string;
   version: string;
@@ -62,7 +49,7 @@ type ReleasePackage = {
 
 function usage(): never {
   console.error(
-    `Usage: deno task <task> <module>\n\nTasks:\n  import <module>  Import one upstream JSR module\n  modules          List importable upstream modules\n  normalize [module]  Reapply import transformations\n  build <module>   Build one module for npm with dnt\n  test [module] [--deno] [--node] [--bun]  Run selected tests\n  lint             Check source with oxlint\n  fmt [--check]    Format or check formatting with oxfmt\n  audit            Fail on moderate-or-higher npm vulnerabilities\n  check            Run lint, formatting, audit, and all tests\n  pack <module>    Create an npm tarball\n  release-prepare <tag>  Build release artifacts for version-changed modules\n  publish-bootstrap <module> [--dry-run]  First npmjs.org publish\n  publish <module> [--dry-run]  Publish one module to JSR and npm`,
+    `Usage: deno task <task> <module>\n\nTasks:\n  build <module>   Build one module for npm with dnt\n  test [module] [--deno] [--node] [--bun]  Run selected tests\n  lint             Check source with oxlint\n  fmt [--check]    Format or check formatting with deno fmt\n  audit            Fail on moderate-or-higher npm vulnerabilities\n  check            Run lint, formatting, audit, and all tests\n  pack <module>    Create an npm tarball\n  release-prepare <tag>  Build release artifacts for version-changed modules\n  publish-bootstrap <module> [--dry-run]  First npmjs.org publish\n  publish <module> [--dry-run]  Publish one module to JSR and npm`,
   );
   Deno.exit(1);
 }
@@ -161,263 +148,6 @@ async function exists(path: string): Promise<boolean> {
   }
 }
 
-async function migrationModules(): Promise<string[]> {
-  const configPath = join(upstreamJsr, "deno.json");
-  const config = JSON.parse(await Deno.readTextFile(configPath)) as WorkspaceConfig;
-  return (config.workspace ?? [])
-    .map((workspace) => workspace.replace(/^\.\//, ""))
-    .filter((name) => !["assert", "globals"].includes(name));
-}
-
-async function nextModule(): Promise<string | undefined> {
-  for (const name of await migrationModules()) {
-    if (!(await exists(join(jsrDir, name, "deno.json")))) return name;
-  }
-}
-
-function rebrand(content: string): string {
-  return content
-    .replaceAll(
-      "raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png",
-      "raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png",
-    )
-    .replaceAll("frostyeti%2Fjs", "neotales%2Fjs-std")
-    .replaceAll("frostyeti%2F", "neotales%2F")
-    .replaceAll("@frostyeti/", "@neotales/")
-    .replaceAll("github.com/frostyeti/js", "github.com/neotales/js-std")
-    .replaceAll(
-      "raw.githubusercontent.com/frostyeti/js",
-      "raw.githubusercontent.com/neotales/js-std",
-    )
-    .replaceAll("frostyeti", "neotales")
-    .replaceAll("Frost Yeti", "Neotales")
-    .replaceAll("frostyeti.com", "neotales.dev")
-    .replace(
-      /^Copyright (\d{4})(?:-\d{4})? (?:Frost Yeti|Neotales)(?: and Grim Frost Mage)?$/gm,
-      "Copyright $1-2026 Neotales",
-    );
-}
-
-function nodeAssertions(content: string): string {
-  const imported = content.match(
-    /^import \{([^}]+)\} from "@(?:frostyeti|neotales)\/assert";\r?\n/m,
-  );
-  if (!imported && !content.includes('from "node:assert/strict"')) return content;
-
-  const direct: Record<string, string> = {
-    equal: "deepStrictEqual",
-    notEqual: "notDeepStrictEqual",
-    strictEquals: "strictEqual",
-    notStrictEquals: "notStrictEqual",
-    ok: "ok",
-    fail: "fail",
-    throws: "throws",
-    rejects: "rejects",
-    match: "match",
-    notMatch: "doesNotMatch",
-  };
-  const wrappers: Record<string, string> = {
-    nope: "const nope = (value: unknown, message?: string) => ok(!value, message);",
-    instanceOf:
-      "const instanceOf = (value: unknown, constructor: abstract new (...args: never[]) => object, message?: string) => ok(value instanceof constructor, message);",
-    notInstanceOf:
-      "const notInstanceOf = (value: unknown, constructor: abstract new (...args: never[]) => object, message?: string) => ok(!(value instanceof constructor), message);",
-    exists:
-      "const exists = (value: unknown, message?: string) => ok(value !== null && value !== undefined, message);",
-    stringIncludes:
-      "const stringIncludes = (value: string, expected: string, message?: string) => ok(value.includes(expected), message);",
-    arrayIncludes:
-      "const arrayIncludes = <T>(value: readonly T[], expected: readonly T[], message?: string) => ok(expected.every((item) => value.includes(item)), message);",
-    unreachable: "const unreachable = (message?: string) => fail(message);",
-    unimplemented: "const unimplemented = (message?: string) => fail(message);",
-    debug: "const debug = (..._values: unknown[]) => undefined;",
-  };
-  let result = content;
-  const names = new Set<string>();
-  if (imported) {
-    for (const name of imported[1]
-      .split(",")
-      .map((assertionName) => assertionName.trim())
-      .filter(Boolean)) {
-      names.add(name);
-    }
-    result = result.replace(imported[0], "");
-  }
-  for (const [alias, native] of Object.entries(direct)) {
-    const declaration = new RegExp(
-      `^const ${alias}(?:: typeof assert\\.${native})? = assert\\.${native};\\r?\\n`,
-      "m",
-    );
-    if (declaration.test(result)) {
-      result = result.replace(declaration, "");
-      names.add(alias);
-    }
-  }
-  for (const name of Object.keys(wrappers)) {
-    if (names.has(name)) continue;
-    if (name === "debug" && result.includes("debug(")) names.add(name);
-  }
-  const assertionImports = [...names]
-    .filter((name) => direct[name])
-    .map((name) => (direct[name] === name ? name : `${direct[name]} as ${name}`));
-  if (
-    ["nope", "instanceOf", "notInstanceOf", "exists", "stringIncludes", "arrayIncludes"].some(
-      (name) => names.has(name),
-    )
-  ) {
-    assertionImports.push("ok");
-  }
-  if (["unreachable", "unimplemented"].some((name) => names.has(name))) {
-    assertionImports.push("fail");
-  }
-  if (assertionImports.length) {
-    result = result.replace(
-      /^import assert from "node:assert\/strict";\r?\n/m,
-      `import { ${[...new Set(assertionImports)].join(", ")} } from "node:assert/strict";\n`,
-    );
-    if (!result.includes('from "node:assert/strict"')) {
-      result = `import { ${[...new Set(assertionImports)].join(
-        ", ",
-      )} } from "node:assert/strict";\n${result}`;
-    }
-  }
-  const declarations = [...names].filter((name) => wrappers[name]).map((name) => wrappers[name]);
-  if (declarations.length) {
-    result = result.replace(/^(import[^\n]+\n)/m, `$1${declarations.join("\n")}\n`);
-  }
-  return result;
-}
-
-function nativeGlobals(content: string): string {
-  return content.replace(
-    /^(import|export) \{([^}]+)\} from "@(?:frostyeti|neotales)\/globals(?:\/globals|\/os)?";\r?\n/m,
-    (_, kind: string, imports: string) => {
-      const declarations: Record<string, string> = {
-        globals: "const globals = globalThis;",
-        WINDOWS:
-          'const WINDOWS = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "windows";',
-        DARWIN:
-          'const DARWIN = (globalThis as { process?: { platform?: string } }).process?.platform === "darwin" || (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "darwin";',
-        DENO: "const DENO = !!(globalThis as { Deno?: unknown }).Deno;",
-        NODE: 'const NODE = typeof process !== "undefined" && !!process.versions?.node;',
-        BUN: 'const BUN = typeof Bun !== "undefined";',
-        BROWSER: 'const BROWSER = typeof window !== "undefined";',
-        NODELIKE:
-          'const NODELIKE = (typeof process !== "undefined" && !!process.versions?.node) || typeof Bun !== "undefined";',
-        RUNTIME:
-          'const RUNTIME = (globalThis as { Deno?: unknown }).Deno ? "deno" : typeof Bun !== "undefined" ? "bun" : typeof process !== "undefined" && process.versions?.node ? "node" : typeof window !== "undefined" ? "browser" : "unknown";',
-        EOL: 'const EOL = (globalThis as { process?: { platform?: string } }).process?.platform === "win32" || (globalThis as { Deno?: { build?: { os?: string } } }).Deno?.build?.os === "windows" ? "\\r\\n" : "\\n";',
-        getGlobal:
-          'const getGlobal = (path: string): unknown => path.split(".").reduce<unknown>((value, key) => value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined, globalThis);',
-      };
-      const names = imports.split(",").map((name) => name.trim().replace(/^type /, ""));
-      const unsupported = names.filter((name) => !declarations[name]);
-      if (unsupported.length) {
-        throw new Error(`Unsupported globals imports: ${unsupported.join(", ")}`);
-      }
-      return `${names
-        .map((name) =>
-          kind === "export"
-            ? declarations[name].replace("const ", "export const ")
-            : declarations[name],
-        )
-        .join("\n")}\n`;
-    },
-  );
-}
-
-function removeInternalDependency(
-  dependencies?: Record<string, string>,
-): Record<string, string> | undefined {
-  if (!dependencies) return undefined;
-  const result = Object.fromEntries(
-    Object.entries(dependencies).filter(
-      ([name]) =>
-        ![
-          "@frostyeti/assert",
-          "@neotales/assert",
-          "@frostyeti/globals",
-          "@neotales/globals",
-        ].includes(name),
-    ),
-  );
-  return Object.keys(result).length ? result : undefined;
-}
-
-async function rewriteTree(path: string): Promise<void> {
-  for await (const entry of Deno.readDir(path)) {
-    const entryPath = join(path, entry.name);
-    if (entry.isDirectory) {
-      await rewriteTree(entryPath);
-    } else if (/\.(?:ts|js|json|md)$/.test(entry.name)) {
-      let content = rebrand(await Deno.readTextFile(entryPath));
-      if (/\.(?:ts|js)$/.test(entry.name)) content = nativeGlobals(content);
-      if (entry.name.endsWith(".test.ts")) content = nodeAssertions(content);
-      await Deno.writeTextFile(entryPath, content);
-    }
-  }
-}
-
-async function importModule(name: string): Promise<void> {
-  const planned = await migrationModules();
-  if (!planned.includes(name)) {
-    throw new Error(`${name} is not an importable module in the upstream workspace order.`);
-  }
-  const next = await nextModule();
-  if (next && name !== next) {
-    throw new Error(`Import ${next} before ${name}; modules must follow upstream workspace order.`);
-  }
-  const source = join(upstreamJsr, name);
-  const destination = join(jsrDir, name);
-  if (!(await exists(source))) throw new Error(`Upstream module not found: ${source}`);
-  if (await exists(destination)) throw new Error(`Destination already exists: ${destination}`);
-
-  await Deno.mkdir(jsrDir, { recursive: true });
-  await copy(source, destination, { overwrite: false });
-  await rewriteTree(destination);
-
-  const dntPath = join(destination, "dnt.json");
-  if (!(await exists(dntPath))) {
-    await Deno.writeTextFile(dntPath, JSON.stringify({}, null, 2) + "\n");
-  }
-
-  const configPath = join(destination, "deno.json");
-  const config = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
-  config.name = config.name.replace("@frostyeti/", "@neotales/");
-  // New imports start from this workspace's release baseline, not the upstream version.
-  config.version = initialVersion;
-  await Deno.writeTextFile(configPath, JSON.stringify(config, null, 2) + "\n");
-
-  const dntConfig = JSON.parse(await Deno.readTextFile(dntPath)) as DntConfig;
-  dntConfig.dependencies = removeInternalDependency(dntConfig.dependencies);
-  dntConfig.devDependencies = removeInternalDependency(dntConfig.devDependencies);
-  dntConfig.peerDependencies = removeInternalDependency(dntConfig.peerDependencies);
-  dntConfig.optionalDependencies = removeInternalDependency(dntConfig.optionalDependencies);
-  await Deno.writeTextFile(dntPath, JSON.stringify(dntConfig, null, 2) + "\n");
-
-  await run(oxfmt, ["--write", destination]);
-  console.log(`Imported ${name}. Build it with: deno task build ${name}`);
-}
-
-async function normalizeModules(names: string[]): Promise<void> {
-  const modules = names.length ? names : await importedModules();
-  for (const name of modules) {
-    const directory = join(jsrDir, name);
-    if (!(await exists(join(directory, "deno.json")))) {
-      throw new Error(`Unknown imported module: ${name}`);
-    }
-    await rewriteTree(directory);
-    const dntPath = join(directory, "dnt.json");
-    const dnt = JSON.parse(await Deno.readTextFile(dntPath)) as DntConfig;
-    dnt.dependencies = removeInternalDependency(dnt.dependencies);
-    dnt.devDependencies = removeInternalDependency(dnt.devDependencies);
-    dnt.peerDependencies = removeInternalDependency(dnt.peerDependencies);
-    dnt.optionalDependencies = removeInternalDependency(dnt.optionalDependencies);
-    await Deno.writeTextFile(dntPath, JSON.stringify(dnt, null, 2) + "\n");
-    await run(oxfmt, ["--write", directory]);
-  }
-}
-
 async function buildModule(name: string): Promise<void> {
   const source = join(jsrDir, name);
   const configPath = join(source, "deno.json");
@@ -429,7 +159,7 @@ async function buildModule(name: string): Promise<void> {
   const missing = await missingWorkspaceDependencies(dnt);
   if (missing.length) {
     throw new Error(
-      `Import required workspace modules before building ${name}: ${missing.join(", ")}`,
+      `Build required workspace modules before building ${name}: ${missing.join(", ")}`,
     );
   }
   const outDir = join(npmDir, name);
@@ -545,7 +275,7 @@ async function workspaceMappings(
   dnt: DntConfig,
 ): Promise<Record<string, NpmMapping>> {
   const dependencies = Object.keys(dnt.dependencies ?? {}).filter((name) =>
-    name.startsWith("@neotales/"),
+    name.startsWith("@neotales/")
   );
   const mappings: Record<string, NpmMapping> = {};
 
@@ -556,9 +286,11 @@ async function workspaceMappings(
         await collect(entryPath);
       } else if (entry.isFile && entry.name.endsWith(".ts")) {
         const content = await Deno.readTextFile(entryPath);
-        for (const match of content.matchAll(
-          /(?:from\s*|import\s*(?:\(\s*)?)["'](@neotales\/[^"']+)["']/g,
-        )) {
+        for (
+          const match of content.matchAll(
+            /(?:from\s*|import\s*(?:\(\s*)?)["'](@neotales\/[^"']+)["']/g,
+          )
+        ) {
           const specifier = match[1];
           const dependency = dependencies.find(
             (name) => specifier === name || specifier.startsWith(`${name}/`),
@@ -591,7 +323,7 @@ async function importedModules(): Promise<string[]> {
 
 async function testModules(names: string[], runtimes: Set<string>): Promise<void> {
   const modules = names.length ? names : await importedModules();
-  if (!modules.length) throw new Error("No modules have been imported.");
+  if (!modules.length) throw new Error("No modules found under jsr/.");
   const selected = runtimes.size ? runtimes : new Set(["deno", "node", "bun"]);
   if (selected.has("node") || selected.has("bun")) await run("pnpm", ["install"]);
   for (const name of modules) {
@@ -613,21 +345,7 @@ async function audit(): Promise<void> {
 
 async function check(): Promise<void> {
   await run(oxlint, ["jsr", "eng", "e2e"]);
-  await run(oxfmt, [
-    "--check",
-    "--ignore-path",
-    ".prettierignore",
-    "eng",
-    "jsr",
-    "e2e",
-    "README.md",
-    "LICENSE.md",
-    "deno.json",
-    "package.json",
-    "pnpm-workspace.yaml",
-    ".oxlintrc.json",
-    ".oxfmtrc.json",
-  ]);
+  await run("deno", ["fmt", "--check"]);
   await audit();
   await testModules([], new Set());
 }
@@ -685,7 +403,7 @@ async function releaseCommitNotes(baseTag?: string): Promise<string[]> {
   return commits
     .split("\n")
     .filter((subject) =>
-      /^(?:feat|fix|bug|perf|refactor|docs|chore)(?:\([^)]+\))?!?:/.test(subject),
+      /^(?:feat|fix|bug|perf|refactor|docs|chore)(?:\([^)]+\))?!?:/.test(subject)
     )
     .map((subject) => `- ${subject}`);
 }
@@ -742,20 +460,7 @@ async function publishModule(name: string, dryRun: boolean): Promise<void> {
 async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<void> {
   requireNpmToken();
   await run(oxlint, ["jsr", "eng"]);
-  await run(oxfmt, [
-    "--check",
-    "--ignore-path",
-    ".prettierignore",
-    "eng",
-    "jsr",
-    "README.md",
-    "LICENSE.md",
-    "deno.json",
-    "package.json",
-    "pnpm-workspace.yaml",
-    ".oxlintrc.json",
-    ".oxfmtrc.json",
-  ]);
+  await run("deno", ["fmt", "--check"]);
   const packageDir = join(npmDir, name);
   const packagePath = join(packageDir, "package.json");
   if (!(await exists(packagePath))) await buildModule(name);
@@ -774,9 +479,11 @@ async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<vo
       `${pkg.name} already exists on npmjs.org; publish later versions through GitHub Actions.`,
     );
   }
-  const lookupOutput = `${new TextDecoder().decode(packageLookup.stdout)}${new TextDecoder().decode(
-    packageLookup.stderr,
-  )}`;
+  const lookupOutput = `${new TextDecoder().decode(packageLookup.stdout)}${
+    new TextDecoder().decode(
+      packageLookup.stderr,
+    )
+  }`;
   if (!lookupOutput.includes("E404") && !lookupOutput.includes("404")) {
     throw new Error(
       `Unable to verify whether ${pkg.name} exists on npmjs.org: ${lookupOutput.trim()}`,
@@ -805,9 +512,11 @@ async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<vo
   }
   console.log(`Prepared ${pkg.name}@${pkg.version}`);
   console.log(
-    `Tarball: ${relative(root, tarball)} (${formatBytes(size)} compressed, ${formatBytes(
-      unpackedSize,
-    )} unpacked)`,
+    `Tarball: ${relative(root, tarball)} (${formatBytes(size)} compressed, ${
+      formatBytes(
+        unpackedSize,
+      )
+    } unpacked)`,
   );
 
   await publishToNpm(
@@ -827,18 +536,6 @@ async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<vo
 
 const [command, ...args] = Deno.args;
 switch (command) {
-  case "import":
-    await importModule(moduleName(args));
-    break;
-  case "modules":
-    for (const name of await migrationModules()) {
-      const state = (await exists(join(jsrDir, name, "deno.json"))) ? "imported" : "pending";
-      console.log(`${state.padEnd(8)} ${name}`);
-    }
-    break;
-  case "normalize":
-    await normalizeModules(args.filter((arg) => !arg.startsWith("-")));
-    break;
   case "build":
     await buildModule(moduleName(args));
     break;
@@ -858,21 +555,7 @@ switch (command) {
     await run(oxlint, ["jsr", "eng", "e2e"]);
     break;
   case "fmt":
-    await run(oxfmt, [
-      ...(args.includes("--check") ? ["--check"] : ["--write"]),
-      "--ignore-path",
-      ".prettierignore",
-      "eng",
-      "jsr",
-      "e2e",
-      "README.md",
-      "LICENSE.md",
-      "deno.json",
-      "package.json",
-      "pnpm-workspace.yaml",
-      ".oxlintrc.json",
-      ".oxfmtrc.json",
-    ]);
+    await run("deno", ["fmt", ...(args.includes("--check") ? ["--check"] : [])]);
     break;
   case "audit":
     await audit();

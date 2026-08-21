@@ -3,7 +3,7 @@
 import { stderr, stdout } from "@neotales/process/streams";
 import { Lazy } from "./_lazy.ts";
 import { detectMode } from "./detector.ts";
-import { AnsiModes, type AnsiMode } from "./enums.ts";
+import { type AnsiMode, AnsiModes } from "./enums.ts";
 
 let current = new Lazy<AnsiSettings>(() => new AnsiSettings(detectMode()));
 
