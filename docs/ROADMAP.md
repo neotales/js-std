@@ -162,3 +162,73 @@ What we deliberately do not adopt:
   services resolve through the `di` module's typed factories, keeping the
   graph visible and debuggable. Cordis demonstrates the concepts compose;
   this pairing shows they mesh without reflection.
+
+The core stays reflection-free, but the module exposes a plugin interface for
+DI itself so a reflective or decorator-based resolver can be added later as an
+opt-in package once runtime metadata support across Deno, Node, and Bun makes
+it worthwhile.
+
+### `metrics`
+
+A metrics module paired with `log`: counters, gauges, and histograms with
+minimal allocation on the recording path. Exports follow OpenTelemetry
+naming so instruments map cleanly when bridged. Includes in-memory
+aggregation plus reader/exporter interfaces; the `otel` package below is the
+primary exporter.
+
+### `otel`
+
+First-party OpenTelemetry support instead of depending on the heavyweight
+`@opentelemetry/sdk-node`, which pulls far more than most applications need.
+Split into small packages by target so unused pieces tree-shake:
+
+- `@neotales/otel-cli` - minimal tracing/metrics bootstrap for CLIs and short
+  lived processes; low startup cost, OTLP export over HTTP.
+- `@neotales/otel-web` - middleware/integration helpers for web servers:
+  request tracing spans, standard HTTP attributes, graceful shutdown flush.
+- `@neotales/otel-workers` - Cloudflare Workers-compatible build using fetch-
+  based exporters only, no Node APIs, validated through the `e2e/` workerd
+  harness like other modules.
+
+All three consume the shared `log` sink and `metrics` reader interfaces, so
+traces, logs, and metrics flow through one configuration surface and can be
+exported together via OTLP.
+
+### `uuid`
+
+UUID generation based on [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562)
+with UUIDv7 (time-ordered) as the primary generator, plus v4 where
+unguessability matters more than sortability. Cross-runtime randomness via
+Web Crypto; parsing/formatting implemented with direct character arithmetic
+rather than regex.
+
+### `semver`
+
+Semantic Versioning parse, compare, increment, and range utilities that avoid
+regex: version strings are parsed with index-based scanning and character
+checks, which is faster than regex engines, easier to profile, and produces
+precise error positions. Range matching supports common comparator sets
+(`^`, `~`, `>=`, `<`, wildcards) with the same parser primitives.
+
+### `iterator`
+
+A custom iterator module extending `Iterator` with chainable operations -
+map/filter/take/drop/flatten, zipping, grouping, windowing, and sorting -
+so pipelines stay lazy until terminal calls. Sorting integrates with the
+lower-level algorithms from `collections`.
+
+### `collections`
+
+Lower-level collection types and algorithms that `iterator` builds on,
+plus general-purpose helpers informed by
+[@std/collections](https://jsr.io/@std/collections) (chunk, distinct, groupBy,
+slidingWindows, zip, and friends):
+
+- Case-insensitive `Map` and `Set`.
+- Red-black tree (ordered map/set with O(log n) insert, remove, lookup).
+- Explicit sort implementations including dual-pivot quicksort, merge sort,
+  and insertion sort for small ranges, exposed for direct use and used by
+  `iterator.sort`.
+- Binary heap/priority queue.
+- Pure functions for arrays, records, and iterables following the
+  `@std/collections` API shape where it fits.
