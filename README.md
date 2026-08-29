@@ -76,11 +76,12 @@ short-lived credentials automatically.
 Release tags use `vYYYY.MM.DD-rN`, for example `v2026.08.12-r1`. `-nightly.rN`
 and `-beta.rN` are also accepted for future prereleases. A release tag runs the
 complete quality gate, finds modules whose `jsr/<module>/deno.json` version
-changed since the prior release tag, packages them as workflow artifacts, and
-creates GitHub release notes listing shipped packages plus Conventional Commit
-changes (`feat`, `fix`, `bug`, and related types). Existing npm and JSR packages
-are published with GitHub OIDC; packages not yet registered with a registry are
-reported and skipped.
+changed since the prior release tag, builds their npm directories, and writes
+release metadata as a workflow artifact. It also creates GitHub release notes
+listing shipped packages plus Conventional Commit changes (`feat`, `fix`, `bug`,
+and related types). Existing npm and JSR packages are published with GitHub OIDC.
+An npm package that has never been published is skipped until it is published
+once with `publish:bootstrap`.
 
 The release workflow uses the GitHub `release` environment. In GitHub repository
 settings, create that environment and configure required reviewers to pause a

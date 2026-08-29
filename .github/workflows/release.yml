@@ -50,6 +50,10 @@ jobs:
               const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/${version}`);
               return response.ok;
             };
+            const npmPackageExists = async (name) => {
+              const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`);
+              return response.ok;
+            };
             for (const pkg of release.packages) {
               const jsr = await fetch(`https://jsr.io/${pkg.jsrName}/meta.json`);
               const jsrMeta = jsr.ok ? await jsr.json() : { versions: {} };
@@ -59,7 +63,11 @@ jobs:
                 if (!output.success) Deno.exit(output.code);
               } else console.log(`Skipping JSR publish for ${pkg.jsrName}@${pkg.version}; version already exists.`);
               if (!(await npmVersionExists(pkg.npmName, pkg.version))) {
-                const output = await new Deno.Command("pnpm", { args: ["publish", `../../artifacts/${{ github.ref_name }}/${pkg.tarball}`, "--access", "public", "--registry", "https://registry.npmjs.org", "--no-git-checks"], cwd: `npm/${pkg.module}`, stdin: "inherit", stdout: "inherit", stderr: "inherit" }).output();
+                if (!(await npmPackageExists(pkg.npmName))) {
+                  console.log(`Skipping npm OIDC publish for ${pkg.npmName}@${pkg.version}; publish it once with publish:bootstrap.`);
+                  continue;
+                }
+                const output = await new Deno.Command("pnpm", { args: ["publish", "--access", "public", "--registry", "https://registry.npmjs.org", "--no-git-checks"], cwd: `npm/${pkg.module}`, stdin: "inherit", stdout: "inherit", stderr: "inherit" }).output();
                 if (!output.success && !(await npmVersionExists(pkg.npmName, pkg.version))) Deno.exit(output.code);
                 if (!output.success) console.log(`Skipping npm publish for ${pkg.npmName}@${pkg.version}; version was published concurrently.`);
               } else console.log(`Skipping npm publish for ${pkg.npmName}@${pkg.version}; version already exists.`);
@@ -68,4 +76,4 @@ jobs:
 
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" --title "${{ github.ref_name }}" --notes-file "artifacts/${{ github.ref_name }}/CHANGELOG.md" artifacts/${{ github.ref_name }}/*.tgz
+        run: gh release create "${{ github.ref_name }}" --title "${{ github.ref_name }}" --notes-file "artifacts/${{ github.ref_name }}/CHANGELOG.md"
