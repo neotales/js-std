@@ -1,4 +1,4 @@
-import type { Char } from "@neotales/chars/types";
+import type { Char } from "./types.ts";
 
 /**
  * Determines whether the given value is a valid Unicode character.
