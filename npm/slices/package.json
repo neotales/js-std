@@ -1,6 +1,6 @@
 {
   "name": "@neotales/slices",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0-alpha.1",
   "description": "Slices creates views over arrays without allocating a new copy of an array.  Char slices is useful for transforming text without allocating a new string for every change.",
   "keywords": [
     "slices",
