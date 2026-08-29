@@ -7,11 +7,11 @@ string transformations (camelize, dasherize, titleize), inflections (pluralize,
 singularize), and validation functions. All comparison functions have a `Fold`
 variant for case-insensitive matching with full UTF-8 support.
 
-![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/strings)](https://jsr.io/@neotales/strings)
-[![npm version](https://badge.fury.io/js/@neotales%2Fstrings.svg)](https://badge.fury.io/js/@neotales%2Fstrings)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
+
+[![npm version](https://badge.fury.io/js/@neotales%2Fstrings.svg?icon=si%3Anpm)](https://badge.fury.io/js/@neotales%2Fstrings)
 
 ## Documentation
 
