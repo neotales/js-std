@@ -1,5 +1,5 @@
 import { build, emptyDir, type EntryPoint } from "@deno/dnt";
-import { basename, join, relative, resolve } from "@std/path";
+import { join, relative, resolve } from "@std/path";
 
 const root = resolve(import.meta.dirname!, "..");
 const jsrDir = join(root, "jsr");
@@ -44,7 +44,6 @@ type ReleasePackage = {
   npmName: string;
   version: string;
   jsrName: string;
-  tarball: string;
 };
 
 function usage(): never {
@@ -362,7 +361,6 @@ async function releasePackages(baseTag?: string): Promise<ReleasePackage[]> {
         npmName: current.name,
         version: current.version,
         jsrName: current.name,
-        tarball: "",
       });
       continue;
     }
@@ -373,7 +371,6 @@ async function releasePackages(baseTag?: string): Promise<ReleasePackage[]> {
         npmName: current.name,
         version: current.version,
         jsrName: current.name,
-        tarball: "",
       });
       continue;
     }
@@ -384,7 +381,6 @@ async function releasePackages(baseTag?: string): Promise<ReleasePackage[]> {
         npmName: current.name,
         version: current.version,
         jsrName: current.name,
-        tarball: "",
       });
     }
   }
@@ -419,16 +415,6 @@ async function releasePrepare(tag: string): Promise<void> {
   await emptyDir(artifacts);
   for (const pkg of packages) {
     await buildModule(pkg.module);
-    const packageDir = join(npmDir, pkg.module);
-    const pack = await capture(
-      "pnpm",
-      ["pack", "--pack-destination", artifacts, "--json"],
-      packageDir,
-    );
-    if (!pack.success) throw new Error(outputText(pack).trim());
-    const packed = JSON.parse(new TextDecoder().decode(pack.stdout)) as PackResult | PackResult[];
-    const result = Array.isArray(packed) ? packed[0] : packed;
-    pkg.tarball = basename(result.filename);
   }
 
   const commits = await releaseCommitNotes(baseTag);
@@ -448,7 +434,7 @@ async function releasePrepare(tag: string): Promise<void> {
     JSON.stringify({ tag, baseTag: baseTag ?? null, packages }, null, 2) + "\n",
   );
   console.log(
-    `Prepared ${packages.length} package release artifact(s) in ${relative(root, artifacts)}.`,
+    `Prepared release metadata for ${packages.length} package(s) in ${relative(root, artifacts)}.`,
   );
 }
 
