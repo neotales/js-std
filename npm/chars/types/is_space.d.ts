@@ -41,8 +41,8 @@ export declare function isSpaceUnsafe(char: Char): boolean;
  * import { isWhiteSpaceAt } from "@neotales/chars";
  *
  * const str = "Hello, world!";
- * console.log(isSpaceAt(str, 4)); // Output: false
- * console.log(isSpaceAt(str, 6)); // Output: true
+ * console.log(isSpaceAt(str, 4)); //  false
+ * console.log(isSpaceAt(str, 6)); //  true
  * ```
  */
 export declare function isSpaceAt(value: string, index: number): boolean;

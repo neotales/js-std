@@ -1,13 +1,12 @@
 {
   "name": "@neotales/chars",
-  "version": "0.0.0-alpha.0",
-  "description": "A library for working with characters and Unicode in JavaScript.",
+  "version": "0.0.0",
+  "description": "Unicode character utility functions and constants like isSymbol, isSpace, isLetter, isUpper.",
   "keywords": [
     "chars",
     "characters",
     "simplefold",
-    "unicode",
-    "runes"
+    "unlities"
   ],
   "homepage": "https://github.com/neotales/js-std",
   "repository": {
@@ -38,6 +37,12 @@
       "import": {
         "types": "./types/constants.d.ts",
         "default": "./esm/constants.js"
+      }
+    },
+    "./equal-fold": {
+      "import": {
+        "types": "./types/equal_fold.d.ts",
+        "default": "./esm/equal_fold.js"
       }
     },
     "./is-ascii": {

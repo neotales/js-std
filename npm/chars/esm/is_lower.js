@@ -9,10 +9,10 @@ import { Ll } from "./tables/ll.js";
  * ```ts
  * import { isLower } from "@neotales/chars/is-lower";
  *
- * console.log(isLower(0x61)); // Output: true
- * console.log(isLower(0x41)); // Output: false
- * console.log(isLower(0x10FFFF)); // Output: false
- * console.log(isLower(0.32)); // Output: false
+ * console.log(isLower(0x61)); //  true
+ * console.log(isLower(0x41)); //  false
+ * console.log(isLower(0x10FFFF)); //  false
+ * console.log(isLower(0.32)); //  false
  * ```
  */
 export function isLower(char) {
@@ -45,10 +45,10 @@ export function isLower(char) {
  * ```ts
  * import { isLowerUnsafe } from "@neotales/chars/is-lower";
  *
- * console.log(isLowerUnsafe(0x61)); // Output: true
- * console.log(isLowerUnsafe(0x41)); // Output: false
- * console.log(isLowerUnsafe(0x10FFFF)); // Output: false
- * console.log(isLowerUnsafe(0.32)); // Output: false
+ * console.log(isLowerUnsafe(0x61)); //  true
+ * console.log(isLowerUnsafe(0x41)); //  false
+ * console.log(isLowerUnsafe(0x10FFFF)); //  false
+ * console.log(isLowerUnsafe(0.32)); //  false
  * ```
  */
 export function isLowerUnsafe(char) {
@@ -77,9 +77,9 @@ export function isLowerUnsafe(char) {
  * import { isLowerAt } from "@neotales/chars/is-lower";
  *
  * const str = "Hello, world!";
- * console.log(isLowerAt(str, 5)); // Output: false
- * console.log(isLowerAt(str, 2)); // Output: true
- * console.log(isLowerAt(str, 0)); // Output: false
+ * console.log(isLowerAt(str, 5)); //  false
+ * console.log(isLowerAt(str, 2)); //  true
+ * console.log(isLowerAt(str, 0)); //  false
  * ```
  */
 export function isLowerAt(str, index) {

@@ -26,7 +26,7 @@ export declare function isAscii(value: number): boolean;
  * const str = "Hello, world!";
  * const index = 4;
  * const isAscii = isAsciiAt(str, index);
- * console.log(isAscii); // Output: true
+ * console.log(isAscii); //  true
  * ```
  */
 export declare function isAsciiAt(value: string, index: number): boolean;

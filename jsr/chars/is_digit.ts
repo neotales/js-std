@@ -12,8 +12,8 @@ import type { Char } from "./types.ts";
  * ```typescript
  * import { isDigit } from '@neotales/chars/is-digit';
  *
- * console.log(isDigit('5'.charCodeAt(0))); // Output: true
- * console.log(isDigit('a'.charCodeAt(0))); // Output: false
+ * console.log(isDigit('5'.charCodeAt(0))); // true
+ * console.log(isDigit('a'.charCodeAt(0))); //  false
  * ```
  */
 export function isDigit(char: number): boolean {
@@ -48,9 +48,9 @@ export function isDigit(char: number): boolean {
  * ```ts
  * import { isDigitUnsafe } from "@neotales/chars/is-digit";
  *
- * console.log(isDigitUnsafe(0x10FFFF)); // Output: false
- * console.log(isDigitUnsafe(0.32)); // Output: false
- * console.log(isDigitUnsafe(10)); // Output: true
+ * console.log(isDigitUnsafe(0x10FFFF)); //  false
+ * console.log(isDigitUnsafe(0.32)); //  false
+ * console.log(isDigitUnsafe(10)); //  true
  * ```
  */
 export function isDigitUnsafe(char: Char): boolean {
@@ -84,12 +84,12 @@ export function isDigitUnsafe(char: Char): boolean {
  * const str = "Hello, world!";
  * const index = 4;
  * const isDigit = isDigitAt(str, index);
- * console.log(isDigit); // Output: false
+ * console.log(isDigit); //  false
  *
  * const str1 = "Hello, 123!";
  * const index1 = 8;
  * const isDigit1 = isDigitAt(str1, index1);
- * console.log(isDigit1); // Output: true
+ * console.log(isDigit1); //  true
  *
  * ```
  */

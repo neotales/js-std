@@ -8,9 +8,9 @@
  * ```typescript
  * import { isLatin1 } from '@neotales/chars/is-latin1';
  *
- * console.log(isLatin1("Ď".charCodeAt(0))); // Output: false
- * console.log(isLatin1(65)); // Output: true
- * console.log(isLatin1(256)); // Output: false
+ * console.log(isLatin1("Ď".charCodeAt(0))); // false
+ * console.log(isLatin1(65)); // true
+ * console.log(isLatin1(256)); // false
  * ```
  */
 export declare function isLatin1(value: number): boolean;
@@ -29,7 +29,7 @@ export declare function isLatin1(value: number): boolean;
  * const str = "Hello, world!";
  * const index = 4;
  * const isLatin1 = isLatin1At(str, index);
- * console.log(isLatin1); // Output: true
+ * console.log(isLatin1); //  true
  * ```
  */
 export declare function isLatin1At(value: string, index: number): boolean;

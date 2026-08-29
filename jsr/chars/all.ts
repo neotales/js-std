@@ -10,7 +10,8 @@ import { isPunc, isPuncAt, isPuncUnsafe } from "./is_punc.ts";
 import { isSpace, isSpaceAt, isSpaceUnsafe } from "./is_space.ts";
 import { isSymbol, isSymbolAt, isSymbolUnsafe } from "./is_symbol.ts";
 import { isUpper, isUpperAt, isUpperUnsafe } from "./is_upper.ts";
-import { equalFold, simpleFold } from "./simple_fold.ts";
+import { simpleFold } from "./simple_fold.ts";
+import { equalFold } from "./equal_fold.ts";
 import { toLower } from "./to_lower.ts";
 import { toUpper } from "./to_upper.ts";
 

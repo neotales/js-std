@@ -1,4 +1,6 @@
 /src/
+/esm/equal_fold.test.js
+/types/equal_fold.test.d.ts
 /esm/is_ascii.test.js
 /types/is_ascii.test.d.ts
 /esm/is_char.test.js

@@ -11,8 +11,8 @@ import { P } from "./tables/p.ts";
  * ```ts
  * import { isPunc } from "@neotales/chars/is-punc";
  *
- * console.log(isPunc(0x21)); // Output: true
- * console.log(isPunc(0x20)); // Output: false
+ * console.log(isPunc(0x21)); //  true
+ * console.log(isPunc(0x20)); //  false
  * ```
  */
 export function isPunc(char: Char): boolean {
@@ -50,8 +50,8 @@ export function isPunc(char: Char): boolean {
  * ```ts
  * import { isPuncUnsafe } from "@neotales/chars/is-punc";
  *
- * console.log(isPuncUnsafe(0x21)); // Output: true
- * console.log(isPuncUnsafe(0x20)); // Output: false
+ * console.log(isPuncUnsafe(0x21)); //  true
+ * console.log(isPuncUnsafe(0x20)); //  false
  * ```
  */
 export function isPuncUnsafe(char: Char): boolean {
@@ -84,8 +84,8 @@ export function isPuncUnsafe(char: Char): boolean {
  * const str = "Hello!";
  * const index = 4;
  * const isPunc = isPuncAt(str, index);
- * console.log(isPunc); // Output: false
- * console.log(isPuncAt(str, 5)); // Output: true
+ * console.log(isPunc); //  false
+ * console.log(isPuncAt(str, 5)); //  true
  * ```
  */
 export function isPuncAt(str: string, index: number): boolean {

@@ -8,9 +8,9 @@ import type { Char } from "./types.js";
  * ```ts
  * import { IsControl } from "@neotales/chars/is-control";
  *
- * console.log(isControl(0x10FFFF)); // Output: false
- * console.log(isControl(0.32)); // Output: false
- * console.log(isControl(10)); // Output: true
+ * console.log(isControl(0x10FFFF)); //  false
+ * console.log(isControl(0.32)); //  false
+ * console.log(isControl(10)); //  true
  * ```
  */
 export declare function isControl(char: Char): boolean;
@@ -29,9 +29,9 @@ export declare function isControl(char: Char): boolean;
  * ```ts
  * import { IsControl } from "@neotales/chars/is-control";
  *
- * console.log(isControl(0x10FFFF)); // Output: false
- * console.log(isControl(0.32)); // Output: false
- * console.log(isControl(10)); // Output: true
+ * console.log(isControl(0x10FFFF)); //  false
+ * console.log(isControl(0.32)); //  false
+ * console.log(isControl(10)); //  true
  * ```
  */
 export declare function isControlUnsafe(char: Char): boolean;
@@ -48,7 +48,7 @@ export declare function isControlUnsafe(char: Char): boolean;
  * const str = "Hello, world!";
  * const index = 4;
  * const isControl = isControlAt(str, index);
- * console.log(isControl); // Output: false
+ * console.log(isControl); //  false
  * ```
  */
 export declare function isControlAt(str: string, index: number): boolean;

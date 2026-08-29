@@ -1,3 +1,5 @@
+import type { Char } from "@neotales/chars/types";
+
 /**
  * Determines whether the given value is a valid Unicode character.
  * @param char The value to check.
@@ -6,12 +8,14 @@
  * ```ts
  * import { isChar } from "@neotales/chars/is-char";
  *
- * console.log(isChar(0x1F600)); // Output: true
- * console.log(isChar(0x110000)); // Output: false
- * console.log(isChar(0x10FFFF)); // Output: true
- * console.log(isChar(0.32)); // Output: false
+ * console.log(isChar(0x1F600)); //  true
+ * console.log(isChar(0x110000)); //  false
+ * console.log(isChar(0x10FFFF)); //  true
+ * console.log(isChar(0.32)); //  false
  * ```
  */
-export function isChar(char: number): boolean {
-  return Number.isInteger(char) && char >= 0 && char <= 0x10ffff;
+export function isChar(char: number): char is Char {
+  return Number.isInteger(char) &&
+    char >= 0 &&
+    char <= 0x10ffff;
 }

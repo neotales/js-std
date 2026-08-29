@@ -9,11 +9,11 @@ import type { Char } from "./types.js";
  * ```ts
  * import { isLetterOrDigit } from "@neotales/chars/is-letter-or-digit";
  *
- * console.log(isLetterOrDigit(0x10FFFF)); // Output: false
- * console.log(isLetterOrDigit(0.32)); // Output: false
- * console.log(isLetterOrDigit(48)); // Output: true
- * console.log(isLetterOrDigit(65)); // Output: true
- * console.log(isLetterOrDigit(97)); // Output: true
+ * console.log(isLetterOrDigit(0x10FFFF)); //  false
+ * console.log(isLetterOrDigit(0.32)); //  false
+ * console.log(isLetterOrDigit(48)); //  true
+ * console.log(isLetterOrDigit(65)); //  true
+ * console.log(isLetterOrDigit(97)); //  true
  * ```
  */
 export declare function isLetterOrDigit(char: Char): boolean;
@@ -32,11 +32,11 @@ export declare function isLetterOrDigit(char: Char): boolean;
  * ```ts
  * import { isLetterOrDigitUnsafe } from "@neotales/chars/is-letter-or-digit";
  *
- * console.log(isLetterOrDigitUnsafe(0x10FFFF)); // Output: false
- * console.log(isLetterOrDigitUnsafe(0.32)); // Output: false
- * console.log(isLetterOrDigitUnsafe(48)); // Output: true
- * console.log(isLetterOrDigitUnsafe(65)); // Output: true
- * console.log(isLetterOrDigitUnsafe(97)); // Output: true
+ * console.log(isLetterOrDigitUnsafe(0x10FFFF)); //  false
+ * console.log(isLetterOrDigitUnsafe(0.32)); //  false
+ * console.log(isLetterOrDigitUnsafe(48)); //  true
+ * console.log(isLetterOrDigitUnsafe(65)); //  true
+ * console.log(isLetterOrDigitUnsafe(97)); //  true
  * ```
  */
 export declare function isLetterOrDigitUnsafe(char: Char): boolean;
@@ -55,7 +55,7 @@ export declare function isLetterOrDigitUnsafe(char: Char): boolean;
  * const str = "Hello, world!";
  * const index = 4;
  * const isLetterOrDigit = isLetterOrDigitAt(str, index);
- * console.log(isLetterOrDigit); // Output: true
+ * console.log(isLetterOrDigit); //  true
  * ```
  */
 export declare function isLetterOrDigitAt(str: string, index: number): boolean;

@@ -12,8 +12,8 @@ import { L } from "./tables/l.ts";
  * ```typescript
  * import { isLetter } from '@neotales/chars/is-letter';
  *
- * console.log(isLetter(65)); // char 'A' Output: true
- * console.log(isLetter(48)); // char '0'  Output: false
+ * console.log(isLetter(65)); // char 'A'  true
+ * console.log(isLetter(48)); // char '0'   false
  * ```
  */
 export function isLetter(char: Char): boolean {
@@ -51,8 +51,8 @@ export function isLetter(char: Char): boolean {
  * ```typescript
  * import { isLetterUnsafe } from '@neotales/chars/is-letter';
  *
- * console.log(isLetterUnsafe(65)); // char 'A' Output: true
- * console.log(isLetterUnsafe(48)); // char '0'  Output: false
+ * console.log(isLetterUnsafe(65)); // char 'A'  true
+ * console.log(isLetterUnsafe(48)); // char '0'   false
  * ```
  */
 export function isLetterUnsafe(char: Char): boolean {
@@ -87,12 +87,12 @@ export function isLetterUnsafe(char: Char): boolean {
  * const str = "Hello, world!";
  * const index = 4;
  * const isLetter = isLetterAt(str, index);
- * console.log(isLetter); // Output: true
+ * console.log(isLetter); //  true
  *
  * const str1 = "Hello, 123!";
  * const index1 = 8;
  * const isLetter1 = isLetterAt(str1, index1);
- * console.log(isLetter1); // Output: false
+ * console.log(isLetter1); //  false
  * ```
  */
 export function isLetterAt(value: string, index: number): boolean {

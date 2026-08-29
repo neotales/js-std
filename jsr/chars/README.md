@@ -2,9 +2,8 @@
 
 ## Overview
 
-The chars library provides functions for working with characters
-found in other standard libraries or frameworks such as `isSpace`,
-`isLetter`, `isUpper`, `isDigit`, etc.
+Unicode character utility functions such as `isSpace`,
+`isLetter`, `isUpper`, `isDigit`, `equalFold`.
 
 The module will handle characters outside latin and ascii such as
 Cyrillic or Greek characters. The chars library is heavily based on golang's
@@ -13,8 +12,7 @@ unicode module.
 ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/chars)](https://jsr.io/@neotales/chars)
-[![npm version](https://badge.fury.io/js/@neotales%2Fchars.svg)](https://badge.fury.io/js/@neotales%2Fchars)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
+[![npm version](https://badge.fury.io/js/@neotales%2Fchars.svg?icon=si%3Anpm)](https://badge.fury.io/js/@neotales%2Fchars)
 
 ## Documentation
 

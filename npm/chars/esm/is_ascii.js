@@ -31,10 +31,12 @@ export function isAscii(value) {
  * const str = "Hello, world!";
  * const index = 4;
  * const isAscii = isAsciiAt(str, index);
- * console.log(isAscii); // Output: true
+ * console.log(isAscii); //  true
  * ```
  */
 export function isAsciiAt(value, index) {
     const code = value.codePointAt(index);
-    return code !== undefined && code > -1 && code < 128;
+    return code !== undefined &&
+        code > -1 &&
+        code < 128;
 }

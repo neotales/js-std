@@ -1,11 +1,12 @@
 {
   "name": "@neotales/chars",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "license": "MIT",
   "exports": {
     ".": "./mod.ts",
     "./all": "./all.ts",
     "./constants": "./constants.ts",
+    "./equal-fold": "./equal_fold.ts",
     "./is-ascii": "./is_ascii.ts",
     "./is-char": "./is_char.ts",
     "./is-control": "./is_control.ts",

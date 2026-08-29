@@ -6,7 +6,7 @@ import { Lu } from "./tables/lu.ts";
  * Determines if the given character is an uppercase letter.
  *
  * @param char The character to check.
- * @returns `true` if the character is an uppercase letter, `false` otherwise.
+ * @returns `true` if the character is an uppercase letter; otherwise, `false`.
  *
  * @example
  * ```typescript

@@ -9,11 +9,11 @@ import { S } from "./tables/s.js";
  * ```ts
  * import { isSymbol } from "@neotales/chars/is-symbol";
  *
- * console.log(isSymbol(0x1F600)); // Output: false
- * console.log(isSymbol(0x110000)); // Output: false
- * console.log(isSymbol(0x10FFFF)); // Output: false
- * console.log(isSymbol(0.32)); // Output: false
- * console.log(isSymbol(0x2B)); // Output: true
+ * console.log(isSymbol(0x1F600)); //  false
+ * console.log(isSymbol(0x110000)); //  false
+ * console.log(isSymbol(0x10FFFF)); //  false
+ * console.log(isSymbol(0.32)); //  false
+ * console.log(isSymbol(0x2B)); //  true
  * ```
  */
 export function isSymbol(char) {
@@ -46,11 +46,11 @@ export function isSymbol(char) {
  * ```ts
  * import { isSymbolUnsafe } from "@neotales/chars/is-symbol";
  *
- * console.log(isSymbolUnsafe(0x1F600)); // Output: false
- * console.log(isSymbolUnsafe(0x110000)); // Output: false
- * console.log(isSymbolUnsafe(0x10FFFF)); // Output: false
- * console.log(isSymbolUnsafe(0.32)); // Output: false
- * console.log(isSymbolUnsafe(0x2B)); // Output: true
+ * console.log(isSymbolUnsafe(0x1F600)); //  false
+ * console.log(isSymbolUnsafe(0x110000)); //  false
+ * console.log(isSymbolUnsafe(0x10FFFF)); //  false
+ * console.log(isSymbolUnsafe(0.32)); //  false
+ * console.log(isSymbolUnsafe(0x2B)); //  true
  * ```
  */
 export function isSymbolUnsafe(char) {
@@ -76,9 +76,9 @@ export function isSymbolUnsafe(char) {
  * ```ts
  * import { isSymbolAt } from "@neotales/chars/is-symbol";
  *
- * console.log(isSymbolAt("$2.40", 1)); // Output: true
- * console.log(isSymbolAt("€2.40", 0)); // Output: true
- * console.log(isSymbolAt("2.40€", 0)); // Output: false
+ * console.log(isSymbolAt("$2.40", 1)); //  true
+ * console.log(isSymbolAt("€2.40", 0)); //  true
+ * console.log(isSymbolAt("2.40€", 0)); //  false
  * ```
  */
 export function isSymbolAt(str, index) {
