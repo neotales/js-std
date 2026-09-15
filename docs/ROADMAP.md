@@ -3,6 +3,20 @@
 Planned and in-progress work for the Neotales JavaScript Standard Libraries.
 Modules follow the upstream Frosty Yeti workspace order (`deno task modules`).
 
+## Update modules
+
+- [ ] **@neotales/path**
+- [ ] **@neotales/process**
+- [ ] **@neotales/args**
+- [ ] **@neotales/env**
+- [ ] **@neotales/dotenv**
+- [ ] **@neotales/fmt**
+- [ ] **@neotales/secrets**
+- [ ] **@neotales/ansi**
+- [ ] **@neotales/results**
+- [ ] **@neotales/fs**
+- [ ] **@neotales/exec**
+
 ## Imported Modules
 
 These modules are imported from upstream, adapted for `@neotales`, tested

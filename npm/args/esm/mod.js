@@ -3,7 +3,7 @@
  *
  * Split, join, splat, and parse command line arguments.
  *
- * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+ * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
  *
  * [![JSR](https://jsr.io/badges/@neotales/args)](https://jsr.io/@neotales/args)
  * [![npm version](https://badge.fury.io/js/@neotales%2Fargs.svg)](https://badge.fury.io/js/@neotales%2Fargs)

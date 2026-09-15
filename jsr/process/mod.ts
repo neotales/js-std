@@ -5,7 +5,7 @@
  * executable path, current working directory, directory navigation, and standard I/O streams.
  * Works seamlessly with Deno, Node.js, Bun, and has experimental browser support.
  *
- * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+ * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
  *
  * [![JSR](https://jsr.io/badges/@neotales/process)](https://jsr.io/@neotales/process)
  * [![npm version](https://badge.fury.io/js/@neotales%2Fprocess.svg)](https://badge.fury.io/js/@neotales%2Fprocess)

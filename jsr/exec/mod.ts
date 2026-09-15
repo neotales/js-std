@@ -6,7 +6,7 @@
  * systems (Windows, Linux, Mac) and include additional utilities
  * like splatting arguments and looking up executables on the path.
  *
- * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+ * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
  *
  * [![JSR](https://jsr.io/badges/@neotales/exec)](https://jsr.io/@neotales/exec)
  * [![npm version](https://badge.fury.io/js/@neotales%2Fexec.svg)](https://badge.fury.io/js/@neotales%2Fexec)

@@ -6,7 +6,7 @@
  * Bun, and the browser. Byte and duration formatters are available from the
  * `@neotales/fmt/bytes` and `@neotales/fmt/duration` subpaths.
  *
- * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+ * ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
  *
  * [![JSR](https://jsr.io/badges/@neotales/fmt)](https://jsr.io/@neotales/fmt)
  * [![npm version](https://badge.fury.io/js/@neotales%2Ffmt.svg)](https://badge.fury.io/js/@neotales%2Ffmt)
