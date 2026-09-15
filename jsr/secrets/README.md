@@ -6,13 +6,27 @@
 registered sensitive values from strings, logs, and other text output. It works
 in Deno, Node.js, Bun, and browsers that provide Web Crypto.
 
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
+
+[![JSR](https://jsr.io/badges/@neotales/secrets)](https://jsr.io/@neotales/secrets)
+[![npm version](https://badge.fury.io/js/@neotales%2Fsecrets.svg)](https://badge.fury.io/js/@neotales%2Fsecrets)
+
+## Documentation
+
+Documentation is available on [jsr.io](https://jsr.io/@neotales/secrets/doc)
+
+A list of other modules can be found at [github.com/neotales/js-std](https://github.com/neotales/js-std)
+
 ## Installation
 
-```sh
+```bash
 # Deno
 deno add jsr:@neotales/secrets
 
-# npm
+# npm from jsr
+npx jsr add @neotales/secrets
+
+# from npmjs.org
 npm install @neotales/secrets
 ```
 

@@ -5,6 +5,11 @@
 A cross-runtime filesystem module for Deno, Node.js, and Bun. The API is influenced by
 `@std/fs`, while also exposing lower-level file, metadata, and POSIX helpers.
 
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
+
+[![JSR](https://jsr.io/badges/@neotales/fs)](https://jsr.io/@neotales/fs)
+[![npm version](https://badge.fury.io/js/@neotales%2Ffs.svg)](https://badge.fury.io/js/@neotales%2Ffs)
+
 ## Documentation
 
 Documentation is available on [JSR](https://jsr.io/@neotales/fs/doc).

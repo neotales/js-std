@@ -6,11 +6,10 @@ Cross-runtime process utilities providing access to process ID, command-line arg
 executable path, current working directory, directory navigation, and standard I/O streams.
 Works seamlessly with Deno, Node.js, Bun, and has experimental browser support.
 
-![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/process)](https://jsr.io/@neotales/process)
 [![npm version](https://badge.fury.io/js/@neotales%2Fprocess.svg)](https://badge.fury.io/js/@neotales%2Fprocess)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
 
 ## Documentation
 
@@ -34,7 +33,7 @@ npm install @neotales/process
 ## Quick Start
 
 ```typescript
-import { args, pid, execPath, cwd, chdir, exit, stdout } from "@neotales/process";
+import { args, chdir, cwd, execPath, exit, pid, stdout } from "@neotales/process";
 
 // Access process info
 console.log("PID:", pid);
@@ -92,7 +91,7 @@ for (const arg of args) {
 | `execPath()`       | Returns the path to the current executable |
 
 ```typescript
-import { cwd, chdir, pushd, popd, execPath } from "@neotales/process";
+import { chdir, cwd, execPath, popd, pushd } from "@neotales/process";
 
 // Get current directory
 console.log(cwd()); // "/home/user/project"
@@ -137,7 +136,7 @@ exit(1);
 On Node.js, `close()` is a no-op because these streams belong to the host process.
 
 ```typescript
-import { stdout, stderr, stdin } from "@neotales/process";
+import { stderr, stdin, stdout } from "@neotales/process";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -169,7 +168,7 @@ if (bytesRead !== null && bytesRead > 0) {
 | `ChangeDirectoryError` | Thrown when `chdir()` fails (e.g., directory not found) |
 
 ```typescript
-import { chdir, ChangeDirectoryError } from "@neotales/process";
+import { ChangeDirectoryError, chdir } from "@neotales/process";
 
 try {
   chdir("/nonexistent/path");

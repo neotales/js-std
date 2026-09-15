@@ -33,7 +33,6 @@ objects such as CharSlice or Uint32Arrays.
 ![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/slices)](https://jsr.io/@neotales/slices)
-
 [![npm version](https://badge.fury.io/js/@neotales%2Fslices.svg?icon=si%3Anpm)](https://badge.fury.io/js/@neotales%2Fslices)
 
 ## Documentation

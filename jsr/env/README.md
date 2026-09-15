@@ -23,11 +23,10 @@ command substitution. Command substitution is disabled by default
 and must be enabled by passing the `commands` option to the
 `expand` method.
 
-![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/env)](https://jsr.io/@neotales/env)
 [![npm version](https://badge.fury.io/js/@neotales%2Fenv.svg)](https://badge.fury.io/js/@neotales%2Fenv)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
 
 ## Documentation
 

@@ -6,10 +6,27 @@
 for code that should not use exceptions as normal control flow. It has no runtime
 dependencies and works in Deno, Node.js, Bun, browsers, and Cloudflare Workers.
 
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
+
+[![JSR](https://jsr.io/badges/@neotales/results)](https://jsr.io/@neotales/results)
+[![npm version](https://badge.fury.io/js/@neotales%2Fresults.svg)](https://badge.fury.io/js/@neotales%2Fresults)
+
+## Documentation
+
+Documentation is available on [jsr.io](https://jsr.io/@neotales/results/doc)
+
+A list of other modules can be found at [github.com/neotales/js-std](https://github.com/neotales/js-std)
+
 ## Installation
 
-```sh
+```bash
+# Deno
 deno add jsr:@neotales/results
+
+# npm from jsr
+npx jsr add @neotales/results
+
+# from npmjs.org
 npm install @neotales/results
 ```
 

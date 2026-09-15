@@ -7,10 +7,27 @@ terminal settings. The style helpers work in Deno, Node.js, Bun, browsers, and
 Cloudflare Workers. Terminal detection is meaningful only in runtimes with a
 terminal; browser and Worker environments default to plain text.
 
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
+
+[![JSR](https://jsr.io/badges/@neotales/ansi)](https://jsr.io/@neotales/ansi)
+[![npm version](https://badge.fury.io/js/@neotales%2Fansi.svg)](https://badge.fury.io/js/@neotales%2Fansi)
+
+## Documentation
+
+Documentation is available on [jsr.io](https://jsr.io/@neotales/ansi/doc)
+
+A list of other modules can be found at [github.com/neotales/js-std](https://github.com/neotales/js-std)
+
 ## Installation
 
-```sh
+```bash
+# Deno
 deno add jsr:@neotales/ansi
+
+# npm from jsr
+npx jsr add @neotales/ansi
+
+# from npmjs.org
 npm install @neotales/ansi
 ```
 
@@ -60,7 +77,7 @@ console.log(link("Neotales", "https://github.com/neotales/js-std"));
 ## Extended Colors
 
 ```ts
-import { bgRgb24, rgb8, rgb24 } from "@neotales/ansi";
+import { bgRgb24, rgb24, rgb8 } from "@neotales/ansi";
 
 rgb8("palette", 208);
 rgb24("true color", { r: 255, g: 140, b: 0 });

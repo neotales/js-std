@@ -19,7 +19,6 @@ preseving comments and newlines when writing a .env to string
 
 [![JSR](https://jsr.io/badges/@neotales/dotenv)](https://jsr.io/@neotales/dotenv)
 [![npm version](https://badge.fury.io/js/@neotales%2Fdotenv.svg)](https://badge.fury.io/js/@neotales%2Fdotenv)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
 
 ## Documentation
 

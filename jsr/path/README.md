@@ -8,11 +8,10 @@ changes to enable it to work in node and bun.
 
 Deno's @std/path is based upon [Browserify's implementation of path](https://github.com/browserify/path-browserify/tree/master).
 
-![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/path)](https://jsr.io/@neotales/path)
 [![npm version](https://badge.fury.io/js/@neotales%2Fpath.svg)](https://badge.fury.io/js/@neotales%2Fpath)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
 
 ## Documentation
 

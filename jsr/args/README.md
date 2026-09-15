@@ -5,11 +5,10 @@
 Cross-runtime command-line argument utilities for splitting shell-like strings, joining argument arrays, converting
 objects to args, and parsing args into JSON-like objects.
 
-![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/args)](https://jsr.io/@neotales/args)
 [![npm version](https://badge.fury.io/js/@neotales%2Fargs.svg)](https://badge.fury.io/js/@neotales%2Fargs)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
 
 ## Documentation
 

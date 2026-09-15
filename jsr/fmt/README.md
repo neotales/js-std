@@ -6,11 +6,10 @@ A cross-runtime string formatting module providing printf-style formatting,
 value inspection, and ANSI code handling. Works seamlessly with Deno, Node.js,
 Bun, and the browser.
 
-![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/master/eng/assets/logo.png)
+![logo](https://raw.githubusercontent.com/neotales/js-std/refs/heads/dev/eng/assets/logo.png)
 
 [![JSR](https://jsr.io/badges/@neotales/fmt)](https://jsr.io/@neotales/fmt)
 [![npm version](https://badge.fury.io/js/@neotales%2Ffmt.svg)](https://badge.fury.io/js/@neotales%2Ffmt)
-[![GitHub version](https://badge.fury.io/gh/neotales%2Fjs-std.svg)](https://badge.fury.io/gh/neotales%2Fjs-std)
 
 ## Documentation
 
