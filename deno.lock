@@ -350,7 +350,7 @@
         "npm:@types/node@22",
         "npm:oxlint@^1.46.0",
         "npm:playwright@^1.62.1",
-        "npm:wrangler@^4.123.0"
+        "npm:wrangler@^4.132.0"
       ]
     },
     "members": {

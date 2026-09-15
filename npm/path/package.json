@@ -1,6 +1,6 @@
 {
   "name": "@neotales/path",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "description": "Path utilities with glob and URL support that are based on Deno's std/path module.",
   "keywords": [
     "path",
