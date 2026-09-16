@@ -1,6 +1,6 @@
 {
   "name": "@neotales/fs",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "license": "MIT",
   "description": "Cross-runtime filesystem utilities for Deno, Node.js, and Bun.",
   "keywords": ["file", "filesystem", "fs"],
