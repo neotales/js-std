@@ -44,8 +44,9 @@ function getLocaleOptions({ maximumFractionDigits, minimumFractionDigits, }) {
     };
 }
 function toLocaleString(num, locale, options) {
-    if (typeof locale === "string" || Array.isArray(locale))
+    if (typeof locale === "string" || Array.isArray(locale)) {
         return num.toLocaleString(locale, options);
+    }
     if (locale === true || options !== undefined)
         return num.toLocaleString(undefined, options);
     return num.toString();

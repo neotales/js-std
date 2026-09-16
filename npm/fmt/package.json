@@ -1,6 +1,6 @@
 {
   "name": "@neotales/fmt",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "description": "Sprintf, printf, inspect that works in the browser and across runtimes, based on deno's @std/fmt.",
   "keywords": [
     "fmt",

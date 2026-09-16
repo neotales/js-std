@@ -97,8 +97,9 @@ export function inspectBrowser(value, options = {}) {
         }
         active.add(current);
         try {
-            if (current instanceof Date)
+            if (current instanceof Date) {
                 return Number.isNaN(current.valueOf()) ? "Invalid Date" : current.toISOString();
+            }
             if (current instanceof RegExp)
                 return String(current);
             if (current instanceof Error)
@@ -140,8 +141,9 @@ export function inspectBrowser(value, options = {}) {
                 return `Set(${current.size}) ${collection("{", "}", entries, level)}`;
             }
             let properties = options.showHidden ? Reflect.ownKeys(current) : Object.keys(current);
-            if (options.sorted)
+            if (options.sorted) {
                 properties = properties.sort((left, right) => String(left).localeCompare(String(right)));
+            }
             const entries = properties.slice(0, limit).map((property) => {
                 const descriptor = Object.getOwnPropertyDescriptor(current, property);
                 let propertyValue;
@@ -157,12 +159,11 @@ export function inspectBrowser(value, options = {}) {
                         }
                     }
                     else {
-                        propertyValue =
-                            descriptor.get && descriptor.set
-                                ? "[Getter/Setter]"
-                                : descriptor.get
-                                    ? "[Getter]"
-                                    : "[Setter]";
+                        propertyValue = descriptor.get && descriptor.set
+                            ? "[Getter/Setter]"
+                            : descriptor.get
+                                ? "[Getter]"
+                                : "[Setter]";
                     }
                 }
                 else {

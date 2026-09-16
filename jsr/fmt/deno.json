@@ -1,6 +1,6 @@
 {
   "name": "@neotales/fmt",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "license": "MIT",
   "keywords": ["fmt", "format", "printf", "inspect", "bytes", "duration"],
   "description": "Sprintf, printf ported from @std/fmt",

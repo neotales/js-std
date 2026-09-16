@@ -175,14 +175,13 @@ else if (globals.process) {
     if (platform === "win32") {
         platform = "windows";
     }
-    noColorFlag =
-        globals.process.env.NO_COLOR === "1" ||
-            globals.process.env.NO_COLOR === "true" ||
-            globals.process.env.COLOR === "0" ||
-            globals.process.env.COLOR === "false" ||
-            processArgs.includes("--no-color") ||
-            processArgs.includes("--color=0") ||
-            processArgs.includes("--color=false");
+    noColorFlag = globals.process.env.NO_COLOR === "1" ||
+        globals.process.env.NO_COLOR === "true" ||
+        globals.process.env.COLOR === "0" ||
+        globals.process.env.COLOR === "false" ||
+        processArgs.includes("--no-color") ||
+        processArgs.includes("--color=0") ||
+        processArgs.includes("--color=false");
 }
 const WINDOWS = platform === "windows";
 const EOL = WINDOWS ? "\r\n" : "\n";
