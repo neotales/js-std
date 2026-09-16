@@ -15,7 +15,7 @@ Modules follow the upstream Frosty Yeti workspace order (`deno task modules`).
 - [x] **@neotales/ansi**
 - [x] **@neotales/results**
 - [x] **@neotales/fs**
-- [ ] **@neotales/exec**
+- [x] **@neotales/exec**
 
 ## Imported Modules
 
