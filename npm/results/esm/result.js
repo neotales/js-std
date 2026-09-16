@@ -63,10 +63,12 @@ export class Result {
         _Result_state.set(this, void 0);
         _Result_value.set(this, void 0);
         _Result_error.set(this, void 0);
-        if (state === "ok" && error !== undefined)
+        if (state === "ok" && error !== undefined) {
             throw new ResultError("Result cannot have both value and error");
-        if (state === "error" && value !== undefined)
+        }
+        if (state === "error" && value !== undefined) {
             throw new ResultError("Result cannot have both value and error");
+        }
         __classPrivateFieldSet(this, _Result_state, state, "f");
         __classPrivateFieldSet(this, _Result_value, value, "f");
         __classPrivateFieldSet(this, _Result_error, error, "f");
