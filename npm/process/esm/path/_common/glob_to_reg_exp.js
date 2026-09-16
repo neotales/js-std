@@ -41,9 +41,7 @@ caseInsensitive = false, } = {}) {
         for (; i < glob.length && !(c.seps.includes(glob[i]) && groupStack.length === 0); i++) {
             if (inEscape) {
                 inEscape = false;
-                const escapeChars = (inRange
-                    ? RANGE_ESCAPE_CHARS
-                    : REG_EXP_ESCAPE_CHARS);
+                const escapeChars = (inRange ? RANGE_ESCAPE_CHARS : REG_EXP_ESCAPE_CHARS);
                 segment += escapeChars.includes(glob[i]) ? `\\${glob[i]}` : glob[i];
                 continue;
             }
