@@ -1,6 +1,6 @@
 {
   "name": "@neotales/env",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "description": "The env provides a uniform way to work with environment variables and the path variable across different runtimes and operating systems.",
   "keywords": [
     "env",
