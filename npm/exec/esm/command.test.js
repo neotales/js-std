@@ -399,9 +399,9 @@ test("exec::ShellCommand - get ext from command", () => {
     equal(ext, ".ps1");
 });
 test("exec::ShellCommand - run inline script", async (t) => {
-    if (!pwsh) {
+    if (rt === "bun" || !pwsh) {
         if (rt === "bun") {
-            ok(true, "Skipping test: Bun does not support skipping tests using node:test");
+            ok(true, "Skipping test: Bun cannot run PowerShell through node:child_process");
             return;
         }
         t.skip("Skipping test: pwsh command not found");
@@ -413,9 +413,9 @@ test("exec::ShellCommand - run inline script", async (t) => {
     equal(output.text(), `Hello, World!${EOL}`);
 });
 test("exec::ShellCommand - run file", async (t) => {
-    if (!pwsh) {
+    if (rt === "bun" || !pwsh) {
         if (rt === "bun") {
-            ok(true, "Skipping test: Bun does not support skipping tests using node:test");
+            ok(true, "Skipping test: Bun cannot run PowerShell through node:child_process");
             return;
         }
         t.skip("Skipping test: pwsh command not found");
@@ -433,9 +433,9 @@ test("exec::ShellCommand - run file", async (t) => {
     }
 });
 test("exec:ShellCommand - use spawn", async (t) => {
-    if (!pwsh) {
+    if (rt === "bun" || !pwsh) {
         if (rt === "bun") {
-            ok(true, "Skipping test: Bun does not support skipping tests using node:test");
+            ok(true, "Skipping test: Bun cannot run PowerShell through node:child_process");
             return;
         }
         t.skip("Skipping test: pwsh command not found");

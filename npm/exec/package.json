@@ -1,6 +1,6 @@
 {
   "name": "@neotales/exec",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "description": "The exec module makes it easy to spawn child_processes across different runtimes and different operating systems.",
   "keywords": [
     "exec",
