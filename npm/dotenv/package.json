@@ -1,6 +1,6 @@
 {
   "name": "@neotales/dotenv",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "description": "Parse or emit .env content. Parse .env content into a document or normal object, expand variables, and stringify documents or objects into a .env content.",
   "keywords": [
     "dotenv",

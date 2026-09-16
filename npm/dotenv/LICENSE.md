@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright 2022-2025 neotales Labs and neotales Dev
+Copyright 2022-2026 Neotales
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in
