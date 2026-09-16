@@ -48,8 +48,9 @@ export function detectMode(options = {}) {
     const runtimeArgs = options.args ?? args;
     const colorArgument = runtimeArgs.find((value) => value.startsWith("--color="));
     const colorIndex = runtimeArgs.indexOf("--color");
-    if (runtimeArgs.includes("--no-color") || runtimeArgs.includes("--nocolor"))
+    if (runtimeArgs.includes("--no-color") || runtimeArgs.includes("--nocolor")) {
         return AnsiModes.None;
+    }
     if (colorArgument)
         return forcedMode(colorArgument.slice("--color=".length));
     if (colorIndex >= 0) {
@@ -78,8 +79,9 @@ export function detectMode(options = {}) {
             return alias;
         if (/-256(color)?$/i.test(term))
             return AnsiModes.EightBit;
-        if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(term))
+        if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(term)) {
             return AnsiModes.FourBit;
+        }
     }
     if (hasValue("COLORTERM"))
         return AnsiModes.FourBit;
