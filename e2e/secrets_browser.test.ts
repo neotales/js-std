@@ -10,7 +10,7 @@ test("e2e::secrets protects values and streams in Chromium", { timeout: 60_000 }
 
   try {
     const bundle = await new Deno.Command(Deno.execPath(), {
-      args: ["bundle", "--platform", "browser", "--output", output, fixture],
+      args: ["--quiet", "bundle", "--platform", "browser", "--output", output, fixture],
       cwd: root,
       stdout: "inherit",
       stderr: "inherit",

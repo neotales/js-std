@@ -1,6 +1,6 @@
 import { deepStrictEqual, rejects } from "node:assert/strict";
 import { test } from "node:test";
-import { SecretKey, decryptStream, encryptStream } from "./mod.js";
+import { decryptStream, encryptStream, SecretKey } from "./mod.js";
 async function readAll(stream) {
     const reader = stream.getReader();
     const chunks = [];

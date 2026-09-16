@@ -10,7 +10,7 @@ test("e2e::fmt inspect works in Chromium", { timeout: 60_000 }, async () => {
 
   try {
     const bundle = await new Deno.Command(Deno.execPath(), {
-      args: ["bundle", "--platform", "browser", "--output", output, fixture],
+      args: ["--quiet", "bundle", "--platform", "browser", "--output", output, fixture],
       cwd: root,
       stdout: "inherit",
       stderr: "inherit",

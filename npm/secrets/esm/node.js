@@ -37,8 +37,9 @@ function encrypt(value, key, iv, additionalData) {
     return concatBytes(cipher.update(value), cipher.final(), cipher.getAuthTag());
 }
 function decrypt(value, key, iv, additionalData) {
-    if (value.length < TAG_LENGTH)
+    if (value.length < TAG_LENGTH) {
         throw new Error("Encrypted value is missing an authentication tag");
+    }
     const decipher = createDecipheriv("aes-256-gcm", getKeyBytes(key), iv);
     if (additionalData)
         decipher.setAAD(additionalData);
@@ -162,8 +163,9 @@ export function* decryptChunks(chunks, options = {}) {
         buffered = concatBytes(buffered, chunk);
         if (!prefix && buffered.length >= HEADER_LENGTH) {
             const header = buffered.subarray(0, HEADER_LENGTH);
-            if (!equalBytes(header.subarray(0, MAGIC.length), MAGIC))
+            if (!equalBytes(header.subarray(0, MAGIC.length), MAGIC)) {
                 throw new Error("Invalid encrypted stream header");
+            }
             prefix = header.subarray(MAGIC.length).slice();
             buffered = buffered.subarray(HEADER_LENGTH);
         }

@@ -25,8 +25,9 @@ export async function encrypt(value, key, iv, additionalData) {
     return new Uint8Array(encrypted);
 }
 export async function decrypt(value, key, iv, additionalData) {
-    if (value.length < TAG_LENGTH)
+    if (value.length < TAG_LENGTH) {
         throw new Error("Encrypted value is missing an authentication tag");
+    }
     const cryptoKey = await crypto.subtle.importKey("raw", owned(getKeyBytes(key)), "AES-GCM", false, ["decrypt"]);
     const decrypted = await crypto.subtle.decrypt({
         name: "AES-GCM",
