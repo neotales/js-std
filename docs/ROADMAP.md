@@ -6,7 +6,7 @@ Modules follow the upstream Frosty Yeti workspace order (`deno task modules`).
 ## Update modules
 
 - [x] **@neotales/path**
-- [ ] **@neotales/process**
+- [x] **@neotales/process**
 - [ ] **@neotales/args**
 - [ ] **@neotales/env**
 - [ ] **@neotales/dotenv**
