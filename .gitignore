@@ -6,6 +6,6 @@ npm/*/dist/
 test_runner.cjs
 artifacts/
 .runtime-lab/
-runtime-tests/clearscript/bin/
-runtime-tests/clearscript/obj/
+clearscript/src/*/bin/
+clearscript/src/*/obj/
 docs/PLAN.md

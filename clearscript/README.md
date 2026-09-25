@@ -1,0 +1,105 @@
+# Neotales.ClearScript
+
+A .NET compatibility layer that runs Neotales TypeScript and JavaScript modules, and the
+[js-os](https://github.com/neotales/js-os) modules that ship alongside them, on ClearScript's V8
+engine.
+
+The packages are plain .NET libraries with no JavaScript build step of their own. They inject the
+host primitives the Neotales modules probe for at runtime, so a bundle that runs under Deno, Node.js,
+or Bun runs unchanged on ClearScript.
+
+## Projects
+
+| Project                        | Purpose                                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `src/Neotales.ClearScript`     | The library: engine configuration, host objects, and the embedded JavaScript shim. |
+| `src/Neotales.ClearScript.Cli` | A small console runner used by the runtime lab and for local checks.               |
+
+## Quick start
+
+```sh
+dotnet build clearscript/src/Neotales.ClearScript.Cli/Neotales.ClearScript.Cli.csproj \
+  --configuration=Release
+
+dotnet --roll-forward Major \
+  clearscript/src/Neotales.ClearScript.Cli/bin/Release/net8.0/neotales-clearscript.dll \
+  bundle.js
+```
+
+Embed the library in a host application instead:
+
+```csharp
+using Neotales.ClearScript;
+
+await using var engine = NeotalesScriptEngine.Create(new NeotalesEngineOptions
+{
+    Args = args,
+    WorkingDirectory = bundleDirectory,
+});
+
+await engine.RunFileAsync(bundlePath);
+var report = engine.ReadReport();
+```
+
+## How a bundle runs
+
+ClearScript evaluates a classic script, not a module, so a bundle cannot use top-level `await`.
+The layer solves this without a module loader:
+
+1. The host objects are added to the engine.
+2. An embedded JavaScript shim builds `process`, `node:*` shims, `console`, encoding, and `crypto`.
+3. The bundle is executed as a script.
+4. If the bundle assigned a promise to `globalThis.__neotalesPromise`, the host awaits it as a .NET
+   task before reading the report.
+
+That is the contract the runtime-lab fixtures use, so the same bundle also runs on runtimes with
+real top-level `await`. The host also drains cooperative timers, which the shim implements over the
+promise queue, so `setTimeout` callbacks scheduled by a bundle complete before the report is read.
+
+## Injected primitives
+
+| Global                                            | Backed by                               | Notes                                                                                |
+| ------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------ |
+| `process`                                         | `NeotalesSystem`, `NeotalesEnvironment` | `platform`, `pid`, `argv`, `env`, `cwd`, `getuid`, `getBuiltinModule`, and the rest. |
+| `process.env`                                     | `System.Environment`                    | Live process environment, not a snapshot.                                            |
+| `process.stdout` / `stderr`                       | `Console.Out` / `Console.Error`         | `write`, `writeSync`, `isTTY`, `columns`, `rows`.                                    |
+| `node:fs`                                         | `System.IO`                             | Sync and promise forms, `constants`, `opendir`, file descriptors, `Stat` objects.    |
+| `node:os`                                         | `System` and `Environment`              | `platform`, `tmpdir`, `homedir`, `userInfo`, `EOL`.                                  |
+| `node:path`                                       | JavaScript                              | `posix` and `win32` flavors.                                                         |
+| `node:util`                                       | JavaScript                              | `promisify`, `format`, `isDeepStrictEqual`. `inspect` is intentionally absent.       |
+| `node:child_process`                              | `System.Diagnostics.Process`            | `spawnSync`, `execSync`, `execFileSync`, `exec`, `execFile`.                         |
+| `node:crypto`                                     | `System.Security.Cryptography`          | `randomBytes`, `randomUUID`, `randomFillSync`, `web`.                                |
+| `node:module`                                     | —                                       | `createRequire` over the shim registry, so `require("koffi")` fails cleanly.         |
+| `node:stream`                                     | —                                       | `Readable.toWeb` / `Writable.toWeb` throw a clear unsupported error.                 |
+| `console`                                         | `Console.Out` / `Console.Error`         | Replaces ClearScript's native console, which does not reach the host streams.        |
+| `TextEncoder` / `TextDecoder`                     | JavaScript                              | UTF-8 in both directions plus UTF-16LE decoding.                                     |
+| `crypto.getRandomValues` / `randomUUID`           | `RandomNumberGenerator`                 | Real cryptographic randomness.                                                       |
+| `crypto.subtle`                                   | `System.Security.Cryptography`          | `importKey`, `encrypt`, `decrypt` for AES-GCM, and `digest`.                         |
+| `setTimeout`, `queueMicrotask`, `performance.now` | JavaScript                              | Cooperative, drained by the host.                                                    |
+
+Anything the engine already provides is left in place.
+
+## Deliberate gaps
+
+- **No foreign function interface.** The js-os vault modules (`win-cred`, `win-dpapi`,
+  `darwin-keychain`, `linux-libsecret`, `win-registry`) need `Deno.dlopen`, `bun:ffi`, `node:ffi`, or
+  `koffi`. They load and report themselves unavailable, which is what their `isAvailable()`
+  predicates promise. Elevation detection works because its POSIX path only needs
+  `process.geteuid`.
+- **No `util.inspect`.** A JSON-based approximation would print different strings than Node for
+  circular values and `depth` limits, so modules keep using their own portable inspector.
+- **No `URL`.** `@neotales/path` already works without it; URL conversion needs a host implementation.
+- **Timers are cooperative, not wall-clock.** `setTimeout` callbacks run in registration order as
+  the promise queue drains. `setInterval` fires once.
+- **`node:stream` file streams are not adapted.** `FsFile.readable` and `FsFile.writable` throw.
+- **`.NET 8` is the target framework.** Add a `Directory.Build.props` if the package ships.
+
+## How the runtime lab uses it
+
+`runtime-tests/main.ts` builds the CLI, bundles the scenarios, and runs them:
+
+- `core`, `fmtInspect`, `ansi`, `env`, `moduleFs`, and `secrets` exercise the Neotales modules.
+- `jsOs` bundles the sibling js-os repository's JSR modules through an ESM-to-async-IIFE wrapper and
+  records how each module behaves.
+
+`docs/RUNTIME_MATRIX.md` records the resulting support matrix and the remaining backlog.

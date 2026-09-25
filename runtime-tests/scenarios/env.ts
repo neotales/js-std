@@ -7,18 +7,22 @@ export type EnvScenarioReport = {
   value: string;
 };
 
-/** Exercises the QuickJS-ng std environment provider. */
-export function runEnvScenario(): EnvScenarioReport {
+/**
+ * Exercises the environment provider for the current host.
+ *
+ * @param value The value written to the probe variable, which identifies the host in the report.
+ */
+export function runEnvScenario(value = "runtime-env"): EnvScenarioReport {
   const name = "NEOTALES_RUNTIME_ENV";
   const inheritedPath = path();
-  set(name, "quickjs-env");
-  const value = get(name) ?? "";
+  set(name, value);
+  const stored = get(name) ?? "";
   const expanded = expand(`\${${name}}:\${MISSING:-fallback}`);
   remove(name);
   return {
     expanded,
     hasPath: inheritedPath.length > 0,
     removed: get(name) === undefined && !(name in toObject()),
-    value,
+    value: stored,
   };
 }

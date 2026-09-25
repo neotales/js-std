@@ -4,5 +4,11 @@
     "correctness": "error",
     "suspicious": "warn"
   },
-  "plugins": ["typescript", "node"]
+  "plugins": ["typescript", "node"],
+  "rules": {
+    "no-underscore-dangle": [
+      "warn",
+      { "allow": ["__NEOTALES_RUNTIME_REPORT__", "__neotalesPromise"] }
+    ]
+  }
 }

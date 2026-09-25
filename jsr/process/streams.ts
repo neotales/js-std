@@ -1,4 +1,4 @@
-import { globals } from "./_globals.ts";
+import { getBuiltinModule, globals } from "./_globals.ts";
 
 /**
  * A standard output writer, which represents the standard
@@ -316,10 +316,21 @@ if (deno) {
 } else if (globals.process) {
   // @ts-types="npm:@types/node@^22.17.0"
   const process = globals.process as NodeJS.Process;
-  // @ts-types="npm:@types/node@^22.17.0"
-  const fs = await import("node:fs");
-  // @ts-types="npm:@types/node@^22.17.0"
-  const tty = await import("node:tty");
+  // The Node builtins are resolved synchronously so this module stays a plain script.
+  // Top-level `await import()` here would make every importer an async module, which
+  // engines without top-level await (JerryScript, bare ClearScript hosts, iife bundles)
+  // reject at parse time even though these branches never run for them.
+  const fsBuiltin = getBuiltinModule<typeof import("node:fs")>("node:fs");
+  const ttyBuiltin = getBuiltinModule<typeof import("node:tty")>("node:tty");
+
+  if (!fsBuiltin || !ttyBuiltin) {
+    throw new Error(
+      "The process streams require a Node-compatible host that implements process.getBuiltinModule.",
+    );
+  }
+
+  const fs = fsBuiltin;
+  const tty = ttyBuiltin;
 
   // deno-lint-ignore no-inner-declarations
   function readAsync(buffer: Uint8Array, offet: number, length: number): Promise<number> {

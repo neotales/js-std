@@ -78,3 +78,14 @@ jobs:
 
       - name: Test browser and workerd
         run: deno task test:e2e
+
+      - name: Check out js-os
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: neotales/js-os
+          path: ../js-os
+
+      - name: Test js-os modules on the .NET host
+        run: deno task test:runtime-lab clearscript
+        env:
+          NEOTALES_JS_OS: ${{ github.workspace }}/../js-os/jsr

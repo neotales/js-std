@@ -1,6 +1,7 @@
 // Copyright 2018-2025 the Deno authors. MIT license.
 // This module is browser compatible.
 import { assertPath } from "../_common/assert_path.js";
+import { isUrl } from "../_is_url.js";
 import { normalize } from "./normalize.js";
 import { fromFileUrl } from "./from_file_url.js";
 /**
@@ -34,7 +35,7 @@ import { fromFileUrl } from "./from_file_url.js";
 export function join(path, ...paths) {
     if (path === undefined)
         return ".";
-    if (path instanceof URL) {
+    if (isUrl(path)) {
         path = fromFileUrl(path);
     }
     paths = path ? [path, ...paths] : paths;

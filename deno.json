@@ -30,6 +30,12 @@
     "lineWidth": 100,
     "singleQuote": false,
     "proseWrap": "preserve",
-    "exclude": ["npm", "artifacts", "node_modules"]
+    "exclude": [
+      "npm",
+      "artifacts",
+      "node_modules",
+      "clearscript/src/*/bin",
+      "clearscript/src/*/obj"
+    ]
   }
 }

@@ -1,6 +1,7 @@
 // Copyright 2018-2025 the Deno authors. MIT license.
 // This module is browser compatible.
 import { assertArg } from "../_common/dirname.js";
+import { isUrl } from "../_is_url.js";
 import { CHAR_COLON } from "../../chars/constants.js";
 import { stripTrailingSeparators } from "../_common/strip_trailing_separators.js";
 import { isPathSeparator, isPosixPathSeparator, isWindowsDeviceRoot } from "./_util.js";
@@ -21,7 +22,7 @@ import { fromFileUrl } from "./from_file_url.js";
  * @returns The directory path.
  */
 export function dirname(path) {
-    if (path instanceof URL) {
+    if (isUrl(path)) {
         path = fromFileUrl(path);
     }
     assertArg(path);

@@ -29,6 +29,8 @@
 /types/path/_common/to_file_url.d.ts
 /esm/path/_globals.js
 /types/path/_globals.d.ts
+/esm/path/_is_url.js
+/types/path/_is_url.d.ts
 /esm/path/basename.js
 /types/path/basename.d.ts
 /esm/path/common.js

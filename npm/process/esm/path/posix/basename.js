@@ -2,6 +2,7 @@
 // This module is browser compatible.
 import { assertArgs, lastPathSegment, stripSuffix } from "../_common/basename.js";
 import { stripTrailingSeparators } from "../_common/strip_trailing_separators.js";
+import { isUrl } from "../_is_url.js";
 import { isPosixPathSeparator } from "./_util.js";
 import { fromFileUrl } from "./from_file_url.js";
 /**
@@ -40,7 +41,7 @@ import { fromFileUrl } from "./from_file_url.js";
  * @returns The extracted name.
  */
 export function basename(path, suffix = "") {
-    if (path instanceof URL) {
+    if (isUrl(path)) {
         path = fromFileUrl(path);
     }
     assertArgs(path, suffix);

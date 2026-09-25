@@ -2,6 +2,8 @@ import type { AnsiScenarioReport } from "./scenarios/ansi.ts";
 import type { CoreScenarioReport } from "./scenarios/core.ts";
 import type { FmtInspectScenarioReport } from "./scenarios/fmt_inspect.ts";
 import type { EnvScenarioReport } from "./scenarios/env.ts";
+import type { FsScenarioReport } from "./scenarios/fs.ts";
+import type { JsOsScenarioReport } from "./scenarios/js_os.ts";
 import type { SecretsScenarioReport } from "./scenarios/secrets.ts";
 
 export const expectedReports = {
@@ -26,6 +28,12 @@ export const expectedReports = {
     removed: true,
     value: "quickjs-env",
   } satisfies EnvScenarioReport,
+  clearScriptEnv: {
+    expanded: "clearscript-env:fallback",
+    hasPath: true,
+    removed: true,
+    value: "clearscript-env",
+  } satisfies EnvScenarioReport,
   ansi: {
     plain: "embedded",
     styled: "\x1b[44m\x1b[31m\x1b[1membedded\x1b[22m\x1b[39m\x1b[49m",
@@ -35,6 +43,19 @@ export const expectedReports = {
     masked: "*******",
     text: "embedded-token",
   } satisfies SecretsScenarioReport,
+  moduleFs: {
+    entries: ["value.txt"],
+    exists: true,
+    info: { isDirectory: false, isFile: true, size: 14 },
+    text: "clearscript-fs",
+  } satisfies FsScenarioReport,
+  jsOs: {
+    isElevated: { available: true, uidMatches: true },
+    libsecret: { available: false, entries: [] },
+    winCred: { available: false, entries: [] },
+    winDpapi: { available: false },
+    winRegistry: { available: false },
+  } satisfies JsOsScenarioReport,
   quickJsFs: {
     contents: "quickjs-fs",
     size: 10,
