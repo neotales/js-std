@@ -1,0 +1,6 @@
+{
+  "name": "neotales-portable-e2e",
+  "main": "./portable_worker.ts",
+  "compatibility_date": "2026-08-15",
+  "compatibility_flags": ["no_nodejs_compat", "no_nodejs_compat_v2"]
+}

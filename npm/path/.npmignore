@@ -33,6 +33,8 @@
 /types/match.test.d.ts
 /esm/mod.test.js
 /types/mod.test.d.ts
+/esm/no_url.test.js
+/types/no_url.test.d.ts
 /esm/normalize.test.js
 /types/normalize.test.d.ts
 /esm/normalize_glob.test.js

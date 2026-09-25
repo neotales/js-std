@@ -9,6 +9,7 @@ Cross-runtime TypeScript modules published to JSR and npm.
 | `chars`   | [@neotales/chars](https://jsr.io/@neotales/chars)     | Character classification and code point utilities |
 | `slices`  | [@neotales/slices](https://jsr.io/@neotales/slices)   | Array and typed array utilities                   |
 | `strings` | [@neotales/strings](https://jsr.io/@neotales/strings) | String utilities                                  |
+| `results` | [@neotales/results](https://jsr.io/@neotales/results) | Result helpers without exceptions                 |
 | `path`    | [@neotales/path](https://jsr.io/@neotales/path)       | Cross-platform path manipulation                  |
 | `process` | [@neotales/process](https://jsr.io/@neotales/process) | Process and platform information                  |
 | `fs`      | [@neotales/fs](https://jsr.io/@neotales/fs)           | Cross-runtime filesystem utilities                |
@@ -40,6 +41,17 @@ modules test in Deno. Tests use `node:test` and `node:assert/strict`; neither
 an assertion nor a globals module is imported or published.
 
 Run all module tests across runtimes with `deno task test`.
+
+The alternate-runtime lab covers representative module surfaces in QuickJS-ng, txiki.js,
+JerryScript, and ClearScript. It downloads or builds pinned engines under `.runtime-lab/`:
+
+```sh
+deno task runtime-lab:setup
+deno task test:runtime-lab
+```
+
+See [docs/RUNTIME_MATRIX.md](./docs/RUNTIME_MATRIX.md) for the support matrix, automation,
+limitations, and implementation backlog.
 
 `test:e2e` runs browser integration tests and local Cloudflare Workers tests.
 The latter use Wrangler's workerd harness without Cloudflare credentials; add a

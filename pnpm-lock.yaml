@@ -7,9 +7,54 @@ settings:
 importers:
   .:
     devDependencies:
+      "@neotales/ansi":
+        specifier: workspace:*
+        version: link:npm/ansi
+      "@neotales/args":
+        specifier: workspace:*
+        version: link:npm/args
+      "@neotales/chars":
+        specifier: workspace:*
+        version: link:npm/chars
+      "@neotales/dotenv":
+        specifier: workspace:*
+        version: link:npm/dotenv
+      "@neotales/env":
+        specifier: workspace:*
+        version: link:npm/env
+      "@neotales/exec":
+        specifier: workspace:*
+        version: link:npm/exec
+      "@neotales/fmt":
+        specifier: workspace:*
+        version: link:npm/fmt
+      "@neotales/fs":
+        specifier: workspace:*
+        version: link:npm/fs
+      "@neotales/path":
+        specifier: workspace:*
+        version: link:npm/path
+      "@neotales/process":
+        specifier: workspace:*
+        version: link:npm/process
+      "@neotales/results":
+        specifier: workspace:*
+        version: link:npm/results
+      "@neotales/secrets":
+        specifier: workspace:*
+        version: link:npm/secrets
+      "@neotales/slices":
+        specifier: workspace:*
+        version: link:npm/slices
+      "@neotales/strings":
+        specifier: workspace:*
+        version: link:npm/strings
       "@types/node":
         specifier: ^22.0.0
         version: 22.20.1
+      esbuild:
+        specifier: ^0.28.1
+        version: 0.28.1
       oxlint:
         specifier: ^1.46.0
         version: 1.78.0

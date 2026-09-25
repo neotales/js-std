@@ -2,6 +2,7 @@
 // This module is browser compatible.
 import { CHAR_DOT } from "@neotales/chars/constants";
 import { assertPath } from "../_common/assert_path.js";
+import { isUrl } from "../_is_url.js";
 import { isPosixPathSeparator } from "./_util.js";
 import { fromFileUrl } from "./from_file_url.js";
 /**
@@ -37,7 +38,7 @@ import { fromFileUrl } from "./from_file_url.js";
  * @returns The extension (ex. for `file.ts` returns `.ts`).
  */
 export function extname(path) {
-    if (path instanceof URL) {
+    if (isUrl(path)) {
         path = fromFileUrl(path);
     }
     assertPath(path);

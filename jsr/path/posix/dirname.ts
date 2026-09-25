@@ -3,6 +3,7 @@
 
 import { assertArg } from "../_common/dirname.ts";
 import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isUrl } from "../_is_url.ts";
 import { isPosixPathSeparator } from "./_util.ts";
 import { fromFileUrl } from "./from_file_url.ts";
 
@@ -34,7 +35,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  * @returns The directory path.
  */
 export function dirname(path: string | URL): string {
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   assertArg(path);

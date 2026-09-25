@@ -3,6 +3,7 @@
 
 import { CHAR_DOT } from "@neotales/chars/constants";
 import { assertPath } from "../_common/assert_path.ts";
+import { isUrl } from "../_is_url.ts";
 import { isPosixPathSeparator } from "./_util.ts";
 import { fromFileUrl } from "./from_file_url.ts";
 
@@ -39,7 +40,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  * @returns The extension (ex. for `file.ts` returns `.ts`).
  */
 export function extname(path: string | URL): string {
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   assertPath(path);

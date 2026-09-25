@@ -3,6 +3,7 @@
 
 import { assertArgs, lastPathSegment, stripSuffix } from "../_common/basename.ts";
 import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isUrl } from "../_is_url.ts";
 import { isPosixPathSeparator } from "./_util.ts";
 import { fromFileUrl } from "./from_file_url.ts";
 
@@ -42,7 +43,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  * @returns The extracted name.
  */
 export function basename(path: string | URL, suffix = ""): string {
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   assertArgs(path, suffix);

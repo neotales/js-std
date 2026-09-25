@@ -5,4 +5,7 @@ npm/*/dist/
 .DS_Store
 test_runner.cjs
 artifacts/
+.runtime-lab/
+runtime-tests/clearscript/bin/
+runtime-tests/clearscript/obj/
 docs/PLAN.md

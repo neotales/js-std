@@ -3,6 +3,7 @@
 
 import { CHAR_COLON, CHAR_DOT } from "../_common/constants.ts";
 import { assertPath } from "../_common/assert_path.ts";
+import { isUrl } from "../_is_url.ts";
 import { isPathSeparator, isWindowsDeviceRoot } from "./_util.ts";
 import { fromFileUrl } from "./from_file_url.ts";
 
@@ -22,7 +23,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  * @returns The extension of the `path`.
  */
 export function extname(path: string | URL): string {
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   assertPath(path);

@@ -2,6 +2,7 @@
 // This module is browser compatible.
 
 import { assertPath } from "../_common/assert_path.ts";
+import { isUrl } from "../_is_url.ts";
 import { normalize } from "./normalize.ts";
 import { fromFileUrl } from "./from_file_url.ts";
 
@@ -35,7 +36,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  */
 export function join(path?: URL | string, ...paths: string[]): string {
   if (path === undefined) return ".";
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   paths = path ? [path, ...paths] : paths;

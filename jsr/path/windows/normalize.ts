@@ -2,6 +2,7 @@
 // This module is browser compatible.
 
 import { assertArg } from "../_common/normalize.ts";
+import { isUrl } from "../_is_url.ts";
 import { CHAR_COLON } from "@neotales/chars/constants";
 import { normalizeString } from "../_common/normalize_string.ts";
 import { isPathSeparator, isWindowsDeviceRoot } from "./_util.ts";
@@ -25,7 +26,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  * @returns The normalized path
  */
 export function normalize(path: string | URL): string {
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   assertArg(path);

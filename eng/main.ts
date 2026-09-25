@@ -343,7 +343,7 @@ async function audit(): Promise<void> {
 }
 
 async function check(): Promise<void> {
-  await run(oxlint, ["jsr", "eng", "e2e"]);
+  await run(oxlint, ["jsr", "eng", "e2e", "runtime-tests"]);
   await run("deno", ["fmt", "--check"]);
   await audit();
   await testModules([], new Set());
@@ -538,7 +538,7 @@ switch (command) {
     }
     break;
   case "lint":
-    await run(oxlint, ["jsr", "eng", "e2e"]);
+    await run(oxlint, ["jsr", "eng", "e2e", "runtime-tests"]);
     break;
   case "fmt":
     await run("deno", ["fmt", ...(args.includes("--check") ? ["--check"] : [])]);

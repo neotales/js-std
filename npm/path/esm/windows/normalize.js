@@ -1,6 +1,7 @@
 // Copyright 2018-2025 the Deno authors. MIT license.
 // This module is browser compatible.
 import { assertArg } from "../_common/normalize.js";
+import { isUrl } from "../_is_url.js";
 import { CHAR_COLON } from "@neotales/chars/constants";
 import { normalizeString } from "../_common/normalize_string.js";
 import { isPathSeparator, isWindowsDeviceRoot } from "./_util.js";
@@ -23,7 +24,7 @@ import { fromFileUrl } from "./from_file_url.js";
  * @returns The normalized path
  */
 export function normalize(path) {
-    if (path instanceof URL) {
+    if (isUrl(path)) {
         path = fromFileUrl(path);
     }
     assertArg(path);

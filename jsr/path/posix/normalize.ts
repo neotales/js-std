@@ -3,6 +3,7 @@
 
 import { assertArg } from "../_common/normalize.ts";
 import { normalizeString } from "../_common/normalize_string.ts";
+import { isUrl } from "../_is_url.ts";
 import { isPosixPathSeparator } from "./_util.ts";
 import { fromFileUrl } from "./from_file_url.ts";
 
@@ -42,7 +43,7 @@ import { fromFileUrl } from "./from_file_url.ts";
  * @returns The normalized path.
  */
 export function normalize(path: string | URL): string {
-  if (path instanceof URL) {
+  if (isUrl(path)) {
     path = fromFileUrl(path);
   }
   assertArg(path);

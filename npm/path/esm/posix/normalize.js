@@ -2,6 +2,7 @@
 // This module is browser compatible.
 import { assertArg } from "../_common/normalize.js";
 import { normalizeString } from "../_common/normalize_string.js";
+import { isUrl } from "../_is_url.js";
 import { isPosixPathSeparator } from "./_util.js";
 import { fromFileUrl } from "./from_file_url.js";
 /**
@@ -40,7 +41,7 @@ import { fromFileUrl } from "./from_file_url.js";
  * @returns The normalized path.
  */
 export function normalize(path) {
-    if (path instanceof URL) {
+    if (isUrl(path)) {
         path = fromFileUrl(path);
     }
     assertArg(path);

@@ -1,5 +1,5 @@
 {
-  "workspace": ["./eng", "./jsr/*"],
+  "workspace": ["./eng", "./runtime-tests", "./jsr/*"],
   "imports": {
     "@types/node": "npm:@types/node@^22.0.0"
   },
@@ -8,6 +8,8 @@
     "test": "deno run -A ./eng/main.ts test",
     "test:e2e": "deno test -A ./e2e && deno task test:workers",
     "test:workers": "node --test ./e2e/*.workerd.mjs",
+    "runtime-lab:setup": "deno run -A ./runtime-tests/setup.ts",
+    "test:runtime-lab": "deno run -A ./runtime-tests/main.ts",
     "test:publish-validation:jsr": "deno run -A --no-config --no-lock --reload --minimum-dependency-age=0 ./e2e/publish-validation/jsr.mjs",
     "test:publish-validation:npm": "deno run -A ./e2e/publish-validation/npm.mjs",
     "test:publish-validation:jsr-node": "deno run -A ./e2e/publish-validation/jsr_node.mjs",
