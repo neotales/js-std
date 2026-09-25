@@ -3,6 +3,7 @@ import type { CoreScenarioReport } from "./scenarios/core.ts";
 import type { FmtInspectScenarioReport } from "./scenarios/fmt_inspect.ts";
 import type { EnvScenarioReport } from "./scenarios/env.ts";
 import type { FsScenarioReport } from "./scenarios/fs.ts";
+import type { HostGlobalsScenarioReport } from "./scenarios/host_globals.ts";
 import type { JsOsScenarioReport } from "./scenarios/js_os.ts";
 import type { SecretsScenarioReport } from "./scenarios/secrets.ts";
 
@@ -56,6 +57,32 @@ export const expectedReports = {
     winDpapi: { available: false },
     winRegistry: { available: false },
   } satisfies JsOsScenarioReport,
+  hostGlobals: {
+    copy: 13,
+    errors: [],
+    surface: {
+      fs: [60, 106],
+      os: [14, 24],
+      path: [16, 18],
+      promises: [23, 34],
+    },
+    flags: "193",
+    handleRead: "host",
+    handleWrite: "HOST",
+    hardLink: "EINVAL",
+    os: {
+      arch: "x64",
+      eol: '"\\n"',
+      homedir: "set",
+      platform: "linux",
+      tmpdir: "set",
+      user: "set",
+    },
+    path: "/a/c|b|.txt|/a|true|/|:|/a/c",
+    stat: { isFile: true, size: 13 },
+    symlink: "value.txt",
+    utimes: true,
+  } satisfies HostGlobalsScenarioReport,
   quickJsFs: {
     contents: "quickjs-fs",
     size: 10,

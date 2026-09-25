@@ -557,15 +557,20 @@ public sealed class NeotalesFileSystem
         }
     }
 
-    /// <summary>Creates a symbolic link.</summary>
-    /// <param name="target">The link target.</param>
+    /// <summary>
+    /// Creates a symbolic link, storing the target literally.
+    ///
+    /// The target is not resolved, so a relative link behaves the way it does on Node and
+    /// reads back through <see cref="ReadLink"/> unchanged.
+    /// </summary>
+    /// <param name="target">The link target, stored as given.</param>
     /// <param name="path">The link path.</param>
     public FsResult CreateSymlink(string target, string path)
     {
         var full = Resolve(path);
         try
         {
-            Directory.CreateSymbolicLink(full, Path.GetFullPath(target, workingDirectory));
+            Directory.CreateSymbolicLink(full, target);
             return FsResult.Success();
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
@@ -574,16 +579,32 @@ public sealed class NeotalesFileSystem
         }
     }
 
-    /// <summary>Reads the target of a symbolic link.</summary>
+    /// <summary>
+    /// Reads the target of a symbolic link exactly as it was stored.
+    ///
+    /// Node returns the literal target, which may be relative, and raises <c>EINVAL</c> when the
+    /// path is not a symbolic link. The stored target is used rather than a resolved path so a
+    /// relative link reads back identically.
+    /// </summary>
     /// <param name="path">The link path.</param>
     public FsResult ReadLink(string path)
     {
         var full = Resolve(path);
         try
         {
-            var target = Directory.ResolveLinkTarget(full, false);
-            if (target is null) return FsResult.TextOf(full);
-            return FsResult.TextOf(target.FullName);
+            var target = Directory.Exists(full)
+                ? new DirectoryInfo(full).LinkTarget
+                : new FileInfo(full).LinkTarget;
+            if (target is null)
+            {
+                return FsResult.Failure(
+                    "readlink",
+                    full,
+                    new ArgumentException("The path is not a symbolic link.", nameof(path)),
+                    "EINVAL");
+            }
+
+            return FsResult.TextOf(target);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
         {

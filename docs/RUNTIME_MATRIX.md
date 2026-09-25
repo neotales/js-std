@@ -21,22 +21,22 @@ headless Chromium; Firefox and WebKit remain backlog items.
 
 ## Module matrix
 
-| Module    | Deno / Node / Bun | Browser                | Cloudflare workerd          | QuickJS-ng          | txiki.js            | JerryScript         | ClearScript / V8    |
-| --------- | ----------------- | ---------------------- | --------------------------- | ------------------- | ------------------- | ------------------- | ------------------- |
-| `args`    | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `chars`   | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `dotenv`  | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `env`     | Yes               | Yes (memory)           | Yes (memory)                | Yes (`std`)         | Yes (memory)        | Yes (memory)        | Yes (.NET process)  |
-| `path`    | Yes               | Yes                    | Yes                         | Partial (strings)   | Yes                 | Partial (strings)   | Partial (strings)   |
-| `results` | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `slices`  | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `strings` | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `ansi`    | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                 |
-| `fmt`     | Yes               | Partial (`inspect`)    | Planned (`inspect`)         | Partial (`inspect`) | Partial (`inspect`) | Partial (`inspect`) | Partial (`inspect`) |
-| `secrets` | Yes               | Yes                    | Yes                         | No                  | Yes                 | No                  | Yes (host `subtle`) |
-| `fs`      | Yes               | No                     | Partial (Node FS in `/tmp`) | Partial (host only) | Partial (host only) | Planned             | Yes (`System.IO`)   |
-| `process` | Yes               | Partial (experimental) | Partial                     | Planned             | Partial (host only) | Planned             | Partial (.NET host) |
-| `exec`    | Yes               | No                     | No                          | Partial (host only) | Partial (host only) | Planned             | Partial (.NET host) |
+| Module    | Deno / Node / Bun | Browser                | Cloudflare workerd          | QuickJS-ng          | txiki.js            | JerryScript         | ClearScript / V8      |
+| --------- | ----------------- | ---------------------- | --------------------------- | ------------------- | ------------------- | ------------------- | --------------------- |
+| `args`    | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `chars`   | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `dotenv`  | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `env`     | Yes               | Yes (memory)           | Yes (memory)                | Yes (`std`)         | Yes (memory)        | Yes (memory)        | Yes (.NET process)    |
+| `path`    | Yes               | Yes                    | Yes                         | Partial (strings)   | Yes                 | Partial (strings)   | Partial (strings)     |
+| `results` | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `slices`  | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `strings` | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `ansi`    | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                   |
+| `fmt`     | Yes               | Partial (`inspect`)    | Planned (`inspect`)         | Partial (`inspect`) | Partial (`inspect`) | Partial (`inspect`) | Partial (`inspect`)   |
+| `secrets` | Yes               | Yes                    | Yes                         | No                  | Yes                 | No                  | Yes (host `subtle`)   |
+| `fs`      | Yes               | No                     | Partial (Node FS in `/tmp`) | Partial (host only) | Partial (host only) | Planned             | Partial (`System.IO`) |
+| `process` | Yes               | Partial (experimental) | Partial                     | Planned             | Partial (host only) | Planned             | Partial (.NET host)   |
+| `exec`    | Yes               | No                     | No                          | Partial (host only) | Partial (host only) | Planned             | Partial (.NET host)   |
 
 ### What the partial cells mean
 
@@ -56,6 +56,11 @@ headless Chromium; Firefox and WebKit remain backlog items.
   and txiki.js use the module's in-memory fallback until their native providers are added. A
   workerd scenario already proves that `import { env } from "cloudflare:workers"` exposes a live
   string binding and that the existing `expand(..., { get })` override can consume it.
+- **Every "Yes" cell is a scenario, not an audit.** A cell means the shared scenario passes, not
+  that the whole module is covered. The `node:*` shims are the clearest case: the `fs` scenario
+  passes on ClearScript, but the shim exposes 60 of 106 `node:fs` names. `clearscript/README.md`
+  records that measured gap in full, and a `node:*` shim conformance scenario pins the exposed
+  name counts so the gap cannot widen silently.
 - **ANSI:** the complete `ansi` entry point now passes in QuickJS-ng, txiki.js, JerryScript, and
   ClearScript. The only load-time blocker was top-level `await import("node:fs")` and
   `await import("node:tty")` in `jsr/process/streams.ts`; those are now resolved synchronously
@@ -66,12 +71,24 @@ headless Chromium; Firefox and WebKit remain backlog items.
   `crypto.subtle` backed by `System.Security.Cryptography`, which is enough for the root entry
   point. Bare QuickJS-ng and JerryScript do not provide Web Crypto, so a host crypto bridge
   would be required there.
-- **Filesystem:** `@neotales/fs` now passes unmodified on ClearScript, because
+- **Filesystem:** the shared `fs` scenario passes on ClearScript, because
   `Neotales.ClearScript` implements the Node filesystem surface over `System.IO` and
-  `jsr/fs/globals.ts` already looks for `process.getBuiltinModule`. workerd passes basic
-  mkdir/write/read/readdir/stat/remove operations with `nodejs_compat`. Browsers have no
-  path-based filesystem API. QuickJS-ng's `std`/`os` modules and txiki.js's `tjs` filesystem
-  still only pass separate host probes, so the module cannot use those hosts yet.
+  `jsr/fs/globals.ts` already looks for `process.getBuiltinModule`. That cell is **Partial**,
+  not Yes: a separate `host_globals` scenario exercises the `node:fs`, `node:os`, and
+  `node:path` entry points the module resolves, and the layer covers the ones `@neotales/fs`
+  calls. It is not a full `node:fs` implementation. Measured against Node 26.10.0, the shim
+  exposes 60 of 106 `fs` names, 20 of 34 `fs/promises` names, 14 of 24 `os` names, and 16 of
+  18 `path` names. Absent: `fs.watch`/`watchFile`, `glob`/`globSync`, `cp`/`cpSync`,
+  `createReadStream`/`createWriteStream`, the `ReadStream`/`WriteStream`/`Dir`/`Dirent`/`Stats`
+  classes, `statfs`, `fchmod`/`fchown`/`futimes`/`lchmod`/`lchown`/`lutimes`, `readv`/`writev`,
+  `openAsBlob`, and `mkdtempDisposable`. `node:os` lacks `availableParallelism`, `devNull`,
+  `endianness`, `loadavg`, `machine`, `setPriority`/`getPriority`, and `type`/`version`.
+  `node:path` lacks `matchesGlob`. `Stats` reports `dev`, `ino`, `nlink`, `uid`, `gid`, `rdev`,
+  `blksize`, and `blocks` as `-1` because .NET does not expose them; `mode` is real on Unix.
+  workerd passes basic mkdir/write/read/readdir/stat/remove operations with `nodejs_compat`.
+  Browsers have no path-based filesystem API. QuickJS-ng's `std`/`os` modules and txiki.js's
+  `tjs` filesystem still only pass separate host probes, so the module cannot use those hosts
+  yet.
 - **Process and exec:** `Neotales.ClearScript` injects `process.stdout`/`stderr` over
   `Console.Out`/`Console.Error` and a `node:child_process` module over
   `System.Diagnostics.Process`. The other embedded runtimes still have no installed adapter;
@@ -83,16 +100,17 @@ headless Chromium; Firefox and WebKit remain backlog items.
 
 ## Automated scenarios
 
-| Scenario                | QuickJS-ng        | txiki.js    | JerryScript | ClearScript               | Browser     | workerd                     |
-| ----------------------- | ----------------- | ----------- | ----------- | ------------------------- | ----------- | --------------------------- |
-| Portable core modules   | Yes               | Yes         | Yes         | Yes (ES2020)              | Yes         | Yes (no Node compatibility) |
-| `fmt/inspect`           | Yes               | Yes         | Yes         | Yes                       | Yes         | Not covered                 |
-| Environment provider    | Yes (`std`)       | Memory      | Memory      | Yes (`.NET` process)      | Memory      | Binding override            |
-| Full `ansi` entry point | Yes               | Yes         | Yes         | Yes                       | Yes         | Yes                         |
-| Web Crypto `secrets`    | Missing host APIs | Yes         | Missing     | Yes (host `subtle`)       | Yes         | Yes                         |
-| `fs` module             | Planned           | Planned     | Planned     | Yes (`System.IO`)         | No          | Partial                     |
-| js-os module load       | Not covered       | Not covered | Not covered | Yes (elevation; FFI gaps) | Not covered | Not covered                 |
-| Native FS host probe    | `std` + `os`      | `tjs`       | Port API    | Not needed                | No path FS  | Node FS                     |
+| Scenario                  | QuickJS-ng        | txiki.js    | JerryScript | ClearScript               | Browser     | workerd                     |
+| ------------------------- | ----------------- | ----------- | ----------- | ------------------------- | ----------- | --------------------------- |
+| Portable core modules     | Yes               | Yes         | Yes         | Yes (ES2020)              | Yes         | Yes (no Node compatibility) |
+| `fmt/inspect`             | Yes               | Yes         | Yes         | Yes                       | Yes         | Not covered                 |
+| Environment provider      | Yes (`std`)       | Memory      | Memory      | Yes (`.NET` process)      | Memory      | Binding override            |
+| Full `ansi` entry point   | Yes               | Yes         | Yes         | Yes                       | Yes         | Yes                         |
+| Web Crypto `secrets`      | Missing host APIs | Yes         | Missing     | Yes (host `subtle`)       | Yes         | Yes                         |
+| `fs` module               | Planned           | Planned     | Planned     | Yes (shared scenario)     | No          | Partial                     |
+| `node:*` shim conformance | Not covered       | Not covered | Not covered | Yes (subset of Node)      | Not covered | Not covered                 |
+| js-os module load         | Not covered       | Not covered | Not covered | Yes (elevation; FFI gaps) | Not covered | Not covered                 |
+| Native FS host probe      | `std` + `os`      | `tjs`       | Port API    | Not needed                | No path FS  | Node FS                     |
 
 The host FS probes intentionally test the runtime facility, not `@neotales/fs`. Passing a
 host probe therefore does not upgrade the module's matrix cell by itself.
@@ -228,6 +246,12 @@ callbacks, and module-loader state that are better hidden behind a small native 
       published by classic-script bundles.
 - [x] Load the js-os modules on ClearScript: elevation detection works through
       `process.geteuid`, and the vault modules load and report themselves unavailable.
+- [x] Measure the `node:*` shims against real Node instead of asserting coverage, and pin the
+      exposed name counts in a scenario. This found that `fs.promises` was missing
+      `chmod`/`chown`/`link`, that `fs.constants` was missing `COPYFILE_EXCL` and the
+      `S_I*`/`S_IF*` sets, that `readlinkSync` returned a resolved path instead of the stored
+      target, that it did not raise `EINVAL` on a hard link, and that `Stat` reported
+      placeholder `0` values for fields .NET does not expose.
 - [x] Remove top-level `await` from `jsr/process/streams.ts` so the full `ansi` entry point
       loads in JerryScript, and keep it working on Node.js, Bun, and Deno.
 - [x] Cover the full `ansi` entry point in JerryScript and ClearScript.

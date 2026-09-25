@@ -15,6 +15,7 @@ type ScenarioName =
   | "secrets"
   | "moduleFs"
   | "jsOs"
+  | "hostGlobals"
   | "quickJsFs"
   | "txikiFs";
 
@@ -472,6 +473,7 @@ async function runClearScript(): Promise<void> {
   // exercised through the same asynchronous fixture shape the module already uses.
   const secrets = await esbuildFixture("secrets.ts", "clearscript-secrets.js", "es2022");
   const jsOs = await esbuildModuleBundle(await jsOsEntry(), "clearscript-js-os.js");
+  const hostGlobals = await esbuildFixture("host_globals.ts", "clearscript-host-globals.js");
 
   await run("core", expectedReports.core, core);
   await run("fmtInspect", expectedReports.fmtInspect, inspect);
@@ -480,4 +482,5 @@ async function runClearScript(): Promise<void> {
   await run("moduleFs", expectedReports.moduleFs, fileSystem);
   await run("secrets", expectedReports.secrets, secrets);
   await run("jsOs", expectedReports.jsOs, jsOs);
+  await run("hostGlobals", expectedReports.hostGlobals, hostGlobals);
 }

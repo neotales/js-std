@@ -58,28 +58,83 @@ promise queue, so `setTimeout` callbacks scheduled by a bundle complete before t
 
 ## Injected primitives
 
-| Global                                            | Backed by                               | Notes                                                                                |
-| ------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------ |
-| `process`                                         | `NeotalesSystem`, `NeotalesEnvironment` | `platform`, `pid`, `argv`, `env`, `cwd`, `getuid`, `getBuiltinModule`, and the rest. |
-| `process.env`                                     | `System.Environment`                    | Live process environment, not a snapshot.                                            |
-| `process.stdout` / `stderr`                       | `Console.Out` / `Console.Error`         | `write`, `writeSync`, `isTTY`, `columns`, `rows`.                                    |
-| `node:fs`                                         | `System.IO`                             | Sync and promise forms, `constants`, `opendir`, file descriptors, `Stat` objects.    |
-| `node:os`                                         | `System` and `Environment`              | `platform`, `tmpdir`, `homedir`, `userInfo`, `EOL`.                                  |
-| `node:path`                                       | JavaScript                              | `posix` and `win32` flavors.                                                         |
-| `node:util`                                       | JavaScript                              | `promisify`, `format`, `isDeepStrictEqual`. `inspect` is intentionally absent.       |
-| `node:child_process`                              | `System.Diagnostics.Process`            | `spawnSync`, `execSync`, `execFileSync`, `exec`, `execFile`.                         |
-| `node:crypto`                                     | `System.Security.Cryptography`          | `randomBytes`, `randomUUID`, `randomFillSync`, `web`.                                |
-| `node:module`                                     | —                                       | `createRequire` over the shim registry, so `require("koffi")` fails cleanly.         |
-| `node:stream`                                     | —                                       | `Readable.toWeb` / `Writable.toWeb` throw a clear unsupported error.                 |
-| `console`                                         | `Console.Out` / `Console.Error`         | Replaces ClearScript's native console, which does not reach the host streams.        |
-| `TextEncoder` / `TextDecoder`                     | JavaScript                              | UTF-8 in both directions plus UTF-16LE decoding.                                     |
-| `crypto.getRandomValues` / `randomUUID`           | `RandomNumberGenerator`                 | Real cryptographic randomness.                                                       |
-| `crypto.subtle`                                   | `System.Security.Cryptography`          | `importKey`, `encrypt`, `decrypt` for AES-GCM, and `digest`.                         |
-| `setTimeout`, `queueMicrotask`, `performance.now` | JavaScript                              | Cooperative, drained by the host.                                                    |
+| Global                                            | Backed by                               | Notes                                                                                                      |
+| ------------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `process`                                         | `NeotalesSystem`, `NeotalesEnvironment` | `platform`, `pid`, `argv`, `env`, `cwd`, `getuid`, `getBuiltinModule`, and the rest.                       |
+| `process.env`                                     | `System.Environment`                    | Live process environment, not a snapshot.                                                                  |
+| `process.stdout` / `stderr`                       | `Console.Out` / `Console.Error`         | `write`, `writeSync`, `isTTY`, `columns`, `rows`.                                                          |
+| `node:fs`                                         | `System.IO`                             | A **subset**, not the full module. See the gaps below.                                                     |
+| `node:os`                                         | `System` and `Environment`              | A **subset**. `platform`, `arch`, `tmpdir`, `homedir`, `hostname`, `userInfo`, `release`, `uptime`, `EOL`. |
+| `node:path`                                       | JavaScript                              | `posix` and `win32` flavors. A **subset**; no `matchesGlob`.                                               |
+| `node:util`                                       | JavaScript                              | `promisify`, `format`, `isDeepStrictEqual`. `inspect` is intentionally absent.                             |
+| `node:child_process`                              | `System.Diagnostics.Process`            | `spawnSync`, `execSync`, `execFileSync`, `exec`, `execFile`.                                               |
+| `node:crypto`                                     | `System.Security.Cryptography`          | `randomBytes`, `randomUUID`, `randomFillSync`, `web`.                                                      |
+| `node:module`                                     | —                                       | `createRequire` over the shim registry, so `require("koffi")` fails cleanly.                               |
+| `node:stream`                                     | —                                       | `Readable.toWeb` / `Writable.toWeb` throw a clear unsupported error.                                       |
+| `console`                                         | `Console.Out` / `Console.Error`         | Replaces ClearScript's native console, which does not reach the host streams.                              |
+| `TextEncoder` / `TextDecoder`                     | JavaScript                              | UTF-8 in both directions plus UTF-16LE decoding.                                                           |
+| `crypto.getRandomValues` / `randomUUID`           | `RandomNumberGenerator`                 | Real cryptographic randomness.                                                                             |
+| `crypto.subtle`                                   | `System.Security.Cryptography`          | `importKey`, `encrypt`, `decrypt` for AES-GCM, and `digest`.                                               |
+| `setTimeout`, `queueMicrotask`, `performance.now` | JavaScript                              | Cooperative, drained by the host.                                                                          |
 
 Anything the engine already provides is left in place.
 
 ## Deliberate gaps
+
+### `node:*` modules are subsets, not reimplementations
+
+The shim implements the entry points `@neotales/fs` and the other Neotales modules actually
+resolve. It is not a full Node compatibility layer. Measured against Node 26.10.0 on
+Linux x64:
+
+| Module             | Node exports | Shim provides |
+| ------------------ | ------------ | ------------- |
+| `node:fs`          | 106          | 60            |
+| `node:fs/promises` | 34           | 23            |
+| `node:os`          | 24           | 14            |
+| `node:path`        | 18           | 16            |
+| `fs.constants`     | 60           | 42            |
+
+Not implemented in `node:fs`: `watch`/`watchFile`/`unwatchFile`, `glob`/`globSync`,
+`cp`/`cpSync`, `createReadStream`/`createWriteStream`, the `ReadStream`/`WriteStream`/`Dir`/
+`Dirent`/`Stats`/`Utf8Stream` classes, `statfs`/`statfsSync`, `fchmod`, `fchown`, `futimes`,
+`lchmod`, `lchown`, `lutimes` and their `Sync` forms, `readv`/`writev` and their `Sync` forms,
+`openAsBlob`/`openAsBlobSync`, `fdatasync`, `mkdtempDisposableSync`, and `openAsBlob`.
+
+Not implemented in `node:fs/promises`: `constants`, `cp`, `glob`, `lchmod`, `lchown`,
+`lutimes`, `mkdtempDisposable`, `statfs`, `utimes`, and `watch`.
+
+Not implemented in `node:os`: `availableParallelism`, `devNull`, `endianness`, `loadavg`,
+`machine`, `setPriority`/`getPriority`, `type`, `version`, and `constants`.
+
+Not implemented in `node:path`: `matchesGlob`.
+
+Not implemented in `fs.constants`: the 18 `UV_*` aliases (`UV_FS_*`, `UV_DIRENT_*`), which are
+Windows-specific legacy spellings of constants that are already present under their modern names.
+
+`Stat` reports `dev`, `ino`, `nlink`, `uid`, `gid`, `rdev`, `blksize`, and `blocks` as `-1`
+because .NET does not expose them. `mode` is real on Unix, from `File.GetUnixFileMode`. Fields
+that would otherwise be a plausible-looking `0` are reported as `-1` so a caller cannot mistake
+a placeholder for a real value.
+
+Anything missing fails loudly rather than silently, except where a module probes for an
+optional entry point, which is the pattern the Neotales modules use.
+
+### Keeping the counts honest
+
+The `host_globals` scenario records the number of names each shim exposes alongside the count
+Node exposes, and compares the pair against a checked-in expectation. Adding or removing coverage
+therefore shows up as a failing report rather than as a claim in this file quietly going stale.
+Functional behavior is checked the same way: every call is wrapped so a failure is collected into
+`errors`, and the expectation requires that array to be empty.
+
+Re-measure after any shim change with:
+
+```sh
+node -e 'const k=m=>Object.keys(m).sort();console.log(k(require("node:fs")).length, k(require("node:fs/promises")).length, k(require("node:os")).length, k(require("node:path")).length, k(require("node:fs").constants).length)'
+```
+
+### Other gaps
 
 - **No foreign function interface.** The js-os vault modules (`win-cred`, `win-dpapi`,
   `darwin-keychain`, `linux-libsecret`, `win-registry`) need `Deno.dlopen`, `bun:ffi`, `node:ffi`, or
