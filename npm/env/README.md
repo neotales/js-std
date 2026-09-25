@@ -3,10 +3,13 @@
 ## Overview
 
 The env provides a uniform way to work with environment variables and
-the path variable across different runtimes such as bun, node, deno,
+the path variable across different runtimes such as bun, node, deno, QuickJS-ng,
 cloudflare and the browser and different operating system differences.
 
-Cloudflare and the brower uses an in memory store.
+QuickJS-ng uses its `std` environment primitives when the interpreter is launched with
+`--std`. Cloudflare and the browser currently use an in-memory store; a Worker-specific
+adapter can be added for the live, read-only `import { env } from "cloudflare:workers"`
+binding object.
 
 Bash and Windows style variable expansion and command substitution is supported.
 

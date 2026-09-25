@@ -25,6 +25,12 @@ type DenoRuntime = {
 type RuntimeProcess = NodeJS.Process & {
     getBuiltinModule?(module: string): unknown;
 };
+type QuickJsStd = {
+    getenv(name: string): string | undefined;
+    getenviron(): Record<string, string>;
+    setenv(name: string, value: string): void;
+    unsetenv(name: string): void;
+};
 type BunRuntime = {
     spawnSync(command: string[], options: {
         stderr: "pipe";
@@ -43,8 +49,10 @@ type RuntimeGlobals = {
         platform?: string;
     };
     process?: RuntimeProcess;
+    std?: QuickJsStd;
 };
 export declare const globals: typeof globalThis & RuntimeGlobals;
+export declare const QUICKJS: boolean;
 export declare const BROWSER: boolean;
 export declare const WINDOWS: boolean;
 export declare function getRuntimeArgs(): string[];

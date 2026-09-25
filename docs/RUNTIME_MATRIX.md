@@ -26,7 +26,7 @@ headless Chromium; Firefox and WebKit remain backlog items.
 | `args`    | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                      |
 | `chars`   | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                      |
 | `dotenv`  | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                      |
-| `env`     | Yes               | Yes (memory)           | Yes (memory)                | Yes (memory)        | Yes (memory)        | Yes (memory)        | Yes (memory)             |
+| `env`     | Yes               | Yes (memory)           | Yes (memory)                | Yes (`std`)         | Yes (memory)        | Yes (memory)        | Yes (memory)             |
 | `path`    | Yes               | Yes                    | Yes                         | Partial (strings)   | Yes                 | Partial (strings)   | Partial (strings)        |
 | `results` | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                      |
 | `slices`  | Yes               | Yes                    | Yes                         | Yes                 | Yes                 | Yes                 | Yes                      |
@@ -49,6 +49,15 @@ headless Chromium; Firefox and WebKit remain backlog items.
   provide the browser `URL` global. String path functions work because the implementation
   now guards `URL` before using `instanceof`. URL conversion and current-working-directory
   operations still require a host implementation.
+- **Environment:** QuickJS-ng's `std` module supplies `getenv`, `setenv`, `unsetenv`, and
+  `getenviron`; the Deno orchestrator runs the module scenario with `--std` and verifies
+  inherited, assigned, enumerated, and removed values. Browsers, workerd, txiki.js, and the
+  current ClearScript host use the module's in-memory fallback until their native providers
+  are added. A workerd scenario already proves that
+  `import { env } from "cloudflare:workers"` exposes a live string binding and that the
+  existing `expand(..., { get })` override can consume it. A future `Neotales.ClearScript`
+  package should expose the .NET environment, filesystem, process, crypto, and js-os primitives
+  as an explicit compatibility layer.
 - **ANSI:** the complete `ansi` entry point passes in QuickJS-ng and txiki.js. Its process
   settings currently contain top-level dynamic imports and top-level `await`; JerryScript
   3.0 rejects that module and the simple ClearScript host intentionally does not enable
@@ -71,6 +80,7 @@ headless Chromium; Firefox and WebKit remain backlog items.
 | ----------------------- | ----------------- | -------- | -------------------------- | -------------------- | ---------- | --------------------------- |
 | Portable core modules   | Yes               | Yes      | Yes (ES2020)               | Yes (ES2020)         | Yes        | Yes (no Node compatibility) |
 | `fmt/inspect`           | Yes               | Yes      | Yes                        | Yes                  | Yes        | Not covered                 |
+| Environment provider    | Yes (`std`)       | Memory   | Memory                     | Memory               | Memory     | Binding override            |
 | Full `ansi` entry point | Yes               | Yes      | Blocked by top-level await | Not in simple host   | Yes        | Yes                         |
 | Web Crypto `secrets`    | Missing host APIs | Yes      | Missing host APIs          | Missing host APIs    | Yes        | Yes                         |
 | Native FS host probe    | `std` + `os`      | `tjs`    | Port API possible          | `System.IO` possible | No path FS | Node FS                     |
@@ -146,8 +156,10 @@ callbacks, and module-loader state that are better hidden behind a small native 
   of portable bundles.
 - **JerryScript:** implement required services through its C port API or a small native
   module. Keep the conformance fixture bundle self-contained.
-- **ClearScript:** expose selected .NET capabilities from the checked-in C# host and let
-  Deno run that host as a subprocess.
+- **ClearScript:** keep vanilla ClearScript as the portable baseline. Evolve the checked-in C#
+  host into a future `Neotales.ClearScript` compatibility package that injects selected .NET
+  environment, filesystem, process, crypto, encoding, and js-os primitives; let Deno run that
+  host as a subprocess.
 - **All engines:** treat FFI and native modules as trusted host code, validate pointers and
   resource ownership, and keep filesystem/process access capability-gated.
 
@@ -159,6 +171,8 @@ callbacks, and module-loader state that are better hidden behind a small native 
 - [x] Add ES2020 portable-core scenarios for QuickJS-ng, txiki.js, JerryScript, and
       ClearScript.
 - [x] Add ANSI, `fmt/inspect`, secrets, QuickJS `std`/`os`, and txiki `tjs` probes.
+- [x] Connect `@neotales/env` to QuickJS-ng's `std` environment primitives and verify them.
+- [x] Verify Cloudflare `env` binding access through the existing expansion override.
 - [x] Add shared portable-core browser and no-Node-compat workerd coverage.
 - [x] Make string path operations safe when the host has no `URL` global.
 - [x] Add a CI workflow with native build dependencies, engine caching, ClearScript, and
@@ -178,6 +192,24 @@ callbacks, and module-loader state that are better hidden behind a small native 
 - [ ] Define unsupported-operation errors and a capabilities API so applications can
       choose async, sync, POSIX, path-based, or storage-backed behavior.
 
+### P1 — add explicit environment providers
+
+- [x] Add a QuickJS-ng provider backed by `std.getenv`, `std.setenv`, `std.unsetenv`, and
+      `std.getenviron`.
+- [ ] Add a workerd adapter for bindings from `import { env } from "cloudflare:workers"`.
+      This is a live binding object, not a mutable process environment; model it as read-only
+      and define explicit behavior for `set` and `remove`. Keep that import out of the
+      portable module graph; use a worker-specific entry point or
+      an injected environment provider so browser bundles do not acquire a Node/Worker-only
+      dependency.
+- [ ] Add a txiki.js provider for its runtime environment API, and a JerryScript provider
+      backed by its port/native layer.
+- [ ] Plan `Neotales.ClearScript` as a .NET compatibility package that injects
+      `Environment`, `System.IO`, process, crypto, encoding, and js-os primitives. Keep
+      vanilla ClearScript as the portable/in-memory baseline.
+- [ ] Expose environment capability and read-only/writeable semantics so Worker bindings and
+      browser memory are not mistaken for a mutable process environment.
+
 ### P1 — remove engine-hostile process stream initialization
 
 - [ ] Refactor `jsr/process/streams.ts` so importing it does not use top-level `await` or
@@ -185,6 +217,8 @@ callbacks, and module-loader state that are better hidden behind a small native 
 - [ ] Introduce injectable stdout/stderr/stdin providers and lazy Node initialization.
 - [ ] Add a JerryScript provider using its port layer or a tiny C module.
 - [ ] Add a QuickJS-ng provider using `std.out`, `std.err`, and `os` handles.
+- [ ] Add a JerryScript port provider for stdio and test ANSI styles with a small host shim
+      before attempting the full root module.
 - [ ] Add a txiki.js and ClearScript provider, then rerun the full `ansi` and root `fmt`
       scenarios.
 

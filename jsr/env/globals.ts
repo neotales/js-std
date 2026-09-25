@@ -15,6 +15,12 @@ type DenoRuntime = {
 };
 
 type RuntimeProcess = NodeJS.Process & { getBuiltinModule?(module: string): unknown };
+type QuickJsStd = {
+  getenv(name: string): string | undefined;
+  getenviron(): Record<string, string>;
+  setenv(name: string, value: string): void;
+  unsetenv(name: string): void;
+};
 type BunRuntime = {
   spawnSync(
     command: string[],
@@ -31,10 +37,14 @@ type RuntimeGlobals = {
   Deno?: DenoRuntime;
   navigator?: { platform?: string };
   process?: RuntimeProcess;
+  std?: QuickJsStd;
 };
 
 export const globals = globalThis as typeof globalThis & RuntimeGlobals;
-export const BROWSER = globals.process === undefined && globals.Deno === undefined;
+export const QUICKJS = typeof globals.std?.getenv === "function" &&
+  typeof globals.std?.setenv === "function" && typeof globals.std?.unsetenv === "function" &&
+  typeof globals.std?.getenviron === "function";
+export const BROWSER = globals.process === undefined && globals.Deno === undefined && !QUICKJS;
 export const WINDOWS = globals.Deno?.build.os === "windows" ||
   globals.process?.platform === "win32" ||
   globals.navigator?.platform?.toLowerCase().includes("win") === true;

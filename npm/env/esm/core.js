@@ -8,7 +8,8 @@ function equalFold(left, right) {
     return left.localeCompare(right, undefined, { sensitivity: "accent" }) === 0;
 }
 function getEnv(name) {
-    return globals.Deno?.env.get(name) ?? globals.process?.env[name] ?? browserEnv[name];
+    return globals.Deno?.env.get(name) ?? globals.process?.env[name] ??
+        globals.std?.getenv(name) ?? browserEnv[name];
 }
 function setEnv(name, value) {
     const stringValue = String(value);
@@ -16,6 +17,8 @@ function setEnv(name, value) {
         globals.Deno.env.set(name, stringValue);
     else if (globals.process)
         globals.process.env[name] = stringValue;
+    else if (globals.std)
+        globals.std.setenv(name, stringValue);
     else
         browserEnv[name] = stringValue;
 }
@@ -24,6 +27,8 @@ function deleteEnv(name) {
         globals.Deno.env.delete(name);
     else if (globals.process)
         delete globals.process.env[name];
+    else if (globals.std)
+        globals.std.unsetenv(name);
     else
         delete browserEnv[name];
 }
@@ -42,7 +47,8 @@ export const proxy = new Proxy({}, {
         return true;
     },
     has: (_target, property) => typeof property === "string" && !!property && getEnv(property) !== undefined,
-    ownKeys: () => Object.keys(globals.Deno?.env.toObject() ?? globals.process?.env ?? browserEnv),
+    ownKeys: () => Object.keys(globals.Deno?.env.toObject() ?? globals.process?.env ?? globals.std?.getenviron() ??
+        browserEnv),
     getOwnPropertyDescriptor: (_target, property) => {
         if (typeof property !== "string" || !property || getEnv(property) === undefined) {
             return undefined;

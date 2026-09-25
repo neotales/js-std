@@ -9,6 +9,7 @@ type RuntimeName = "quickjs" | "txiki" | "jerry" | "clearscript";
 type ScenarioName =
   | "core"
   | "fmtInspect"
+  | "env"
   | "ansi"
   | "secrets"
   | "quickJsFs"
@@ -210,16 +211,24 @@ async function runQuickJs(): Promise<void> {
   const executable = runtimePath("quickjs");
   const core = await esbuildFixture("core.ts", "quickjs-core.js");
   const inspect = await esbuildFixture("fmt_inspect.ts", "quickjs-fmt.js");
+  const env = await esbuildFixture("env.ts", "quickjs-env.js");
   const ansi = await denoBundleFixture("ansi.ts", "quickjs-ansi.mjs");
   const fs = await esbuildFixture("quickjs_fs.ts", "quickjs-fs.js");
 
-  await runCommandScenario("quickjs", "core", expectedReports.core, executable, [core]);
+  await runCommandScenario("quickjs", "core", expectedReports.core, executable, ["--std", core]);
   await runCommandScenario(
     "quickjs",
     "fmtInspect",
     expectedReports.fmtInspect,
     executable,
     [inspect],
+  );
+  await runCommandScenario(
+    "quickjs",
+    "env",
+    expectedReports.env,
+    executable,
+    ["--std", env],
   );
   await runCommandScenario("quickjs", "ansi", expectedReports.ansi, executable, ["-m", ansi]);
   await runCommandScenario("host", "quickJsFs", expectedReports.quickJsFs, executable, [

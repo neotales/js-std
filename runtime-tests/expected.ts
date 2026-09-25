@@ -1,6 +1,7 @@
 import type { AnsiScenarioReport } from "./scenarios/ansi.ts";
 import type { CoreScenarioReport } from "./scenarios/core.ts";
 import type { FmtInspectScenarioReport } from "./scenarios/fmt_inspect.ts";
+import type { EnvScenarioReport } from "./scenarios/env.ts";
 import type { SecretsScenarioReport } from "./scenarios/secrets.ts";
 
 export const expectedReports = {
@@ -19,6 +20,12 @@ export const expectedReports = {
     nested: "{ a: [Object] }",
     primitive: "undefined",
   } satisfies FmtInspectScenarioReport,
+  env: {
+    expanded: "quickjs-env:fallback",
+    hasPath: true,
+    removed: true,
+    value: "quickjs-env",
+  } satisfies EnvScenarioReport,
   ansi: {
     plain: "embedded",
     styled: "\x1b[44m\x1b[31m\x1b[1membedded\x1b[22m\x1b[39m\x1b[49m",
