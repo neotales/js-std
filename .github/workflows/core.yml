@@ -1,16 +1,34 @@
-name: CI
+name: Core
+
+# Tier 1 of the conformance ladder. Runs on every push, so it has to stay cheap: no engine
+# builds, no browser download, only the three runtimes that publish the packages.
+#
+# Tier 2 (web) and tier 3 (embedded) live in conformance.yml and only run on a pull request,
+# a push to dev, or a manual dispatch, so a normal branch push never waits on cmake or V8.
 
 on:
   push:
     branches:
       - "**"
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: core-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
+    name: Format and lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -27,6 +45,12 @@ jobs:
           package-manager-cache: false
 
       - run: pnpm install --frozen-lockfile
+
+      # The runtime tables are generated from runtimes.json, so a stale README is a failure
+      # rather than a documentation drift nobody notices.
+      - name: Verify the runtime support tables
+        run: deno task readme:check
+
       - run: deno task fmt:check
       - run: deno task lint
 
@@ -56,4 +80,16 @@ jobs:
         if: matrix.runtime == 'bun'
 
       - run: pnpm install --frozen-lockfile
-      - run: deno task test --${{ matrix.runtime }}
+
+      # Deno already type-checks, so Node and Bun skip it and only run the suites.
+      - name: Test with Deno
+        if: matrix.runtime == 'deno'
+        run: deno task test --deno
+
+      - name: Test with Node
+        if: matrix.runtime == 'node'
+        run: deno task test --node
+
+      - name: Test with Bun
+        if: matrix.runtime == 'bun'
+        run: deno task test --bun

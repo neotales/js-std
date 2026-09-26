@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join, resolve } from "@std/path";
+import { parseRuntimeTable, supports } from "../eng/runtimes.ts";
 import { expectedReports } from "./expected.ts";
 
 const root = resolve(import.meta.dirname!, "..");
@@ -23,7 +24,7 @@ type Result = {
   expected: unknown;
   runtime: RuntimeName | "host";
   scenario: ScenarioName;
-  status: "passed" | "failed";
+  status: "passed" | "failed" | "skipped";
 };
 
 type ProcessOutput = {
@@ -33,6 +34,29 @@ type ProcessOutput = {
 };
 
 const runtimeNames: RuntimeName[] = ["quickjs", "txiki", "jerry", "clearscript"];
+
+/**
+ * Scenario-to-module map, so a scenario is skipped when `runtimes.json` says the module is
+ * not supported on that engine. A scenario that runs anyway reports a real failure, which is
+ * how a support downgrade gets noticed.
+ */
+const scenarioModules: Partial<Record<ScenarioName, string>> = {
+  ansi: "ansi",
+  env: "env",
+  fmtInspect: "fmt",
+  jsOs: "fs",
+  moduleFs: "fs",
+  secrets: "secrets",
+};
+
+const runtimeTable = parseRuntimeTable(await Deno.readTextFile(join(root, "runtimes.json")));
+const engine = (name: RuntimeName): string => name;
+
+function supportedHere(runtime: RuntimeName, scenario: ScenarioName): boolean {
+  const module = scenarioModules[scenario];
+  if (!module) return true;
+  return supports(runtimeTable, module, engine(runtime));
+}
 const selectedRuntimes = parseRuntimes(Deno.args);
 const outputDir = await Deno.makeTempDir({ prefix: "neotales-runtime-lab-" });
 const results: Result[] = [];
@@ -69,7 +93,6 @@ if (failed.length) {
   console.error(`${failed.length} runtime scenario(s) failed.`);
   Deno.exit(1);
 }
-console.log(`${results.length} runtime scenario(s) passed.`);
 
 function parseRuntimes(args: string[]): Set<RuntimeName> {
   const names = args.length ? args : runtimeNames;
@@ -124,6 +147,12 @@ async function runCommandScenario(
   command: string,
   args: string[],
 ): Promise<void> {
+  if (!supportedHere(runtime as RuntimeName, scenario)) {
+    results.push({ expected, runtime, scenario, status: "skipped" });
+    console.log(`skipped ${runtime}/${scenario}: ${scenarioModules[scenario]} is not supported`);
+    return;
+  }
+
   const output = await runProcess(command, args);
   const combined = `${output.stdout}\n${output.stderr}`;
   const marker = combined.indexOf(resultPrefix);

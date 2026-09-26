@@ -1,0 +1,152 @@
+name: Conformance
+
+# Tiers 2 and 3 of the conformance ladder: the browser and Workers suites, then the embedded
+# engines. These are the expensive tiers, so they do not run on an ordinary branch push. They
+# run on a pull request, on a push to dev, on demand, and nightly.
+#
+# The split is deliberate. A developer pushing a fix to a string helper waits on the ~2 minute
+# core tier, not on cmake compiling JerryScript. A reviewer opening a pull request, and the
+# merge into dev, both wait on the full set.
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - "**/*.md"
+  schedule:
+    # Nightly, so a toolchain release cannot break the embedded engines unnoticed.
+    - cron: "23 5 * * 2"
+  workflow_dispatch:
+    inputs:
+      engines:
+        description: "Restrict to specific engines (quickjs, txiki, jerry, clearscript)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conformance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Browser and Workers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      # The Playwright download is the slow part, so the browser directory is cached. The
+      # key includes the lockfile, which is what pins the Playwright version.
+      - name: Locate the Playwright cache
+        id: playwright-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium
+
+      - run: deno task test:e2e
+
+  embedded:
+    name: Embedded engines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.0.x
+
+      # The engine builds are the expensive part and only change when the pinned versions
+      # change, so the cache key deliberately excludes the commit SHA. A restore on a
+      # setup.ts change still happens, and a plain commit reuses the existing build.
+      - name: Locate the engine build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .runtime-lab
+          key: engines-v2-${{ runner.os }}-${{ hashFiles('runtime-tests/setup.ts') }}
+          restore-keys: |
+            engines-v2-${{ runner.os }}-
+
+      - name: Install native build dependencies
+        run: sudo apt-get update && sudo apt-get install --yes build-essential cmake libffi-dev
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Report the environment
+        run: deno task doctor
+
+      - name: Build the engines
+        run: deno task runtime-lab:setup ${{ inputs.engines }}
+
+      - name: Run the engine suites
+        run: deno task test:runtime-lab ${{ inputs.engines }}
+
+  js-os:
+    name: js-os modules on the .NET host
+    runs-on: ubuntu-latest
+    needs: embedded
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.0.x
+
+      # js-os is a separate repository. It is checked out beside this one so the default
+      # sibling path resolves without a configuration change.
+      - name: Check out js-os
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: neotales/js-os
+          path: ../js-os
+
+      - run: pnpm install --frozen-lockfile
+      - run: deno task test:runtime-lab clearscript
+        env:
+          NEOTALES_JS_OS: ${{ github.workspace }}/../js-os/jsr

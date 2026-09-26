@@ -1,0 +1,60 @@
+# Tool versions for developing and testing this repository.
+#
+# The versions are pinned so a developer, a pull request, and the release build all agree.
+# `deno task doctor` reports which of these are present and which runtimes still need a
+# source build, because mise cannot supply every engine.
+
+[tools]
+# Core runtimes. These carry the published packages, so they are never optional.
+deno = "2.9.7"
+node = "22.20.0"
+bun = "1.4.2"
+pnpm = "11.21.0"
+
+# Toolchains for the other tiers.
+dotnet = "8.0.x"
+workerd = "1.20260915.1"
+
+# QuickJS-ng ships a Linux x64 release binary, so mise can install it directly.
+quickjs = "ubi:quickjs-ng/quickjs@0.17.0"
+
+[env]
+# Keeps Deno and Node from disagreeing about the installed package tree.
+CI = "1"
+
+[tasks.setup]
+description = "Install every pinned tool and build the alternate-runtime engines"
+run = "deno task setup"
+
+[tasks.doctor]
+description = "Report which runtimes are ready without installing anything"
+run = "deno task doctor"
+
+[tasks.test-core]
+description = "Run the Deno, Node, and Bun suites for changed modules"
+run = "deno task test --changed"
+
+[tasks.test-web]
+description = "Run the Chromium and Cloudflare Workers suites"
+run = "deno task test:e2e"
+
+[tasks.test-embedded]
+description = "Run the QuickJS-ng, txiki.js, JerryScript, and ClearScript suites"
+run = "deno task test:runtime-lab"
+
+[tasks.test-all]
+description = "Run every tier, for a merge into dev or a release"
+run = """
+deno task test
+deno task test:e2e
+deno task test:runtime-lab
+"""
+
+# txiki.js and JerryScript are deliberately absent from [tools].
+#
+# Neither project publishes a Linux release binary, so mise cannot install them:
+#   - txiki.js 26.6.0 ships macOS and Windows assets only.
+#   - JerryScript 3.0.0 publishes no release assets at all.
+# Both are built from a pinned tag by `deno task setup`, which is also what CI does. The
+# build needs cmake and a C toolchain, and takes a few minutes, so it is cached rather than
+# repeated on every commit.

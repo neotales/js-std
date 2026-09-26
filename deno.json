@@ -1,29 +1,38 @@
 {
-  "workspace": ["./eng", "./runtime-tests", "./jsr/*"],
+  "workspace": [
+    "./eng",
+    "./runtime-tests",
+    "./jsr/*"
+  ],
   "imports": {
     "@types/node": "npm:@types/node@^22.0.0"
   },
   "tasks": {
+    "audit": "deno run -A ./eng/main.ts audit",
     "build": "deno run -A ./eng/main.ts build",
-    "test": "deno run -A ./eng/main.ts test",
-    "test:e2e": "deno test -A ./e2e && deno task test:workers",
-    "test:workers": "node --test ./e2e/*.workerd.mjs",
-    "runtime-lab:setup": "deno run -A ./runtime-tests/setup.ts",
-    "test:runtime-lab": "deno run -A ./runtime-tests/main.ts",
-    "test:publish-validation:jsr": "deno run -A --no-config --no-lock --reload --minimum-dependency-age=0 ./e2e/publish-validation/jsr.mjs",
-    "test:publish-validation:npm": "deno run -A ./e2e/publish-validation/npm.mjs",
-    "test:publish-validation:jsr-node": "deno run -A ./e2e/publish-validation/jsr_node.mjs",
-    "test:publish-validation": "deno task test:publish-validation:jsr && deno task test:publish-validation:npm && deno task test:publish-validation:jsr-node",
-    "lint": "deno run -A ./eng/main.ts lint",
+    "check": "deno run -A ./eng/main.ts check",
+    "doctor": "deno run -A ./eng/main.ts doctor",
     "fmt": "deno run -A ./eng/main.ts fmt",
     "fmt:check": "deno run -A ./eng/main.ts fmt --check",
-    "audit": "deno run -A ./eng/main.ts audit",
-    "check": "deno run -A ./eng/main.ts check",
+    "lint": "deno run -A ./eng/main.ts lint",
     "pack": "deno run -A ./eng/main.ts pack",
-    "release:prepare": "deno run -A ./eng/main.ts release-prepare",
+    "publish": "deno run -A ./eng/main.ts publish",
     "publish:bootstrap": "deno run -A ./eng/main.ts publish-bootstrap",
     "publish:dry-run": "deno run -A ./eng/main.ts publish --dry-run",
-    "publish": "deno run -A ./eng/main.ts publish"
+    "readme": "deno run -A ./eng/main.ts readme",
+    "readme:check": "deno run -A ./eng/main.ts readme --check",
+    "release:prepare": "deno run -A ./eng/main.ts release-prepare",
+    "runtime-lab:setup": "deno run -A ./runtime-tests/setup.ts",
+    "runtimes": "deno run -A ./eng/main.ts runtimes",
+    "setup": "deno run -A ./eng/main.ts setup",
+    "test": "deno run -A ./eng/main.ts test",
+    "test:e2e": "deno test -A ./e2e && deno task test:workers",
+    "test:publish-validation": "deno task test:publish-validation:jsr && deno task test:publish-validation:npm && deno task test:publish-validation:jsr-node",
+    "test:publish-validation:jsr": "deno run -A --no-config --no-lock --reload --minimum-dependency-age=0 ./e2e/publish-validation/jsr.mjs",
+    "test:publish-validation:jsr-node": "deno run -A ./e2e/publish-validation/jsr_node.mjs",
+    "test:publish-validation:npm": "deno run -A ./e2e/publish-validation/npm.mjs",
+    "test:runtime-lab": "deno run -A ./runtime-tests/main.ts",
+    "test:workers": "node --test ./e2e/*.workerd.mjs"
   },
   "fmt": {
     "useTabs": false,

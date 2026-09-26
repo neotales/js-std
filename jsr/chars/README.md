@@ -14,6 +14,22 @@ unicode module.
 [![JSR](https://jsr.io/badges/@neotales/chars)](https://jsr.io/@neotales/chars)
 [![npm version](https://badge.fury.io/js/@neotales%2Fchars.svg?icon=si%3Anpm)](https://badge.fury.io/js/@neotales%2Fchars)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Yes      | Yes                | Yes        | Yes      | Yes         | Yes         |
+
+Pure character handling. Runs everywhere.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/chars/doc)

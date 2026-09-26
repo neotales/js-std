@@ -12,6 +12,22 @@ like splatting arguments and looking up executables on the path.
 [![JSR](https://jsr.io/badges/@neotales/exec)](https://jsr.io/@neotales/exec)
 [![npm version](https://badge.fury.io/js/@neotales%2Fexec.svg)](https://badge.fury.io/js/@neotales%2Fexec)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | No       | No                 | Partial    | Partial  | No          | Partial     |
+
+Needs a real process API. Workers rejects `spawnSync` with `ERR_METHOD_NOT_IMPLEMENTED`, and browsers have none.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/exec/doc)

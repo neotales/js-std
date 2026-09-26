@@ -42,16 +42,23 @@ an assertion nor a globals module is imported or published.
 
 Run all module tests across runtimes with `deno task test`.
 
-The alternate-runtime lab covers representative module surfaces in QuickJS-ng, txiki.js,
-JerryScript, and ClearScript. It downloads or builds pinned engines under `.runtime-lab/`:
+Modules are also exercised in Chromium, Cloudflare Workers, QuickJS-ng, txiki.js,
+JerryScript, and ClearScript. `runtimes.json` records which module works in which
+environment, and the toolchain is pinned with [mise](https://mise.jdx.dev).
 
 ```sh
-deno task runtime-lab:setup
-deno task test:runtime-lab
+deno task doctor        # what is ready on this machine, and the command that fixes it
+deno task setup          # install the pinned tools and build the engines
+deno task runtimes       # print the support matrix
+deno task test:runtime-lab        # QuickJS-ng, txiki.js, JerryScript, ClearScript
+deno task test:runtime-lab quickjs
+deno task test:e2e                # Chromium and Cloudflare Workers
 ```
 
-See [docs/RUNTIME_MATRIX.md](./docs/RUNTIME_MATRIX.md) for the support matrix, automation,
-limitations, and implementation backlog.
+`deno task setup` downloads the engines it can and builds the two that publish no Linux
+release binary. See [docs/CI_AND_RUNTIME_TESTING.md](./docs/CI_AND_RUNTIME_TESTING.md) for
+the test tiers, the skip rules, and the developer workflow, and
+[docs/RUNTIME_MATRIX.md](./docs/RUNTIME_MATRIX.md) for the evidence behind each cell.
 
 `test:e2e` runs browser integration tests and local Cloudflare Workers tests.
 The latter use Wrangler's workerd harness without Cloudflare credentials; add a

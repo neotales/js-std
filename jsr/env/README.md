@@ -31,6 +31,22 @@ and must be enabled by passing the `commands` option to the
 [![JSR](https://jsr.io/badges/@neotales/env)](https://jsr.io/@neotales/env)
 [![npm version](https://badge.fury.io/js/@neotales%2Fenv.svg)](https://badge.fury.io/js/@neotales%2Fenv)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Partial  | Partial            | Yes        | Partial  | Partial     | Yes         |
+
+In-memory store in the browser and Workers, QuickJS-ng reads `std`, ClearScript reads the .NET process environment.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/env/doc)

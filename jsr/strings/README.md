@@ -13,6 +13,22 @@ variant for case-insensitive matching with full UTF-8 support.
 
 [![npm version](https://badge.fury.io/js/@neotales%2Fstrings.svg?icon=si%3Anpm)](https://badge.fury.io/js/@neotales%2Fstrings)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Yes      | Yes                | Yes        | Yes      | Yes         | Yes         |
+
+Pure string helpers. Runs everywhere.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/strings/doc)

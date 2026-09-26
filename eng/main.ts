@@ -1,5 +1,7 @@
 import { build, emptyDir, type EntryPoint } from "@deno/dnt";
 import { join, relative, resolve } from "@std/path";
+import { parseRuntimeTable, supports } from "./runtimes.ts";
+import { verifyReadmes, writeReadmes } from "./readme.ts";
 
 const root = resolve(import.meta.dirname!, "..");
 const jsrDir = join(root, "jsr");
@@ -320,19 +322,75 @@ async function importedModules(): Promise<string[]> {
   return modules.sort();
 }
 
-async function testModules(names: string[], runtimes: Set<string>): Promise<void> {
+/**
+ * Runs the module suites for the selected runtimes.
+ *
+ * `runtimes.json` decides which modules can run where, so an unsupported combination is
+ * skipped rather than failed. `--skip` narrows further by dropping matching test files, which
+ * is how an individual capability such as `chown` or `symlink` is held back on a host that
+ * cannot support it. File lists are expanded rather than filtered by name, because
+ * `--filter` matches test names on Deno and differs again on Node and Bun.
+ */
+async function testModules(
+  names: string[],
+  runtimes: Set<string>,
+  skip: Set<string> = new Set(),
+): Promise<void> {
+  const table = parseRuntimeTable(await Deno.readTextFile(join(root, "runtimes.json")));
   const modules = names.length ? names : await importedModules();
   if (!modules.length) throw new Error("No modules found under jsr/.");
   const selected = runtimes.size ? runtimes : new Set(["deno", "node", "bun"]);
   if (selected.has("node") || selected.has("bun")) await run("pnpm", ["install"]);
+
+  const skipped: string[] = [];
   for (const name of modules) {
-    if (selected.has("deno")) await run("deno", ["test", "-A"], join(jsrDir, name));
-    const npmPackage = join(npmDir, name, "package.json");
-    if (await exists(npmPackage)) {
-      if (selected.has("node")) await run("pnpm", ["test"], join(npmDir, name));
-      if (selected.has("bun")) await run("pnpm", ["test:bun"], join(npmDir, name));
+    const supported = [...selected].filter((runtime) => supports(table, name, runtime));
+    const unsupported = [...selected].filter((runtime) => !supported.includes(runtime));
+    if (unsupported.length) skipped.push(`${name}: ${unsupported.join(", ")} (not supported)`);
+    if (!supported.length) continue;
+
+    if (supported.includes("deno")) {
+      const files = await testFiles(join(jsrDir, name), "*.test.ts", skip);
+      if (files.length) await run("deno", ["test", "-A", ...files], join(jsrDir, name));
+    }
+
+    const npmDirForModule = join(npmDir, name);
+    if (await exists(join(npmDirForModule, "package.json"))) {
+      if (supported.includes("node")) {
+        const files = await testFiles(npmDirForModule, "*.test.js", skip);
+        if (files.length) await run("pnpm", ["test", ...files], npmDirForModule);
+      }
+      if (supported.includes("bun")) {
+        const files = await testFiles(npmDirForModule, "*.test.js", skip);
+        if (files.length) await run("pnpm", ["test:bun", ...files], npmDirForModule);
+      }
     }
   }
+
+  for (const note of skipped) console.log(`skipped ${note}`);
+}
+
+/**
+ * Expands the test files in a directory, dropping any whose name matches a skip pattern.
+ * Returns relative paths so the runtimes resolve them against the working directory.
+ */
+async function testFiles(
+  directory: string,
+  pattern: string,
+  skip: Set<string>,
+): Promise<string[]> {
+  const found: string[] = [];
+  for await (const entry of Deno.readDir(directory)) {
+    if (!entry.isFile) continue;
+    if (
+      pattern === "*.test.ts" ? !entry.name.endsWith(".test.ts") : !entry.name.endsWith(".test.js")
+    ) {
+      continue;
+    }
+    if ([...skip].some((needle) => entry.name.includes(needle))) continue;
+    found.push(entry.name);
+  }
+  return found.sort();
 }
 
 async function audit(): Promise<void> {
@@ -527,15 +585,53 @@ switch (command) {
     break;
   case "test":
     {
-      const flags = args.filter((arg) => arg.startsWith("--"));
-      const runtimes = new Set(flags.map((flag) => flag.slice(2)));
-      const invalid = [...runtimes].filter((runtime) => !["deno", "node", "bun"].includes(runtime));
-      if (invalid.length) throw new Error(`Unknown test runtime flag: --${invalid.join(", --")}`);
-      await testModules(
-        args.filter((arg) => !arg.startsWith("-")),
-        runtimes,
+      const known = ["deno", "node", "bun"];
+      const runtimes = new Set(
+        args.filter((arg) => arg.startsWith("--") && known.includes(arg.slice(2))).map((arg) =>
+          arg.slice(2)
+        ),
       );
+      const unknown = args.filter((arg) =>
+        /^--[a-z]/.test(arg) && !known.includes(arg.slice(2)) &&
+        arg !== "--skip"
+      );
+      if (unknown.length) {
+        throw new Error(
+          `Unknown test flag: ${unknown.join(", ")}. Runtimes are --deno, --node, --bun; ` +
+            `use --skip <pattern> to drop test files.`,
+        );
+      }
+      const skipIndex = args.indexOf("--skip");
+      const skip = new Set(
+        skipIndex >= 0 && args[skipIndex + 1] ? args[skipIndex + 1].split(",") : [],
+      );
+      const names = args.filter((arg, index) => !arg.startsWith("-") && index !== skipIndex + 1);
+      await testModules(names, runtimes, skip);
     }
+    break;
+  case "runtimes":
+    await run(Deno.execPath(), ["run", "-A", join(root, "eng", "runtimes-report.ts")]);
+    break;
+  case "readme":
+    {
+      const reports = args.includes("--check") ? await verifyReadmes() : await writeReadmes();
+      const bad = reports.filter((report) => report.status !== "current");
+      for (const report of bad) console.log(`${report.status.padEnd(7)} ${report.module}`);
+      if (args.includes("--check") && bad.length) {
+        throw new Error(
+          `${bad.length} module README(s) are out of date. Run \`deno task readme\`.`,
+        );
+      }
+      if (!args.includes("--check")) {
+        console.log(`updated ${reports.length} module README(s)`);
+      }
+    }
+    break;
+  case "setup":
+    await run(Deno.execPath(), ["run", "-A", join(root, "eng", "setup.ts"), ...args]);
+    break;
+  case "doctor":
+    await run(Deno.execPath(), ["run", "-A", join(root, "eng", "setup.ts"), "doctor"]);
     break;
   case "lint":
     await run(oxlint, ["jsr", "eng", "e2e", "runtime-tests"]);

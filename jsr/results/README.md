@@ -11,6 +11,22 @@ dependencies and works in Deno, Node.js, Bun, browsers, and Cloudflare Workers.
 [![JSR](https://jsr.io/badges/@neotales/results)](https://jsr.io/@neotales/results)
 [![npm version](https://badge.fury.io/js/@neotales%2Fresults.svg)](https://badge.fury.io/js/@neotales%2Fresults)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Yes      | Yes                | Yes        | Yes      | Yes         | Yes         |
+
+Pure control-flow helpers. Runs everywhere.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/results/doc)

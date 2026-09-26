@@ -11,6 +11,22 @@ in Deno, Node.js, Bun, and browsers that provide Web Crypto.
 [![JSR](https://jsr.io/badges/@neotales/secrets)](https://jsr.io/@neotales/secrets)
 [![npm version](https://badge.fury.io/js/@neotales%2Fsecrets.svg)](https://badge.fury.io/js/@neotales%2Fsecrets)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Yes      | Yes                | No         | Yes      | No          | Yes         |
+
+Needs Web Crypto. `Neotales.ClearScript` supplies an AES-GCM `crypto.subtle`; QuickJS-ng and JerryScript have no crypto bridge.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/secrets/doc)

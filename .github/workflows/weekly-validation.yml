@@ -1,4 +1,9 @@
-name: Weekly Validation
+name: Nightly Audit
+
+# Weekly sweep of dev. This is not part of the pull request path: it exists to catch a
+# dependency advisory and a toolchain release that the tiered workflows would not see on a
+# given commit. The browser and embedded tiers already have their own nightly schedule in
+# conformance.yml, so this job stays deliberately narrow.
 
 on:
   schedule:
@@ -8,8 +13,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: nightly-audit
+  cancel-in-progress: false
+
 jobs:
-  validate:
+  audit:
+    name: Dependency audit and full core sweep
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -30,4 +40,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - run: pnpm install --frozen-lockfile
+
+      # lint, format, dependency audit, then every module on all three core runtimes.
       - run: deno task check
+      - run: deno task readme:check

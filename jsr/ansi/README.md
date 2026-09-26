@@ -12,6 +12,22 @@ terminal; browser and Worker environments default to plain text.
 [![JSR](https://jsr.io/badges/@neotales/ansi)](https://jsr.io/@neotales/ansi)
 [![npm version](https://badge.fury.io/js/@neotales%2Fansi.svg)](https://badge.fury.io/js/@neotales%2Fansi)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Yes      | Yes                | Yes        | Yes      | Yes         | Yes         |
+
+Style application is portable. The full entry point now loads without top-level await.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/ansi/doc)

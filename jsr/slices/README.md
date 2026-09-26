@@ -35,6 +35,22 @@ objects such as CharSlice or Uint32Arrays.
 [![JSR](https://jsr.io/badges/@neotales/slices)](https://jsr.io/@neotales/slices)
 [![npm version](https://badge.fury.io/js/@neotales%2Fslices.svg?icon=si%3Anpm)](https://badge.fury.io/js/@neotales%2Fslices)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Yes      | Yes                | Yes        | Yes      | Yes         | Yes         |
+
+Pure collection helpers. Runs everywhere.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/slices/doc)

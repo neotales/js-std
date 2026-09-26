@@ -11,6 +11,22 @@ Works seamlessly with Deno, Node.js, Bun, and has experimental browser support.
 [![JSR](https://jsr.io/badges/@neotales/process)](https://jsr.io/@neotales/process)
 [![npm version](https://badge.fury.io/js/@neotales%2Fprocess.svg)](https://badge.fury.io/js/@neotales%2Fprocess)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Partial  | Partial            | No         | Partial  | No          | Partial     |
+
+Streams and metadata. Workers has no real process; browsers are partial and experimental.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/process/doc)

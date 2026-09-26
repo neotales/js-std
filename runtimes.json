@@ -1,0 +1,197 @@
+{
+  "$comment": [
+    "Single source of truth for cross-runtime support. Read by eng/runtimes.ts to filter",
+    "tests, generate the module README tables, and build the CI matrix. The support level",
+    "records what the module can do in that environment; 'none' also means the module's",
+    "tests are skipped there. docs/RUNTIME_MATRIX.md carries the evidence and reasoning."
+  ],
+  "version": 1,
+  "environments": [
+    { "id": "deno", "label": "Deno", "tier": "core", "runner": "jsr" },
+    { "id": "node", "label": "Node.js", "tier": "core", "runner": "npm" },
+    { "id": "bun", "label": "Bun", "tier": "core", "runner": "npm" },
+    { "id": "browser", "label": "Chromium", "tier": "web", "runner": "e2e" },
+    { "id": "workerd", "label": "Cloudflare Workers", "tier": "web", "runner": "e2e" },
+    { "id": "quickjs", "label": "QuickJS-ng", "tier": "embedded", "runner": "runtime-lab" },
+    { "id": "txiki", "label": "txiki.js", "tier": "embedded", "runner": "runtime-lab" },
+    { "id": "jerry", "label": "JerryScript", "tier": "embedded", "runner": "runtime-lab" },
+    { "id": "clearscript", "label": "ClearScript", "tier": "embedded", "runner": "runtime-lab" }
+  ],
+  "levels": {
+    "full": { "testable": true, "badge": "supported", "summary": "Fully supported" },
+    "partial": { "testable": true, "badge": "partial", "summary": "Partially supported" },
+    "none": { "testable": false, "badge": "unsupported", "summary": "Not supported" }
+  },
+  "notes": {
+    "args": "Pure argument parsing. Runs everywhere.",
+    "chars": "Pure character handling. Runs everywhere.",
+    "dotenv": "Pure text parsing. Runs everywhere.",
+    "env": "In-memory store in the browser and Workers, QuickJS-ng reads `std`, ClearScript reads the .NET process environment.",
+    "path": "String operations run everywhere. URL conversion and working-directory calls need a host `URL` or process global.",
+    "results": "Pure control-flow helpers. Runs everywhere.",
+    "slices": "Pure collection helpers. Runs everywhere.",
+    "strings": "Pure string helpers. Runs everywhere.",
+    "ansi": "Style application is portable. The full entry point now loads without top-level await.",
+    "fmt": "The focused `inspect` entry point is portable; the root entry point still needs a host inspector.",
+    "secrets": "Needs Web Crypto. `Neotales.ClearScript` supplies an AES-GCM `crypto.subtle`; QuickJS-ng and JerryScript have no crypto bridge.",
+    "fs": "Node filesystems only. Workers provides an ephemeral `/tmp`; browsers have no path-based API.",
+    "process": "Streams and metadata. Workers has no real process; browsers are partial and experimental.",
+    "exec": "Needs a real process API. Workers rejects `spawnSync` with `ERR_METHOD_NOT_IMPLEMENTED`, and browsers have none."
+  },
+  "modules": {
+    "ansi": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    },
+    "args": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    },
+    "chars": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    },
+    "dotenv": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    },
+    "env": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "partial",
+      "workerd": "partial",
+      "quickjs": "full",
+      "txiki": "partial",
+      "jerry": "partial",
+      "clearscript": "full"
+    },
+    "exec": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "none",
+      "workerd": "none",
+      "quickjs": "partial",
+      "txiki": "partial",
+      "jerry": "none",
+      "clearscript": "partial"
+    },
+    "fmt": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "partial",
+      "workerd": "none",
+      "quickjs": "partial",
+      "txiki": "partial",
+      "jerry": "partial",
+      "clearscript": "partial"
+    },
+    "fs": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "none",
+      "workerd": "partial",
+      "quickjs": "partial",
+      "txiki": "partial",
+      "jerry": "none",
+      "clearscript": "full"
+    },
+    "path": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "partial",
+      "txiki": "full",
+      "jerry": "partial",
+      "clearscript": "partial"
+    },
+    "process": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "partial",
+      "workerd": "partial",
+      "quickjs": "none",
+      "txiki": "partial",
+      "jerry": "none",
+      "clearscript": "partial"
+    },
+    "results": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    },
+    "secrets": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "none",
+      "txiki": "full",
+      "jerry": "none",
+      "clearscript": "full"
+    },
+    "slices": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    },
+    "strings": {
+      "deno": "full",
+      "node": "full",
+      "bun": "full",
+      "browser": "full",
+      "workerd": "full",
+      "quickjs": "full",
+      "txiki": "full",
+      "jerry": "full",
+      "clearscript": "full"
+    }
+  }
+}

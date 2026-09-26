@@ -11,6 +11,22 @@ Bun, and the browser.
 [![JSR](https://jsr.io/badges/@neotales/fmt)](https://jsr.io/@neotales/fmt)
 [![npm version](https://badge.fury.io/js/@neotales%2Ffmt.svg)](https://badge.fury.io/js/@neotales%2Ffmt)
 
+<!-- runtime-support:begin -->
+
+## Runtime support
+
+Generated from `runtimes.json`. Run `deno task readme` after changing it.
+
+| Capability | Deno | Node.js | Bun | Chromium | Cloudflare Workers | QuickJS-ng | txiki.js | JerryScript | ClearScript |
+| ---------- | ---- | ------- | --- | -------- | ------------------ | ---------- | -------- | ----------- | ----------- |
+| Supported  | Yes  | Yes     | Yes | Partial  | No                 | Partial    | Partial  | Partial     | Partial     |
+
+The focused `inspect` entry point is portable; the root entry point still needs a host inspector.
+
+Yes = full support, Partial = usable subset, No = not supported.
+
+<!-- runtime-support:end -->
+
 ## Documentation
 
 Documentation is available on [jsr.io](https://jsr.io/@neotales/fmt/doc)
