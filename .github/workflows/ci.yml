@@ -9,8 +9,35 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  changes:
+    name: Detect changed groups
+    runs-on: ubuntu-latest
+    outputs:
+      std: ${{ steps.detect.outputs.std }}
+      crypto: ${{ steps.detect.outputs.crypto }}
+      os: ${{ steps.detect.outputs.os }}
+      repo: ${{ steps.detect.outputs.repo }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - id: detect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: ./eng/changed-groups.sh
+
   quality:
+    name: Format, lint, audit
+    needs: changes
+    if: needs.changes.outputs.repo == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -29,16 +56,32 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: deno task fmt:check
       - run: deno task lint
+      - run: deno task audit
 
   test:
-    name: ${{ matrix.os }} / ${{ matrix.runtime }}
+    name: ${{ matrix.group }} / ${{ matrix.runtime }} / ${{ matrix.os }}
+    needs: changes
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        group: [std, crypto, os]
         os: [ubuntu-latest, macos-latest, windows-latest]
         runtime: [deno, node, bun]
     steps:
+      # The job always runs so required status checks keep resolving when a group is
+      # skipped. A green job that never ran the tests would be worse than no job at all,
+      # so a skip has to be visible rather than silent.
+      - name: Report the skip
+        if: needs.changes.outputs[matrix.group] != 'true'
+        run: |
+          {
+            echo "### ${{ matrix.group }} tests skipped"
+            echo ""
+            echo "Nothing under \`${{ matrix.group }}/\` changed, and neither did \`eng/\` or"
+            echo "the top-level config, so this group cannot be affected by this change."
+          } >>"$GITHUB_STEP_SUMMARY"
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
@@ -56,4 +99,7 @@ jobs:
         if: matrix.runtime == 'bun'
 
       - run: pnpm install --frozen-lockfile
-      - run: deno task test --${{ matrix.runtime }}
+        if: needs.changes.outputs[matrix.group] == 'true'
+
+      - run: deno task test ${{ matrix.group }} --${{ matrix.runtime }}
+        if: needs.changes.outputs[matrix.group] == 'true'
