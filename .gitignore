@@ -5,6 +5,8 @@ npm/*/*.tgz
 */npm/*/node_modules/
 */npm/*/dist/
 */npm/*/*.tgz
+.wrangler/
+*/.wrangler/
 .DS_Store
 test_runner.cjs
 artifacts/
