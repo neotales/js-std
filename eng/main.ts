@@ -101,7 +101,7 @@ type ReleasePackage = {
 
 function usage(): never {
   console.error(
-    `Usage: deno run -A ./eng/main.ts <task> <group> [module] [flags]\n\nTasks:\n  groups                    List every group in this repo\n  build <group> [module]     Build a module, or a whole group, for npm with dnt\n  test <group> [module] [--deno] [--node] [--bun]  Run selected tests\n  test-all [--deno] [--node] [--bun]  Run the tests for every group\n  lint [group]               Check source with oxlint; all groups and eng by default\n  fmt [group] [--check]      Format or check formatting with deno fmt\n  audit                      Fail on moderate-or-higher npm vulnerabilities\n  check <group>              Run lint, formatting, audit, and the group's tests\n  pack <group> <module>      Create an npm tarball\n  release-prepare <tag>      Build release artifacts for version-changed modules\n  publish-bootstrap <group> <module> [--dry-run]  First npmjs.org publish\n  publish <group> <module> [--dry-run]  Publish one module to JSR and npm`,
+    `Usage: deno run -A ./eng/main.ts <task> <group> [module] [flags]\n\nTasks:\n  groups                    List every group in this repo\n  build <group> [module]     Build a module, or a whole group, for npm with dnt\n  test <group> [module] [--deno] [--node] [--bun]  Run selected tests\n  test-all [--deno] [--node] [--bun]  Run the tests for every group\n  lint [group]               Check source with oxlint; all groups and eng by default\n  fmt [group] [--check]      Format or check formatting with deno fmt\n  audit                      Fail on moderate-or-higher npm vulnerabilities\n  check <group>              Run lint, formatting, audit, and the group's tests\n  check-all                 Run the full gate for every group\n  pack <group> <module>      Create an npm tarball\n  release-prepare <tag>      Build release artifacts for version-changed modules\n  publish-bootstrap <group> <module> [--dry-run]  First npmjs.org publish\n  publish <group> <module> [--dry-run]  Publish one module to JSR and npm`,
   );
   Deno.exit(1);
 }
@@ -747,6 +747,9 @@ switch (command) {
       const { group } = await groupAndModules(args);
       await check([group]);
     }
+    break;
+  case "check-all":
+    await check(await groups());
     break;
   case "pack":
     {

@@ -27,6 +27,7 @@
     "fmt:check": "deno run -A ./eng/main.ts fmt --check",
     "audit": "deno run -A ./eng/main.ts audit",
     "check": "deno run -A ./eng/main.ts check",
+    "check:all": "deno run -A ./eng/main.ts check-all",
     "pack": "deno run -A ./eng/main.ts pack",
     "release:prepare": "deno run -A ./eng/main.ts release-prepare",
     "publish:bootstrap": "deno run -A ./eng/main.ts publish-bootstrap",

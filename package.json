@@ -19,6 +19,7 @@
     "fmt:check": "deno task fmt:check",
     "audit": "deno task audit",
     "check": "deno task check",
+    "check:all": "deno task check:all",
     "pack": "deno task pack",
     "release:prepare": "deno task release:prepare",
     "publish:bootstrap": "deno task publish:bootstrap",
