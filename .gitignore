@@ -1,7 +1,10 @@
 node_modules/
-npm/*/*.tgz
 npm/*/node_modules/
 npm/*/dist/
+npm/*/*.tgz
+*/npm/*/node_modules/
+*/npm/*/dist/
+*/npm/*/*.tgz
 .DS_Store
 test_runner.cjs
 artifacts/
