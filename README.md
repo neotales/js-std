@@ -1,92 +1,128 @@
-# Neotales JavaScript Standard Libraries
+# Neotales JavaScript Libraries
 
 Cross-runtime TypeScript modules published to JSR and npm.
 
-## Modules
+This repository holds several groups of related packages. Each group is a top-level
+folder with its own copy of `jsr/` and `npm/`, so a change to one group cannot break
+another.
 
-| Module    | JSR                                                   | Description                                       |
-| --------- | ----------------------------------------------------- | ------------------------------------------------- |
-| `chars`   | [@neotales/chars](https://jsr.io/@neotales/chars)     | Character classification and code point utilities |
-| `slices`  | [@neotales/slices](https://jsr.io/@neotales/slices)   | Array and typed array utilities                   |
-| `strings` | [@neotales/strings](https://jsr.io/@neotales/strings) | String utilities                                  |
-| `path`    | [@neotales/path](https://jsr.io/@neotales/path)       | Cross-platform path manipulation                  |
-| `process` | [@neotales/process](https://jsr.io/@neotales/process) | Process and platform information                  |
-| `fs`      | [@neotales/fs](https://jsr.io/@neotales/fs)           | Cross-runtime filesystem utilities                |
-| `args`    | [@neotales/args](https://jsr.io/@neotales/args)       | Command-line argument parsing                     |
-| `env`     | [@neotales/env](https://jsr.io/@neotales/env)         | Environment variable access and expansion         |
-| `dotenv`  | [@neotales/dotenv](https://jsr.io/@neotales/dotenv)   | `.env` file loading                               |
-| `exec`    | [@neotales/exec](https://jsr.io/@neotales/exec)       | Cross-runtime child process execution and `which` |
-| `ansi`    | [@neotales/ansi](https://jsr.io/@neotales/ansi)       | ANSI escape sequences and styling                 |
-| `secrets` | [@neotales/secrets](https://jsr.io/@neotales/secrets) | Protected secret handling                         |
-| `fmt`     | [@neotales/fmt](https://jsr.io/@neotales/fmt)         | Formatting utilities                              |
+## Groups
 
-OS-level packages that require extra CI/CD tooling live in a separate
-repository: [github.com/neotales/js-os](https://github.com/neotales/js-os).
+| Group                              | What it holds                                                          |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| [`std`](./std)                     | General purpose libraries: strings, paths, env, fs, ansi, formatting    |
+| [`crypto`](./crypto)               | Keys, ciphers, and credential stores. Being filled from `pvtlab`        |
+| [`os`](./os)                       | Platform bindings: keychain, DPAPI, registry. Being filled from `js-os` |
 
-See [docs/ROADMAP.md](./docs/ROADMAP.md) for planned modules and milestones.
+`crypto` and `os` are empty placeholders for now. The structure and the automation are
+being proved on `std` first.
 
-## Development
+## Layout
 
-```sh
-deno task build <module>
-deno task test <module>
-deno task test <module> --deno
-deno task test <module> --node --bun
+```text
+eng/            shared build, test, and release tooling. Not published.
+std/            group
+  deno.json     tasks for this group
+  package.json  pnpm and npm view of this group
+  jsr/<module>  Deno source, published to JSR
+  npm/<module>  generated npm build, published to npm
+  e2e/          browser and Cloudflare Workers tests, where a group needs them
+crypto/         group
+os/             group
+docs/           repository-wide notes
 ```
 
-`build` transforms a module under `jsr/<module>` into `npm/<module>` with dnt.
-npm packages are ESM-only, managed by pnpm, and test in Node and Bun; JSR
-modules test in Deno. Tests use `node:test` and `node:assert/strict`; neither
-an assertion nor a globals module is imported or published.
+A folder counts as a group when it has both a `deno.json` and a `jsr/` folder. Adding a
+fourth group needs no change to the tooling, only a new folder.
 
-Run all module tests across runtimes with `deno task test`.
+`npm/` is generated. Edit `jsr/<module>` and rebuild; never edit `npm/<module>` by hand.
 
-`test:e2e` runs browser integration tests and local Cloudflare Workers tests.
-The latter use Wrangler's workerd harness without Cloudflare credentials; add a
-`*.workerd.mjs` test and fixture under `e2e/` when checking Worker support for a
-module or runtime feature. Run just those checks with `deno task test:workers`.
+## Commands
 
-## Quality And Publishing
+Every command that touches packages takes a group, so you always know what you are
+affecting.
+
+```sh
+deno task groups                 # list every group and what is in it
+deno task test std               # test every module in std, on Deno, Node, and Bun
+deno task test std fs            # test one module
+deno task test std --deno        # one runtime only
+deno task test:all               # every group
+deno task build std              # build a whole group for npm
+deno task lint std
+deno task fmt:check std
+deno task check std              # lint, format, audit, and test one group
+deno task check:all              # the full gate across every group
+```
+
+`lint`, `fmt`, and `test:all` take an optional group. With no group they cover everything,
+`lint` also covering `eng/`.
+
+The same commands work from inside a group folder, where the group is implied:
+
+```sh
+cd std
+deno task test fs
+deno task check
+```
+
+`std/e2e` holds the browser and Cloudflare Workers tests. `deno task test:workers` runs
+just the workerd harness, which needs no Cloudflare credentials. Add a `*.workerd.mjs` test
+and a fixture there when checking Worker support for a module or a runtime feature.
+
+## How CI decides what to run
+
+CI looks at which folders a change touched and runs only the groups that could be
+affected. A change to `std/` runs the `std` tests. A change to `eng/` or to the top-level
+config runs every group, because the shared tooling can affect any of them. A
+documentation-only change runs nothing expensive.
+
+Groups are separate jobs so they run in parallel, and a group that did not change writes a
+visible skip to the run summary rather than a green check that never ran anything. The
+logic lives in [`eng/changed-groups.sh`](./eng/changed-groups.sh).
+
+## Quality and publishing
 
 ```sh
 deno task lint
 deno task fmt:check
-deno task pack <module>
-deno task publish:bootstrap <module> --dry-run
-deno task publish:dry-run <module>
-deno task publish <module>
+deno task pack std fs
+deno task publish:bootstrap std fs --dry-run
+deno task publish:dry-run std fs
+deno task publish std fs
 ```
 
-Linting uses oxlint and formatting uses deno fmt (100 character line width).
-`publish:bootstrap` is the one-time first npmjs.org publish: it verifies the
-package is not already on npm, builds only when `npm/<module>` is missing,
-checks lint and formatting, runs all module tests, creates a pnpm tarball,
-reports its sizes, then publishes that tarball. Later releases should publish
-through GitHub Actions with `publish`, which runs `deno publish` for JSR
-followed by `pnpm publish` for npm. The one-time npm publish reads the npm
-token from `NODE_AUTH_TOKEN`; when it is absent, the command prompts for it
-and fails on an empty response. Do not add the token to repository files.
+Linting uses oxlint and formatting uses deno fmt at a 100 character line width.
+`pnpm-lock.yaml` is excluded from formatting so it keeps the form pnpm writes.
 
-JSR publishing uses GitHub OIDC instead of a token: release workflows grant
-`id-token: write`, and `deno publish` exchanges the workflow identity for
-short-lived credentials automatically.
+`publish:bootstrap` is the one-time first npmjs.org publish. Later releases publish through
+GitHub Actions, which runs `deno publish` for JSR followed by `pnpm publish` for npm. The
+one-time npm publish reads the token from `NODE_AUTH_TOKEN`; when it is absent, the command
+prompts for it. Do not add a token to a repository file.
+
+JSR publishing uses GitHub OIDC instead of a token: the release workflow grants
+`id-token: write` and `deno publish` exchanges the workflow identity for short-lived
+credentials automatically.
 
 ## Releases
 
-Release tags use `vYYYY.MM.DD-rN`, for example `v2026.08.12-r1`. `-nightly.rN`
-and `-beta.rN` are also accepted for future prereleases. A release tag runs the
-complete quality gate, finds modules whose `jsr/<module>/deno.json` version
-changed since the prior release tag, builds their npm directories, and writes
-release metadata as a workflow artifact. It also creates GitHub release notes
-listing shipped packages plus Conventional Commit changes (`feat`, `fix`, `bug`,
-and related types). Existing npm and JSR packages are published with GitHub OIDC.
-An npm package that has never been published is skipped until it is published
-once with `publish:bootstrap`.
+Release tags use `vYYYY.MM.DD-rN`, for example `v2026.08.12-r1`. `-nightly.rN` and
+`-beta.rN` are also accepted for prereleases.
 
-The release workflow uses the GitHub `release` environment. In GitHub repository
-settings, create that environment and configure required reviewers to pause a
-tagged release before the job receives publishing permissions. Configure tag
-protection rules as a separate safeguard against unauthorized release tags.
+A release tag runs the full quality gate, finds the modules whose version changed since
+the previous release tag in any group, builds their npm directories, and writes release
+metadata as a workflow artifact. Each entry records its group, so a release can span more
+than one. Existing npm and JSR packages are published with GitHub OIDC. A package that has
+never been published is skipped until it is published once with `publish:bootstrap`.
+
+The release workflow uses the GitHub `release` environment. Create that environment and
+configure required reviewers before the first release from this repository.
+
+## Contributing
+
+Issues, labels, commit messages, and pull request size follow
+[`.agents/CONTRIBUTING.md`](./.agents/CONTRIBUTING.md). Every issue carries an acceptance
+criteria checklist.
 
 ## License
 
