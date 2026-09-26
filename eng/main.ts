@@ -2,10 +2,62 @@ import { build, emptyDir, type EntryPoint } from "@deno/dnt";
 import { join, relative, resolve } from "@std/path";
 
 const root = resolve(import.meta.dirname!, "..");
-const jsrDir = join(root, "jsr");
-const npmDir = join(root, "npm");
+const engDir = import.meta.dirname!;
 const repository = "https://github.com/neotales/js-std";
 const oxlint = join(root, "node_modules", ".bin", "oxlint");
+
+/**
+ * A group is a top-level folder that holds a set of related packages. A directory
+ * counts as a group when it has both a deno.json and a jsr/ folder, so adding a new
+ * group needs no change here.
+ */
+type Group = {
+  name: string;
+  dir: string;
+  jsrDir: string;
+  npmDir: string;
+  e2eDir: string;
+};
+
+const groupNamePattern = /^[a-z][a-z0-9-]*$/;
+
+async function groups(): Promise<Group[]> {
+  const found: Group[] = [];
+  for await (const entry of Deno.readDir(root)) {
+    if (!entry.isDirectory || !groupNamePattern.test(entry.name)) continue;
+    const dir = join(root, entry.name);
+    if (!(await exists(join(dir, "deno.json")))) continue;
+    if (!(await exists(join(dir, "jsr")))) continue;
+    found.push({
+      name: entry.name,
+      dir,
+      jsrDir: join(dir, "jsr"),
+      npmDir: join(dir, "npm"),
+      e2eDir: join(dir, "e2e"),
+    });
+  }
+  return found.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+async function groupNames(): Promise<string[]> {
+  return (await groups()).map((group) => group.name);
+}
+
+/** Resolves a group by name, listing the real names when the argument is not one. */
+async function requireGroup(name: string): Promise<Group> {
+  const found = (await groups()).find((group) => group.name === name);
+  if (found) return found;
+  const names = await groupNames();
+  if (!names.length) throw new Error("No groups found. A group is a folder with deno.json and jsr/.");
+  throw new Error(`Unknown group: ${name}. Groups: ${names.join(", ")}`);
+}
+
+/** Groups named on the command line, or every group when none was named. */
+async function selectedGroups(args: string[]): Promise<Group[]> {
+  const names = args.filter((arg) => !arg.startsWith("-"));
+  if (!names.length) return await groups();
+  return await Promise.all(names.map(requireGroup));
+}
 
 type DenoConfig = {
   name: string;
@@ -40,6 +92,7 @@ type PackResult = {
 };
 
 type ReleasePackage = {
+  group: string;
   module: string;
   npmName: string;
   version: string;
@@ -48,15 +101,17 @@ type ReleasePackage = {
 
 function usage(): never {
   console.error(
-    `Usage: deno task <task> <module>\n\nTasks:\n  build <module>   Build one module for npm with dnt\n  test [module] [--deno] [--node] [--bun]  Run selected tests\n  lint             Check source with oxlint\n  fmt [--check]    Format or check formatting with deno fmt\n  audit            Fail on moderate-or-higher npm vulnerabilities\n  check            Run lint, formatting, audit, and all tests\n  pack <module>    Create an npm tarball\n  release-prepare <tag>  Build release artifacts for version-changed modules\n  publish-bootstrap <module> [--dry-run]  First npmjs.org publish\n  publish <module> [--dry-run]  Publish one module to JSR and npm`,
+    `Usage: deno run -A ./eng/main.ts <task> <group> [module] [flags]\n\nTasks:\n  groups                    List every group in this repo\n  build <group> [module]     Build a module, or a whole group, for npm with dnt\n  test <group> [module] [--deno] [--node] [--bun]  Run selected tests\n  test-all [--deno] [--node] [--bun]  Run the tests for every group\n  lint [group]               Check source with oxlint; all groups and eng by default\n  fmt [group] [--check]      Format or check formatting with deno fmt\n  audit                      Fail on moderate-or-higher npm vulnerabilities\n  check <group>              Run lint, formatting, audit, and the group's tests\n  pack <group> <module>      Create an npm tarball\n  release-prepare <tag>      Build release artifacts for version-changed modules\n  publish-bootstrap <group> <module> [--dry-run]  First npmjs.org publish\n  publish <group> <module> [--dry-run]  Publish one module to JSR and npm`,
   );
   Deno.exit(1);
 }
 
-function moduleName(args: string[]): string {
-  const name = args.find((arg) => !arg.startsWith("-"));
-  if (!name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) usage();
-  return name;
+/** Takes the first non-flag argument as the group and the rest as module names. */
+async function groupAndModules(args: string[]): Promise<{ group: Group; modules: string[] }> {
+  const positional = args.filter((arg) => !arg.startsWith("-"));
+  const [name, ...modules] = positional;
+  if (!name) usage();
+  return { group: await requireGroup(name), modules };
 }
 
 function releaseTag(args: string[]): string {
@@ -147,10 +202,12 @@ async function exists(path: string): Promise<boolean> {
   }
 }
 
-async function buildModule(name: string): Promise<void> {
-  const source = join(jsrDir, name);
+async function buildModule(group: Group, name: string): Promise<void> {
+  const source = join(group.jsrDir, name);
   const configPath = join(source, "deno.json");
-  if (!(await exists(configPath))) throw new Error(`Unknown imported module: ${name}`);
+  if (!(await exists(configPath))) {
+    throw new Error(`Unknown module in group ${group.name}: ${name}`);
+  }
 
   const config = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
   const dntPath = join(source, "dnt.json");
@@ -158,10 +215,12 @@ async function buildModule(name: string): Promise<void> {
   const missing = await missingWorkspaceDependencies(dnt);
   if (missing.length) {
     throw new Error(
-      `Build required workspace modules before building ${name}: ${missing.join(", ")}`,
+      `Build required workspace modules before building ${group.name}/${name}: ${
+        missing.join(", ")
+      }`,
     );
   }
-  const outDir = join(npmDir, name);
+  const outDir = join(group.npmDir, name);
   const entries: EntryPoint[] = Object.entries(config.exports).map(([entryName, path]) => ({
     name: entryName,
     path,
@@ -192,7 +251,11 @@ async function buildModule(name: string): Promise<void> {
         keywords: dnt.keywords,
         license: config.license ?? "MIT",
         type: "module",
-        repository: { type: "git", url: `git+${repository}.git`, directory: `npm/${name}` },
+        repository: {
+          type: "git",
+          url: `git+${repository}.git`,
+          directory: `${group.name}/npm/${name}`,
+        },
         bugs: { url: `${repository}/issues` },
         homepage: repository,
         engines: { node: ">=22" },
@@ -241,6 +304,10 @@ async function buildModule(name: string): Promise<void> {
   console.log(`Built ${packageName} in ${relative(root, outDir)}`);
 }
 
+/**
+ * Every @neotales dependency has to exist as a jsr module in some group, because the
+ * npm build resolves it through pnpm's workspace links rather than the registry.
+ */
 async function missingWorkspaceDependencies(dnt: DntConfig): Promise<string[]> {
   const dependencies = [
     ...Object.keys(dnt.dependencies ?? {}),
@@ -248,13 +315,18 @@ async function missingWorkspaceDependencies(dnt: DntConfig): Promise<string[]> {
     ...Object.keys(dnt.peerDependencies ?? {}),
     ...Object.keys(dnt.optionalDependencies ?? {}),
   ];
-  const missing = new Set<string>();
-  for (const dependency of dependencies) {
-    if (!dependency.startsWith("@neotales/") || dependency === "@neotales/globals") continue;
-    const module = dependency.slice("@neotales/".length);
-    if (!(await exists(join(jsrDir, module, "deno.json")))) missing.add(module);
+  const wanted = dependencies
+    .filter((dependency) =>
+      dependency.startsWith("@neotales/") && dependency !== "@neotales/globals"
+    )
+    .map((dependency) => dependency.slice("@neotales/".length));
+  if (!wanted.length) return [];
+
+  const available = new Set<string>();
+  for (const group of await groups()) {
+    for (const name of await importedModules(group)) available.add(name);
   }
-  return [...missing].sort();
+  return [...new Set(wanted.filter((name) => !available.has(name)))].sort();
 }
 
 function workspaceDependencies(
@@ -310,29 +382,117 @@ async function workspaceMappings(
   return mappings;
 }
 
-async function importedModules(): Promise<string[]> {
+async function importedModules(group: Group): Promise<string[]> {
   const modules: string[] = [];
-  for await (const entry of Deno.readDir(jsrDir)) {
-    if (entry.isDirectory && (await exists(join(jsrDir, entry.name, "deno.json")))) {
+  for await (const entry of Deno.readDir(group.jsrDir)) {
+    if (entry.isDirectory && (await exists(join(group.jsrDir, entry.name, "deno.json")))) {
       modules.push(entry.name);
     }
   }
   return modules.sort();
 }
 
-async function testModules(names: string[], runtimes: Set<string>): Promise<void> {
-  const modules = names.length ? names : await importedModules();
-  if (!modules.length) throw new Error("No modules found under jsr/.");
+/** Build order within a set of modules: a module comes after the modules it needs. */
+async function buildOrder(modules: string[]): Promise<string[]> {
+  const dependencies = new Map<string, string[]>();
+  for (const name of modules) {
+    const dntPath = join(...(await moduleSource(name)), "dnt.json");
+    const dnt = JSON.parse(await Deno.readTextFile(dntPath)) as DntConfig;
+    const needs = [
+      ...Object.keys(dnt.dependencies ?? {}),
+      ...Object.keys(dnt.devDependencies ?? {}),
+      ...Object.keys(dnt.peerDependencies ?? {}),
+      ...Object.keys(dnt.optionalDependencies ?? {}),
+    ];
+    dependencies.set(
+      name,
+      needs
+        .filter((need) => need.startsWith("@neotales/"))
+        .map((need) => need.slice("@neotales/".length))
+        .filter((need) => modules.includes(need)),
+    );
+  }
+
+  const ordered: string[] = [];
+  const state = new Map<string, "visiting" | "done">();
+  async function visit(name: string, path: string[]): Promise<void> {
+    if (state.get(name) === "done") return;
+    if (state.get(name) === "visiting") {
+      throw new Error(`Dependency cycle between modules: ${[...path, name].join(" -> ")}`);
+    }
+    state.set(name, "visiting");
+    for (const need of dependencies.get(name) ?? []) await visit(need, [...path, name]);
+    state.set(name, "done");
+    ordered.push(name);
+  }
+
+  for (const name of modules) await visit(name, []);
+  return ordered;
+}
+
+/** Finds the source folder of a module, whichever group it lives in. */
+async function moduleSource(name: string): Promise<[string, string]> {
+  for (const group of await groups()) {
+    if (await exists(join(group.jsrDir, name, "deno.json"))) return [group.jsrDir, name];
+  }
+  throw new Error(`Unknown module: ${name}`);
+}
+
+async function testModules(
+  group: Group,
+  names: string[],
+  runtimes: Set<string>,
+): Promise<void> {
+  const available = await importedModules(group);
+  const modules = names.length ? names : available;
+  if (!modules.length) {
+    console.log(`Group ${group.name} has no modules under ${relative(root, group.jsrDir)}/.`);
+    return;
+  }
+  const unknown = modules.filter((name) => !available.includes(name));
+  if (unknown.length) {
+    throw new Error(
+      `Unknown module in group ${group.name}: ${unknown.join(", ")}. ` +
+        `Modules: ${available.join(", ")}`,
+    );
+  }
   const selected = runtimes.size ? runtimes : new Set(["deno", "node", "bun"]);
   if (selected.has("node") || selected.has("bun")) await run("pnpm", ["install"]);
-  for (const name of modules) {
-    if (selected.has("deno")) await run("deno", ["test", "-A"], join(jsrDir, name));
-    const npmPackage = join(npmDir, name, "package.json");
+  for (const name of await buildOrder(modules)) {
+    if (selected.has("deno")) await run("deno", ["test", "-A"], join(group.jsrDir, name));
+    const npmPackage = join(group.npmDir, name, "package.json");
     if (await exists(npmPackage)) {
-      if (selected.has("node")) await run("pnpm", ["test"], join(npmDir, name));
-      if (selected.has("bun")) await run("pnpm", ["test:bun"], join(npmDir, name));
+      if (selected.has("node")) await run("pnpm", ["test"], join(group.npmDir, name));
+      if (selected.has("bun")) await run("pnpm", ["test:bun"], join(group.npmDir, name));
     }
   }
+}
+
+async function lint(selected: Group[]): Promise<void> {
+  const targets: string[] = [];
+  for (const group of selected) {
+    targets.push(relative(root, group.jsrDir));
+    if (await exists(group.e2eDir)) targets.push(relative(root, group.e2eDir));
+  }
+  if (!selected.length) targets.push("eng");
+  if (!targets.length) return;
+  await run(oxlint, targets);
+}
+
+async function format(selected: Group[], check: boolean): Promise<void> {
+  // One path per call: deno fmt refuses several paths that resolve to different
+  // workspace configs, and each group folder has its own. The root config is named
+  // explicitly so a group folder cannot quietly apply different formatting rules.
+  const args = [
+    "fmt",
+    "--config",
+    join(root, "deno.json"),
+    ...(check ? ["--check"] : []),
+  ];
+  for (const group of selected) {
+    await run("deno", [...args, relative(root, group.dir)]);
+  }
+  if (!selected.length) await run("deno", args);
 }
 
 async function audit(): Promise<void> {
@@ -342,46 +502,42 @@ async function audit(): Promise<void> {
   }
 }
 
-async function check(): Promise<void> {
-  await run(oxlint, ["jsr", "eng", "e2e"]);
-  await run("deno", ["fmt", "--check"]);
+async function check(selected: Group[]): Promise<void> {
+  await lint(selected);
+  await format(selected, true);
   await audit();
-  await testModules([], new Set());
+  for (const group of selected) await testModules(group, [], new Set());
 }
 
 async function releasePackages(baseTag?: string): Promise<ReleasePackage[]> {
-  const modules = await importedModules();
   const changed: ReleasePackage[] = [];
-  for (const module of modules) {
-    const configPath = join(jsrDir, module, "deno.json");
-    const current = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
-    if (!baseTag) {
-      changed.push({
-        module,
-        npmName: current.name,
-        version: current.version,
-        jsrName: current.name,
-      });
-      continue;
-    }
-    const previous = await capture("git", ["show", `${baseTag}:${relative(root, configPath)}`]);
-    if (!previous.success) {
-      changed.push({
-        module,
-        npmName: current.name,
-        version: current.version,
-        jsrName: current.name,
-      });
-      continue;
-    }
-    const old = JSON.parse(new TextDecoder().decode(previous.stdout)) as DenoConfig;
-    if (old.version !== current.version) {
-      changed.push({
-        module,
-        npmName: current.name,
-        version: current.version,
-        jsrName: current.name,
-      });
+  for (const group of await groups()) {
+    for (const module of await importedModules(group)) {
+      const configPath = join(group.jsrDir, module, "deno.json");
+      const current = JSON.parse(await Deno.readTextFile(configPath)) as DenoConfig;
+      const include = async (): Promise<void> => {
+        changed.push({
+          group: group.name,
+          module,
+          npmName: current.name,
+          version: current.version,
+          jsrName: current.name,
+        });
+      };
+      if (!baseTag) {
+        await include();
+        continue;
+      }
+      const previous = await capture("git", [
+        "show",
+        `${baseTag}:${relative(root, configPath)}`,
+      ]);
+      if (!previous.success) {
+        await include();
+        continue;
+      }
+      const old = JSON.parse(new TextDecoder().decode(previous.stdout)) as DenoConfig;
+      if (old.version !== current.version) await include();
     }
   }
   return changed;
@@ -407,14 +563,19 @@ async function releaseCommitNotes(baseTag?: string): Promise<string[]> {
 async function releasePrepare(tag: string): Promise<void> {
   validateReleaseTag(tag);
   const baseTag = await previousReleaseTag(tag);
-  await check();
+  const all = await groups();
+  await check(all);
   const packages = await releasePackages(baseTag);
   if (!packages.length) throw new Error(`No package versions changed since ${baseTag}.`);
 
   const artifacts = join(root, "artifacts", tag);
   await emptyDir(artifacts);
+  const built = new Set<string>();
   for (const pkg of packages) {
-    await buildModule(pkg.module);
+    const key = `${pkg.group}/${pkg.module}`;
+    if (built.has(key)) continue;
+    await buildModule(await requireGroup(pkg.group), pkg.module);
+    built.add(key);
   }
 
   const commits = await releaseCommitNotes(baseTag);
@@ -422,7 +583,7 @@ async function releasePrepare(tag: string): Promise<void> {
     `# ${tag}`,
     "",
     "## Packages",
-    ...packages.map((pkg) => `- ${pkg.npmName}@${pkg.version}`),
+    ...packages.map((pkg) => `- ${pkg.npmName}@${pkg.version} (${pkg.group}/${pkg.module})`),
     "",
     "## Changes",
     ...(commits.length ? commits : ["- No Conventional Commit messages found."]),
@@ -438,18 +599,22 @@ async function releasePrepare(tag: string): Promise<void> {
   );
 }
 
-async function publishModule(name: string, dryRun: boolean): Promise<void> {
-  await run("deno", ["publish", ...(dryRun ? ["--dry-run"] : [])], join(jsrDir, name));
-  await run("pnpm", ["publish", ...(dryRun ? ["--dry-run"] : [])], join(npmDir, name));
+async function publishModule(group: Group, name: string, dryRun: boolean): Promise<void> {
+  await run("deno", ["publish", ...(dryRun ? ["--dry-run"] : [])], join(group.jsrDir, name));
+  await run("pnpm", ["publish", ...(dryRun ? ["--dry-run"] : [])], join(group.npmDir, name));
 }
 
-async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<void> {
+async function bootstrapPublishModule(
+  group: Group,
+  name: string,
+  dryRun: boolean,
+): Promise<void> {
   requireNpmToken();
-  await run(oxlint, ["jsr", "eng"]);
-  await run("deno", ["fmt", "--check"]);
-  const packageDir = join(npmDir, name);
+  await lint([group]);
+  await format([group], true);
+  const packageDir = join(group.npmDir, name);
   const packagePath = join(packageDir, "package.json");
-  if (!(await exists(packagePath))) await buildModule(name);
+  if (!(await exists(packagePath))) await buildModule(group, name);
 
   const pkg = JSON.parse(await Deno.readTextFile(packagePath)) as PackageJson;
   const packageLookup = await capture("pnpm", [
@@ -476,7 +641,7 @@ async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<vo
     );
   }
 
-  await testModules([name], new Set());
+  await testModules(group, [name], new Set());
 
   for await (const entry of Deno.readDir(packageDir)) {
     if (entry.isFile && entry.name.endsWith(".tgz")) {
@@ -520,46 +685,96 @@ async function bootstrapPublishModule(name: string, dryRun: boolean): Promise<vo
   );
 }
 
+function runtimeFlags(args: string[]): Set<string> {
+  const runtimes = new Set(args.filter((arg) => arg.startsWith("--")).map((arg) => arg.slice(2)));
+  const invalid = [...runtimes].filter((runtime) => !["deno", "node", "bun"].includes(runtime));
+  if (invalid.length) throw new Error(`Unknown test runtime flag: --${invalid.join(", --")}`);
+  return runtimes;
+}
+
 const [command, ...args] = Deno.args;
 switch (command) {
+  case "groups":
+    {
+      for (const group of await groups()) {
+        const modules = await importedModules(group);
+        console.log(`${group.name}  ${modules.length} module(s): ${modules.join(", ")}`);
+      }
+    }
+    break;
   case "build":
-    await buildModule(moduleName(args));
+    {
+      const { group, modules } = await groupAndModules(args);
+      const available = await importedModules(group);
+      const targets = modules.length ? modules : available;
+      if (!targets.length) {
+        console.log(`Group ${group.name} has no modules to build.`);
+        break;
+      }
+      const unknown = targets.filter((name) => !available.includes(name));
+      if (unknown.length) {
+        throw new Error(
+          `Unknown module in group ${group.name}: ${unknown.join(", ")}. ` +
+            `Modules: ${available.join(", ")}`,
+        );
+      }
+      for (const name of await buildOrder(targets)) await buildModule(group, name);
+    }
     break;
   case "test":
     {
-      const flags = args.filter((arg) => arg.startsWith("--"));
-      const runtimes = new Set(flags.map((flag) => flag.slice(2)));
-      const invalid = [...runtimes].filter((runtime) => !["deno", "node", "bun"].includes(runtime));
-      if (invalid.length) throw new Error(`Unknown test runtime flag: --${invalid.join(", --")}`);
-      await testModules(
-        args.filter((arg) => !arg.startsWith("-")),
-        runtimes,
-      );
+      const { group, modules } = await groupAndModules(args);
+      await testModules(group, modules, runtimeFlags(args));
+    }
+    break;
+  case "test-all":
+    {
+      const runtimes = runtimeFlags(args);
+      for (const group of await groups()) await testModules(group, [], runtimes);
     }
     break;
   case "lint":
-    await run(oxlint, ["jsr", "eng", "e2e"]);
+    await lint(await selectedGroups(args));
     break;
   case "fmt":
-    await run("deno", ["fmt", ...(args.includes("--check") ? ["--check"] : [])]);
+    await format(await selectedGroups(args), args.includes("--check"));
     break;
   case "audit":
     await audit();
     break;
   case "check":
-    await check();
+    {
+      const { group } = await groupAndModules(args);
+      await check([group]);
+    }
     break;
   case "pack":
-    await run("pnpm", ["pack"], join(npmDir, moduleName(args)));
+    {
+      const { group, modules } = await groupAndModules(args);
+      if (!modules.length) usage();
+      for (const name of modules) await run("pnpm", ["pack"], join(group.npmDir, name));
+    }
     break;
   case "release-prepare":
     await releasePrepare(releaseTag(args));
     break;
   case "publish-bootstrap":
-    await bootstrapPublishModule(moduleName(args), args.includes("--dry-run"));
+    {
+      const { group, modules } = await groupAndModules(args);
+      if (!modules.length) usage();
+      for (const name of modules) {
+        await bootstrapPublishModule(group, name, args.includes("--dry-run"));
+      }
+    }
     break;
   case "publish":
-    await publishModule(moduleName(args), args.includes("--dry-run"));
+    {
+      const { group, modules } = await groupAndModules(args);
+      if (!modules.length) usage();
+      for (const name of modules) {
+        await publishModule(group, name, args.includes("--dry-run"));
+      }
+    }
     break;
   default:
     usage();
