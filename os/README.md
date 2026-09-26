@@ -16,14 +16,14 @@ No packages yet. The migration from
 
 ## Packages being brought in
 
-| Module           | Operating system | What it does                                     |
-| ---------------- | ---------------- | ------------------------------------------------ |
-| `darwin-keychain` | macOS            | Reads and writes Keychain entries                |
-| `linux-libsecret` | Linux            | Reads and writes GNOME Keyring entries           |
-| `win-cred`        | Windows          | Reads and writes Credential Manager entries      |
-| `win-dpapi`       | Windows          | Encrypts and decrypts with DPAPI                 |
-| `win-registry`    | Windows          | Reads and writes the Windows registry            |
-| `is-elevated`     | all              | Reports whether the process has admin rights     |
+| Module            | Operating system | What it does                                 |
+| ----------------- | ---------------- | -------------------------------------------- |
+| `darwin-keychain` | macOS            | Reads and writes Keychain entries            |
+| `linux-libsecret` | Linux            | Reads and writes GNOME Keyring entries       |
+| `win-cred`        | Windows          | Reads and writes Credential Manager entries  |
+| `win-dpapi`       | Windows          | Encrypts and decrypts with DPAPI             |
+| `win-registry`    | Windows          | Reads and writes the Windows registry        |
+| `is-elevated`     | all              | Reports whether the process has admin rights |
 
 Published names do not change. `@neotales/win-cred` on npm is the same package before
 and after the move.

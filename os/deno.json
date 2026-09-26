@@ -1,11 +1,11 @@
 {
   "tasks": {
-    "build": "deno run -A ../../eng/main.ts build os",
-    "test": "deno run -A ../../eng/main.ts test os",
-    "lint": "deno run -A ../../eng/main.ts lint os",
-    "fmt": "deno run -A ../../eng/main.ts fmt os",
-    "fmt:check": "deno run -A ../../eng/main.ts fmt os --check",
-    "check": "deno run -A ../../eng/main.ts check os",
-    "pack": "deno run -A ../../eng/main.ts pack os"
+    "build": "deno run -A ../eng/main.ts build os",
+    "test": "deno run -A ../eng/main.ts test os",
+    "lint": "deno run -A ../eng/main.ts lint os",
+    "fmt": "deno run -A ../eng/main.ts fmt os",
+    "fmt:check": "deno run -A ../eng/main.ts fmt os --check",
+    "check": "deno run -A ../eng/main.ts check os",
+    "pack": "deno run -A ../eng/main.ts pack os"
   }
 }
