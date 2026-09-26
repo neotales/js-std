@@ -361,98 +361,98 @@
           "jsr:@std/path@^1.1.3"
         ]
       },
-      "npm/ansi": {
+      "std/npm/ansi": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/args": {
+      "std/npm/args": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/chars": {
+      "std/npm/chars": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/dotenv": {
+      "std/npm/dotenv": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.14.1"
           ]
         }
       },
-      "npm/env": {
+      "std/npm/env": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/exec": {
+      "std/npm/exec": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/fmt": {
+      "std/npm/fmt": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/fs": {
+      "std/npm/fs": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/path": {
+      "std/npm/path": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/process": {
+      "std/npm/process": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/results": {
+      "std/npm/results": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/secrets": {
+      "std/npm/secrets": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/slices": {
+      "std/npm/slices": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
           ]
         }
       },
-      "npm/strings": {
+      "std/npm/strings": {
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.17.0"
