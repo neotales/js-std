@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Required by the LibraryImport source generator used for stat(2). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Neotales.ClearScript</RootNamespace>
     <AssemblyName>Neotales.ClearScript</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

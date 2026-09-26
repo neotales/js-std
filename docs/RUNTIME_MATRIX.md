@@ -73,8 +73,11 @@ headless Chromium; Firefox and WebKit remain backlog items.
   would be required there.
 - **Filesystem:** the shared `fs` scenario passes on ClearScript, because
   `Neotales.ClearScript` implements the Node filesystem surface over `System.IO` and
-  `jsr/fs/globals.ts` already looks for `process.getBuiltinModule`. That cell is **Partial**,
-  not Yes: a separate `host_globals` scenario exercises the `node:fs`, `node:os`, and
+  `jsr/fs/globals.ts` already looks for `process.getBuiltinModule`. `stat`, `lstat`, and
+  `fstat` are backed by a real `stat(2)` call through .NET's `libSystem.Native`, which ships
+  inside the runtime, so `mode`, `uid`, `gid`, `ino`, `dev`, and the nanosecond timestamps
+  are real and hard-link identity works. That cell is **Partial**, not Yes: a separate
+  `host_globals` scenario exercises the `node:fs`, `node:os`, and
   `node:path` entry points the module resolves, and the layer covers the ones `@neotales/fs`
   calls. It is not a full `node:fs` implementation. Measured against Node 26.10.0, the shim
   exposes 60 of 106 `fs` names, 20 of 34 `fs/promises` names, 14 of 24 `os` names, and 16 of
@@ -83,8 +86,9 @@ headless Chromium; Firefox and WebKit remain backlog items.
   classes, `statfs`, `fchmod`/`fchown`/`futimes`/`lchmod`/`lchown`/`lutimes`, `readv`/`writev`,
   `openAsBlob`, and `mkdtempDisposable`. `node:os` lacks `availableParallelism`, `devNull`,
   `endianness`, `loadavg`, `machine`, `setPriority`/`getPriority`, and `type`/`version`.
-  `node:path` lacks `matchesGlob`. `Stats` reports `dev`, `ino`, `nlink`, `uid`, `gid`, `rdev`,
-  `blksize`, and `blocks` as `-1` because .NET does not expose them; `mode` is real on Unix.
+  `node:path` lacks `matchesGlob`. `Stats` reports `blksize` and `blocks` as `-1`, because the
+  native status record does not carry them; `dev`, `ino`, `uid`, `gid`, `mode`, `rdev`, and the
+  nanosecond timestamps are real on Unix.
   workerd passes basic mkdir/write/read/readdir/stat/remove operations with `nodejs_compat`.
   Browsers have no path-based filesystem API. QuickJS-ng's `std`/`os` modules and txiki.js's
   `tjs` filesystem still only pass separate host probes, so the module cannot use those hosts
@@ -252,6 +256,10 @@ callbacks, and module-loader state that are better hidden behind a small native 
       `S_I*`/`S_IF*` sets, that `readlinkSync` returned a resolved path instead of the stored
       target, that it did not raise `EINVAL` on a hard link, and that `Stat` reported
       placeholder `0` values for fields .NET does not expose.
+- [x] Back `stat`/`lstat`/`fstat` with a real `stat(2)` call through .NET's
+      `libSystem.Native`, so `mode`, `uid`, `gid`, `ino`, `dev`, and the nanosecond timestamps
+      are real and hard-link identity works. The 120-byte struct layout is verified against
+      libc rather than assumed.
 - [x] Remove top-level `await` from `jsr/process/streams.ts` so the full `ansi` entry point
       loads in JerryScript, and keep it working on Node.js, Bun, and Deno.
 - [x] Cover the full `ansi` entry point in JerryScript and ClearScript.
@@ -307,8 +315,13 @@ callbacks, and module-loader state that are better hidden behind a small native 
 
 - [ ] Separate portable path/stat/walk algorithms from runtime I/O.
 - [x] Prove the `node:fs`-shaped provider shape. `Neotales.ClearScript` implements the Node
-      filesystem surface over `System.IO` and the unmodified `jsr/fs` module passes, which
-      gives the shared provider a concrete target signature.
+      filesystem surface over `System.IO` plus `stat(2)`, and the unmodified `jsr/fs` module
+      passes, which gives the shared provider a concrete target signature.
+- [ ] Add `blksize`, `blocks`, and `nlink` to the status record. The `libSystem.Native` struct
+      does not carry them, so they need a direct `stat(2)` binding.
+- [ ] Fix `Neotales.Common`'s `FileStatus` in skyship. It is 112 bytes against a real 120-byte
+      ABI, so `Ino` reads the reserved gap and every inode is 0. Hard-link detection and
+      inode dedup are silently affected.
 - [ ] Implement the shared async provider for txiki.js and QuickJS-ng first.
 - [ ] Add a workerd provider that uses Node compatibility when enabled and a documented
       in-memory/ephemeral implementation when it is not.

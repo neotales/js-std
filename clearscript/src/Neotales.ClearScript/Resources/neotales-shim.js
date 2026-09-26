@@ -447,24 +447,21 @@
     return result;
   }
 
-  // Fields .NET does not expose are reported as -1, the conventional "unknown" value,
-  // rather than as a plausible-looking zero. `mode` is the exception: it comes from
-  // File.GetUnixFileMode and is real on Unix.
+  // `dev`, `ino`, `uid`, `gid`, `mode`, and the timestamps come from stat(2) on Unix, so they
+  // are real values. `blksize` and `blocks` are not exposed by the host and stay -1 rather than
+  // being a plausible-looking zero. Windows keeps every Unix field at -1.
   function statObject(stat) {
-    var isFile = stat.IsFile;
-    var isDirectory = stat.IsDirectory;
-    var isSymlink = stat.IsSymlink;
     return {
-      dev: -1,
-      ino: -1,
+      dev: stat.Dev,
+      ino: stat.Ino,
       mode: stat.Mode,
-      nlink: -1,
-      uid: -1,
-      gid: -1,
-      rdev: -1,
+      nlink: stat.Nlink,
+      uid: stat.Uid,
+      gid: stat.Gid,
+      rdev: stat.Rdev,
       size: stat.Size,
-      blksize: -1,
-      blocks: -1,
+      blksize: stat.Blksize,
+      blocks: stat.Blocks,
       atimeMs: stat.AtimeMs,
       mtimeMs: stat.MtimeMs,
       ctimeMs: stat.CtimeMs,
@@ -474,13 +471,13 @@
       ctime: new Date(stat.CtimeMs),
       birthtime: new Date(stat.BirthtimeMs),
       isFile: function () {
-        return isFile;
+        return stat.IsFile;
       },
       isDirectory: function () {
-        return isDirectory;
+        return stat.IsDirectory;
       },
       isSymbolicLink: function () {
-        return isSymlink;
+        return stat.IsSymlink;
       },
       isBlockDevice: function () {
         return stat.IsBlockDevice;

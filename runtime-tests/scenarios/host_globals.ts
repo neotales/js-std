@@ -16,6 +16,16 @@ export type HostGlobalsScenarioReport = {
   handleRead: string;
   handleWrite: string;
   hardLink: string;
+  /** Assertions that the Unix identity fields are real rather than placeholders. */
+  identity: {
+    devPositive: boolean;
+    hardLinkSharesIno: boolean;
+    inoPositive: boolean;
+    perm: string;
+    uidIsKnown: boolean;
+    uidMatchesDirectory: boolean;
+  };
+  lstat: { followsTarget: boolean; isLink: boolean };
   os: Record<string, string>;
   path: string;
   stat: Record<string, unknown>;
@@ -59,6 +69,15 @@ export function runHostGlobalsScenario(root: string): HostGlobalsScenarioReport 
     handleRead: "",
     handleWrite: "",
     hardLink: "",
+    identity: {
+      devPositive: false,
+      hardLinkSharesIno: false,
+      inoPositive: false,
+      perm: "",
+      uidIsKnown: false,
+      uidMatchesDirectory: false,
+    },
+    lstat: { followsTarget: false, isLink: false },
     os: {},
     path: "",
     stat: {},
@@ -170,6 +189,48 @@ export function runHostGlobalsScenario(root: string): HostGlobalsScenarioReport 
     // The target is stored literally, so a relative link reads back unchanged.
     call(fs, "symlinkSync", "value.txt", soft);
     report.symlink = call<string>(fs, "readlinkSync", soft);
+  });
+
+  check("lstatSync/followsNothing", () => {
+    // lstat must report the link itself; stat must resolve through it.
+    const stat = call<Record<string, unknown>>(fs, "lstatSync", soft);
+    if ((stat.isSymbolicLink as () => boolean)() !== true) {
+      throw new Error("lstat did not report a symbolic link");
+    }
+    const target = call<Record<string, unknown>>(fs, "statSync", soft);
+    if ((target.isSymbolicLink as () => boolean)() !== false) {
+      throw new Error("stat resolved the link but still reported it as one");
+    }
+    report.lstat = { followsTarget: false, isLink: true };
+  });
+
+  check("statSync/realFields", () => {
+    // These come from stat(2) on Unix. An inode of 0 or -1 would mean the host is inventing
+    // values, which is exactly what inode-based identity must not rely on.
+    const stat = call<Record<string, number | boolean>>(fs, "statSync", file);
+    const linkStat = call<Record<string, number | boolean>>(fs, "statSync", hard);
+    const dirStat = call<Record<string, number | boolean>>(fs, "statSync", directory);
+    const uid = stat.uid as number;
+    const perm = ((stat.mode as number) & 0o777).toString(8);
+
+    if ((stat.ino as number) <= 0) {
+      throw new Error(`ino is ${String(stat.ino)}, so inode-based identity is unusable`);
+    }
+    if ((stat.dev as number) <= 0) throw new Error(`dev is ${String(stat.dev)}`);
+    if (uid < 0) throw new Error(`uid is ${uid}, so ownership is unknown`);
+    if ((stat.mtimeMs as number) <= 0) throw new Error("mtimeMs is not a real timestamp");
+    if (stat.ino !== linkStat.ino) throw new Error("a hard link did not share the inode");
+    if (stat.ino === dirStat.ino) throw new Error("distinct entries shared an inode");
+    if (uid !== (dirStat.uid as number)) throw new Error("file and directory owners disagree");
+
+    report.identity = {
+      devPositive: (stat.dev as number) > 0,
+      hardLinkSharesIno: stat.ino === linkStat.ino,
+      inoPositive: (stat.ino as number) > 0,
+      perm,
+      uidIsKnown: uid >= 0,
+      uidMatchesDirectory: uid === (dirStat.uid as number),
+    };
   });
 
   check("realpathSync", () => {

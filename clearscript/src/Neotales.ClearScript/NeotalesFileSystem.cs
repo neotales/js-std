@@ -149,17 +149,60 @@ public sealed class NeotalesFileSystem
         if (!handles.TryGetValue(handle, out var stream)) return Closed("fstat");
         try
         {
+            if (NativeFileStatusReader.IsSupported &&
+                NativeFileStatusReader.TryFStat(stream.SafeFileHandle, out var status) == 0)
+            {
+                // An open handle always refers to the file itself, never to a link.
+                return FsResult.StatEntry(FromNative(status) with
+                {
+                    IsFile = true,
+                    IsSymlink = false,
+                });
+            }
+
             var info = new FileInfo(stream.Name);
             var modified = Milliseconds(info.Exists ? info.LastWriteTimeUtc : DateTime.MinValue);
             var accessed = Milliseconds(info.Exists ? info.LastAccessTimeUtc : DateTime.MinValue);
-            return FsResult.StatEntry(
-                new FsStat(true, false, false, stream.Length, 0, accessed, modified, modified, modified));
+            return FsResult.StatEntry(Unknown(true, false, false, stream.Length, accessed, modified, modified, modified));
         }
         catch (Exception error) when (error is IOException or ObjectDisposedException or ArgumentException)
         {
             return FsResult.Failure("fstat", stream.Name, error, "EIO");
         }
     }
+
+    /// <summary>Builds a status record for hosts that cannot report the Unix fields.</summary>
+    private static FsStat Unknown(
+        bool isFile,
+        bool isDirectory,
+        bool isSymlink,
+        long size,
+        double atimeMs,
+        double mtimeMs,
+        double ctimeMs,
+        double birthtimeMs) =>
+        new(
+            isFile,
+            isDirectory,
+            isSymlink,
+            isBlockDevice: false,
+            isCharacterDevice: false,
+            isFifo: false,
+            isSocket: false,
+            size,
+            mode: 0,
+            dev: -1,
+            ino: -1,
+            uid: -1,
+            gid: -1,
+            nlink: -1,
+            rdev: -1,
+            blksize: -1,
+            blocks: -1,
+            atimeMs,
+            mtimeMs,
+            ctimeMs,
+            birthtimeMs);
 
     private static FsResult Closed(string syscall) =>
         new(false, "EBADF", syscall, null, "Bad file descriptor");
@@ -525,6 +568,16 @@ public sealed class NeotalesFileSystem
     public FsResult Stat(string path, bool followLinks)
     {
         var full = Resolve(path);
+        if (NativeFileStatusReader.IsSupported)
+        {
+            var code = followLinks
+                ? NativeFileStatusReader.TryStat(full, out var status)
+                : NativeFileStatusReader.TryLStat(full, out status);
+            if (code == 0) return FsResult.StatEntry(FromNative(status));
+            if (code == NativeErrno.ENOENT) throw new FileNotFoundException("File not found.", full);
+            if (code == NativeErrno.EACCES) throw new UnauthorizedAccessException(full);
+        }
+
         try
         {
             var linkTarget = Directory.ResolveLinkTarget(full, true);
@@ -540,6 +593,44 @@ public sealed class NeotalesFileSystem
             return FsResult.Failure("stat", full, error, "EIO");
         }
     }
+
+    /// <summary>Converts native status into the reported shape, including the file type.</summary>
+    /// <param name="status">The value returned by <c>stat(2)</c>.</param>
+    private static FsStat FromNative(NativeFileStatus status)
+    {
+        const int ifmt = 0xF000;
+        var type = status.Mode & ifmt;
+        return new FsStat(
+            isFile: type == 0x8000,
+            isDirectory: type == 0x4000,
+            isSymlink: type == 0xA000,
+            isBlockDevice: type == 0x6000,
+            isCharacterDevice: type == 0x2000,
+            isFifo: type == 0x1000,
+            isSocket: type == 0xC000,
+            size: status.Size,
+            mode: status.Mode,
+            dev: status.Dev,
+            ino: status.Ino,
+            uid: (int)status.Uid,
+            gid: (int)status.Gid,
+            // The 120-byte status record has no link count, block size, or block count, so
+            // these stay unknown rather than being a plausible-looking default. Two hard
+            // links are still distinguishable through a shared inode.
+            nlink: -1,
+            rdev: -1,
+            blksize: -1,
+            blocks: -1,
+            atimeMs: Nanoseconds(status.ATime, status.ATimeNsec),
+            mtimeMs: Nanoseconds(status.MTime, status.MTimeNsec),
+            ctimeMs: Nanoseconds(status.CTime, status.CTimeNsec),
+            birthtimeMs: status.BirthTime > 0
+                ? Nanoseconds(status.BirthTime, status.BirthTimeNsec)
+                : Nanoseconds(status.CTime, status.CTimeNsec));
+    }
+
+    private static double Nanoseconds(long seconds, long nanoseconds) =>
+        (seconds * 1000d) + (nanoseconds / 1_000_000d);
 
     /// <summary>Resolves symbolic links in a path.</summary>
     /// <param name="path">The path to resolve.</param>
@@ -649,28 +740,28 @@ public sealed class NeotalesFileSystem
     }
 
     private static FsStat DescribeFile(FileInfo file, bool isSymlink) =>
-        new(
+        Unknown(
             file.Exists,
-            false,
+            isDirectory: false,
             isSymlink,
             file.Exists ? file.Length : 0,
-            ModeOf(file),
             Milliseconds(file.Exists ? file.LastAccessTimeUtc : DateTime.MinValue),
             Milliseconds(file.Exists ? file.LastWriteTimeUtc : DateTime.MinValue),
             Milliseconds(file.Exists ? file.LastWriteTimeUtc : DateTime.MinValue),
-            Milliseconds(file.Exists ? file.CreationTimeUtc : DateTime.MinValue));
+            Milliseconds(file.Exists ? file.CreationTimeUtc : DateTime.MinValue))
+        with { Mode = ModeOf(file) };
 
     private static FsStat DescribeDirectory(DirectoryInfo directory, bool isSymlink) =>
-        new(
-            false,
-            directory.Exists,
+        Unknown(
+            isFile: false,
+            isDirectory: directory.Exists,
             isSymlink,
-            0,
-            ModeOf(directory),
+            size: 0,
             Milliseconds(directory.Exists ? directory.LastAccessTimeUtc : DateTime.MinValue),
             Milliseconds(directory.Exists ? directory.LastWriteTimeUtc : DateTime.MinValue),
             Milliseconds(directory.Exists ? directory.LastWriteTimeUtc : DateTime.MinValue),
-            Milliseconds(directory.Exists ? directory.CreationTimeUtc : DateTime.MinValue));
+            Milliseconds(directory.Exists ? directory.CreationTimeUtc : DateTime.MinValue))
+        with { Mode = ModeOf(directory) };
 
     private static int ModeOf(FileSystemInfo info)
     {

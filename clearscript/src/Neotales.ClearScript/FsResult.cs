@@ -88,23 +88,35 @@ public sealed class FsDirEntry(string name, bool isFile, bool isDirectory, bool 
     public bool IsFile { get; } = isFile;
 
     /// <summary>Gets a value indicating whether the entry is a directory.</summary>
-    public bool IsDirectory { get; } = isDirectory;
+    public bool IsDirectory { get; init; } = isDirectory;
 
     /// <summary>Gets a value indicating whether the entry is a symbolic link.</summary>
-    public bool IsSymlink { get; } = isSymlink;
+    public bool IsSymlink { get; init; } = isSymlink;
 }
 
 /// <summary>
 /// Stat information for a filesystem entry.
 /// </summary>
-public sealed class FsStat
+public sealed record FsStat
 {
     internal FsStat(
         bool isFile,
         bool isDirectory,
         bool isSymlink,
+        bool isBlockDevice,
+        bool isCharacterDevice,
+        bool isFifo,
+        bool isSocket,
         long size,
         int mode,
+        long dev,
+        long ino,
+        int uid,
+        int gid,
+        long nlink,
+        long rdev,
+        long blksize,
+        long blocks,
         double atimeMs,
         double mtimeMs,
         double ctimeMs,
@@ -113,8 +125,20 @@ public sealed class FsStat
         IsFile = isFile;
         IsDirectory = isDirectory;
         IsSymlink = isSymlink;
+        IsBlockDevice = isBlockDevice;
+        IsCharacterDevice = isCharacterDevice;
+        IsFifo = isFifo;
+        IsSocket = isSocket;
         Size = size;
         Mode = mode;
+        Dev = dev;
+        Ino = ino;
+        Uid = uid;
+        Gid = gid;
+        Nlink = nlink;
+        Rdev = rdev;
+        Blksize = blksize;
+        Blocks = blocks;
         AtimeMs = atimeMs;
         MtimeMs = mtimeMs;
         CtimeMs = ctimeMs;
@@ -122,43 +146,76 @@ public sealed class FsStat
     }
 
     /// <summary>Gets a value indicating whether the entry is a regular file.</summary>
-    public bool IsFile { get; }
+    public bool IsFile { get; init; }
 
     /// <summary>Gets a value indicating whether the entry is a directory.</summary>
-    public bool IsDirectory { get; }
+    public bool IsDirectory { get; init; }
 
     /// <summary>Gets a value indicating whether the entry is a symbolic link.</summary>
-    public bool IsSymlink { get; }
+    public bool IsSymlink { get; init; }
 
     /// <summary>Gets the entry size in bytes.</summary>
-    public long Size { get; }
+    public long Size { get; init; }
 
-    /// <summary>Gets the Unix permission bits, or <c>0</c> on Windows.</summary>
-    public int Mode { get; }
+    /// <summary>Gets the Unix mode, including the file type in the high bits, or <c>0</c> on Windows.</summary>
+    public int Mode { get; init; }
+
+    /// <summary>
+    /// Gets the device identifier the entry lives on, or <c>-1</c> when the host cannot report
+    /// it. Real on Unix, where it comes from <c>stat(2)</c>.
+    /// </summary>
+    public long Dev { get; init; }
+
+    /// <summary>
+    /// Gets the inode number, or <c>-1</c> when the host cannot report it. This is what
+    /// distinguishes two hard links to the same file, so it matters for deduplication.
+    /// </summary>
+    public long Ino { get; init; }
+
+    /// <summary>Gets the owning user identifier, or <c>-1</c> when unknown.</summary>
+    public int Uid { get; init; }
+
+    /// <summary>Gets the owning group identifier, or <c>-1</c> when unknown.</summary>
+    public int Gid { get; init; }
+
+    /// <summary>Gets the number of hard links to the entry, or <c>-1</c> when unknown.</summary>
+    public long Nlink { get; init; }
+
+    /// <summary>Gets the device identifier for a special file, or <c>-1</c> for ordinary entries.</summary>
+    public long Rdev { get; init; }
+
+    /// <summary>Gets the preferred I/O block size, or <c>-1</c> when unknown.</summary>
+    public long Blksize { get; init; }
+
+    /// <summary>
+    /// Gets the number of allocated 512-byte blocks. This differs from
+    /// <see cref="Size"/> for sparse and compressed files.
+    /// </summary>
+    public long Blocks { get; init; }
 
     /// <summary>Gets the last access time in milliseconds since the Unix epoch.</summary>
-    public double AtimeMs { get; }
+    public double AtimeMs { get; init; }
 
     /// <summary>Gets the last write time in milliseconds since the Unix epoch.</summary>
-    public double MtimeMs { get; }
+    public double MtimeMs { get; init; }
 
     /// <summary>Gets the metadata change time in milliseconds since the Unix epoch.</summary>
-    public double CtimeMs { get; }
+    public double CtimeMs { get; init; }
 
     /// <summary>Gets the creation time in milliseconds since the Unix epoch.</summary>
-    public double BirthtimeMs { get; }
+    public double BirthtimeMs { get; init; }
 
     /// <summary>Gets a value indicating whether the entry is a block device.</summary>
-    public bool IsBlockDevice => false;
+    public bool IsBlockDevice { get; init; }
 
     /// <summary>Gets a value indicating whether the entry is a character device.</summary>
-    public bool IsCharacterDevice => false;
+    public bool IsCharacterDevice { get; init; }
 
     /// <summary>Gets a value indicating whether the entry is a FIFO.</summary>
-    public bool IsFifo => false;
+    public bool IsFifo { get; init; }
 
     /// <summary>Gets a value indicating whether the entry is a socket.</summary>
-    public bool IsSocket => false;
+    public bool IsSocket { get; init; }
 }
 
 /// <summary>

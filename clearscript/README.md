@@ -63,7 +63,7 @@ promise queue, so `setTimeout` callbacks scheduled by a bundle complete before t
 | `process`                                         | `NeotalesSystem`, `NeotalesEnvironment` | `platform`, `pid`, `argv`, `env`, `cwd`, `getuid`, `getBuiltinModule`, and the rest.                       |
 | `process.env`                                     | `System.Environment`                    | Live process environment, not a snapshot.                                                                  |
 | `process.stdout` / `stderr`                       | `Console.Out` / `Console.Error`         | `write`, `writeSync`, `isTTY`, `columns`, `rows`.                                                          |
-| `node:fs`                                         | `System.IO`                             | A **subset**, not the full module. See the gaps below.                                                     |
+| `node:fs`                                         | `System.IO` and `stat(2)`               | A **subset**, not the full module. `stat` is real on Unix. See the gaps below.                             |
 | `node:os`                                         | `System` and `Environment`              | A **subset**. `platform`, `arch`, `tmpdir`, `homedir`, `hostname`, `userInfo`, `release`, `uptime`, `EOL`. |
 | `node:path`                                       | JavaScript                              | `posix` and `win32` flavors. A **subset**; no `matchesGlob`.                                               |
 | `node:util`                                       | JavaScript                              | `promisify`, `format`, `isDeepStrictEqual`. `inspect` is intentionally absent.                             |
@@ -112,10 +112,13 @@ Not implemented in `node:path`: `matchesGlob`.
 Not implemented in `fs.constants`: the 18 `UV_*` aliases (`UV_FS_*`, `UV_DIRENT_*`), which are
 Windows-specific legacy spellings of constants that are already present under their modern names.
 
-`Stat` reports `dev`, `ino`, `nlink`, `uid`, `gid`, `rdev`, `blksize`, and `blocks` as `-1`
-because .NET does not expose them. `mode` is real on Unix, from `File.GetUnixFileMode`. Fields
-that would otherwise be a plausible-looking `0` are reported as `-1` so a caller cannot mistake
-a placeholder for a real value.
+`Stat` on Unix is backed by a real `stat(2)` call through .NET's own `libSystem.Native`
+shim, which ships inside the runtime, so no extra native dependency is needed. `mode`, `uid`,
+`gid`, `ino`, `dev`, and the nanosecond timestamps are all real values, and `ino` is what makes
+hard-link identity work. The 120-byte struct layout is documented in
+`NativeFileStatus.cs`; it is easy to get wrong, and a wrong layout returns zero inodes without
+failing. `blksize` and `blocks` are not part of that record and stay `-1` rather than being
+guessed. On Windows the Unix fields stay `-1` and only size and timestamps are reported.
 
 Anything missing fails loudly rather than silently, except where a module probes for an
 optional entry point, which is the pattern the Neotales modules use.

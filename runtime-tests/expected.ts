@@ -70,6 +70,15 @@ export const expectedReports = {
     handleRead: "host",
     handleWrite: "HOST",
     hardLink: "EINVAL",
+    identity: {
+      devPositive: true,
+      hardLinkSharesIno: true,
+      inoPositive: true,
+      perm: "644",
+      uidIsKnown: true,
+      uidMatchesDirectory: true,
+    },
+    lstat: { followsTarget: false, isLink: true },
     os: {
       arch: "x64",
       eol: '"\\n"',
