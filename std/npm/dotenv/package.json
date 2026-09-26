@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/neotales/js-std.git",
-    "directory": "npm/dotenv"
+    "directory": "std/npm/dotenv"
   },
   "license": "MIT",
   "bugs": {

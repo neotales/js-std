@@ -18,7 +18,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/neotales/js-std.git",
-    "directory": "npm/args"
+    "directory": "std/npm/args"
   },
   "license": "MIT",
   "bugs": {
