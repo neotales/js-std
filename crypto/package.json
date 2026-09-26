@@ -2,9 +2,6 @@
   "name": "@neotales/crypto-workspace",
   "private": true,
   "description": "Keys, ciphers, and credential store libraries",
-  "workspaces": [
-    "npm/*"
-  ],
   "scripts": {
     "build": "deno task build",
     "test": "deno task test",

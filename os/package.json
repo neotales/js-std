@@ -2,9 +2,6 @@
   "name": "@neotales/os-workspace",
   "private": true,
   "description": "Platform bindings such as keychain, DPAPI, and the Windows registry",
-  "workspaces": [
-    "npm/*"
-  ],
   "scripts": {
     "build": "deno task build",
     "test": "deno task test",

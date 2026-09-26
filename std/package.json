@@ -2,9 +2,6 @@
   "name": "@neotales/std-workspace",
   "private": true,
   "description": "General purpose cross-runtime TypeScript libraries",
-  "workspaces": [
-    "npm/*"
-  ],
   "scripts": {
     "build": "deno task build",
     "test": "deno task test",
