@@ -1,17 +1,27 @@
 {
-  "workspace": ["./eng", "./jsr/*"],
+  "workspace": [
+    "./eng",
+    "./std",
+    "./std/jsr/*",
+    "./crypto",
+    "./crypto/jsr/*",
+    "./os",
+    "./os/jsr/*"
+  ],
   "imports": {
     "@types/node": "npm:@types/node@^22.0.0"
   },
   "tasks": {
+    "groups": "deno run -A ./eng/main.ts groups",
     "build": "deno run -A ./eng/main.ts build",
     "test": "deno run -A ./eng/main.ts test",
-    "test:e2e": "deno test -A ./e2e && deno task test:workers",
-    "test:workers": "node --test ./e2e/*.workerd.mjs",
-    "test:publish-validation:jsr": "deno run -A --no-config --no-lock --reload --minimum-dependency-age=0 ./e2e/publish-validation/jsr.mjs",
-    "test:publish-validation:npm": "deno run -A ./e2e/publish-validation/npm.mjs",
-    "test:publish-validation:jsr-node": "deno run -A ./e2e/publish-validation/jsr_node.mjs",
-    "test:publish-validation": "deno task test:publish-validation:jsr && deno task test:publish-validation:npm && deno task test:publish-validation:jsr-node",
+    "test:all": "deno run -A ./eng/main.ts test-all",
+    "test:e2e": "cd std && deno task test:e2e",
+    "test:workers": "node --test ./std/e2e/*.workerd.mjs",
+    "test:publish-validation:jsr": "cd std && deno task test:publish-validation:jsr",
+    "test:publish-validation:npm": "cd std && deno task test:publish-validation:npm",
+    "test:publish-validation:jsr-node": "cd std && deno task test:publish-validation:jsr-node",
+    "test:publish-validation": "cd std && deno task test:publish-validation",
     "lint": "deno run -A ./eng/main.ts lint",
     "fmt": "deno run -A ./eng/main.ts fmt",
     "fmt:check": "deno run -A ./eng/main.ts fmt --check",
@@ -28,6 +38,6 @@
     "lineWidth": 100,
     "singleQuote": false,
     "proseWrap": "preserve",
-    "exclude": ["npm", "artifacts", "node_modules"]
+    "exclude": ["**/npm", "artifacts", "node_modules"]
   }
 }

@@ -1,14 +1,19 @@
 {
-  "name": "@neotales/js-std-workspace",
+  "name": "@neotales/js-workspace",
   "private": true,
+  "description": "Cross-runtime TypeScript libraries, grouped by area",
   "workspaces": [
-    "npm/*"
+    "std/npm/*",
+    "crypto/npm/*",
+    "os/npm/*"
   ],
   "scripts": {
+    "groups": "deno task groups",
     "build": "deno task build",
     "test": "deno task test",
+    "test:all": "deno task test:all",
     "test:e2e": "deno task test:e2e",
-    "test:workers": "node --test ./e2e/*.workerd.mjs",
+    "test:workers": "deno task test:workers",
     "lint": "deno task lint",
     "fmt": "deno task fmt",
     "fmt:check": "deno task fmt:check",

@@ -1,0 +1,21 @@
+{
+  "name": "@neotales/crypto-workspace",
+  "private": true,
+  "description": "Keys, ciphers, and credential store libraries",
+  "workspaces": [
+    "npm/*"
+  ],
+  "scripts": {
+    "build": "deno task build",
+    "test": "deno task test",
+    "lint": "deno task lint",
+    "fmt": "deno task fmt",
+    "fmt:check": "deno task fmt:check",
+    "check": "deno task check",
+    "pack": "deno task pack"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=11"
+  }
+}

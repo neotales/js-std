@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "build": "deno run -A ../../eng/main.ts build crypto",
+    "test": "deno run -A ../../eng/main.ts test crypto",
+    "lint": "deno run -A ../../eng/main.ts lint crypto",
+    "fmt": "deno run -A ../../eng/main.ts fmt crypto",
+    "fmt:check": "deno run -A ../../eng/main.ts fmt crypto --check",
+    "check": "deno run -A ../../eng/main.ts check crypto",
+    "pack": "deno run -A ../../eng/main.ts pack crypto"
+  }
+}

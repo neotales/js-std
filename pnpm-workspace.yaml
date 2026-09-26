@@ -1,5 +1,7 @@
 packages:
-  - "npm/*"
+  - "std/npm/*"
+  - "crypto/npm/*"
+  - "os/npm/*"
 allowBuilds:
   esbuild: true
   workerd: true

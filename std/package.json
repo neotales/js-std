@@ -1,0 +1,23 @@
+{
+  "name": "@neotales/std-workspace",
+  "private": true,
+  "description": "General purpose cross-runtime TypeScript libraries",
+  "workspaces": [
+    "npm/*"
+  ],
+  "scripts": {
+    "build": "deno task build",
+    "test": "deno task test",
+    "test:e2e": "deno task test:e2e",
+    "test:workers": "deno task test:workers",
+    "lint": "deno task lint",
+    "fmt": "deno task fmt",
+    "fmt:check": "deno task fmt:check",
+    "check": "deno task check",
+    "pack": "deno task pack"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=11"
+  }
+}
