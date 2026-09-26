@@ -44,10 +44,11 @@ across Deno, Node, and Bun, and published to JSR and npm.
 | -------- | ------- | --------------------------------- |
 | `ci-env` | Pending | CI provider environment detection |
 
-`is-process-elevated` was renamed upstream to `is-elevated` and moved to the
-[js-os](https://github.com/frostyeti/js-os) repository because privilege
-elevation requires extra CI/CD tooling that does not fit this workspace. It is
-no longer planned for import here.
+`is-process-elevated` was renamed upstream to `is-elevated` and moved out of this
+repository because privilege elevation needs extra CI/CD tooling that did not fit a
+single-package workspace. It is now part of the [`os`](../os) group, tracked in
+[issue #5](https://github.com/neotales/js-std/issues/5). The
+[js-os](https://github.com/neotales/js-os) repository it came from is being retired.
 
 ## Planned Modules
 
@@ -201,8 +202,8 @@ Split into small packages by target so unused pieces tree-shake:
 - `@neotales/otel-web` - middleware/integration helpers for web servers:
   request tracing spans, standard HTTP attributes, graceful shutdown flush.
 - `@neotales/otel-workers` - Cloudflare Workers-compatible build using fetch-
-  based exporters only, no Node APIs, validated through the `e2e/` workerd
-  harness like other modules.
+  based exporters only, no Node APIs, validated through the workerd
+  harness in `std/e2e/` like other modules.
 
 All three consume the shared `log` sink and `metrics` reader interfaces, so
 traces, logs, and metrics flow through one configuration surface and can be
